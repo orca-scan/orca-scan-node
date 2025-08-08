@@ -1,0 +1,18 @@
+{
+  "spec_dir": "tests",
+  "spec_files": [
+    "**/*[sS]pec.?(m)js",
+    "!integration/stripe/**/*[sS]pec.?(m)js"
+  ],
+  "helpers": [
+    "jasmine/reporter.js",
+    "jasmine/timeout.js"
+  ],
+  "env": {
+    "stopSpecOnExpectationFailure": false,
+    "random": false,
+    "failFast": true,
+    "stopOnSpecFailure": true,
+    "hideDisabled": true
+  }
+}
