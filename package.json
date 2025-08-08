@@ -1,0 +1,32 @@
+{
+  "name": "orca-scan-node",
+  "version": "1.0.0",
+  "description": "The official node client library for the Orca Scan API",
+  "main": "index.js",
+  "directories": {
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "NODE_ENV=test node_modules/.bin/jasmine --config=tests/jasmine/config.json"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/orca-scan/orca-scan-node.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/orca-scan/orca-scan-node/issues"
+  },
+  "homepage": "https://github.com/orca-scan/orca-scan-node#readme",
+  "dependencies": {
+    "node-fetch": "^2.6.7"
+  },
+  "devDependencies": {
+    "jasmine": "^4.6.0",
+    "jasmine-console-reporter": "^3.1.0",
+    "jasmine-xml-reporter": "^1.2.1",
+    "proxyquire": "^2.1.3"
+  }
+}

@@ -1,0 +1,806 @@
+/* eslint-disable prefer-rest-params */
+var fetch = require('node-fetch');
+
+/**
+ * Orca Scan node client
+ * Simple ES5 SDK that mirrors the rest api structure using namespaces
+ * @param {string} apiKey - your orca scan api key
+ * @param {object} [options] - optional configuration
+ * @param {string} [options.baseUrl] - override api base url defaults to https://api.orcascan.com/v1
+ * @param {number} [options.timeoutMs] - request timeout in milliseconds defaults to 30000
+ * @param {number} [options.maxRetries] - retries on 429 503 and 5xx defaults to 3
+ * @returns {object} instance with sheets rows history users and hooks namespaces
+ */
+function OrcaScanNode(apiKey, options) {
+    
+    if (!apiKey || typeof apiKey !== 'string') {
+        throw new Error('apiKey is required and must be a string');
+    }
+
+    options = options || {};
+
+    var baseUrl = options.baseUrl || 'https://api.orcascan.com/v1';
+    var timeoutMs = typeof options.timeoutMs === 'number' ? options.timeoutMs : 30000;
+    var maxRetries = typeof options.maxRetries === 'number' ? options.maxRetries : 3;
+
+    var defaultHeaders = {
+        'Authorization': 'Bearer ' + apiKey,
+        'Accept': 'application/json'
+    };
+
+    /**
+     * build a url with optional query
+     * @param {string} path - path beginning with slash
+     * @param {object} [qs] - query key value pairs
+     * @returns {string} full request url
+     */
+    function buildUrl(path, qs) {
+        var url = baseUrl + path;
+
+        if (qs && typeof qs === 'object') {
+            var first = true;
+            for (var k in qs) {
+                if (Object.prototype.hasOwnProperty.call(qs, k)) {
+                    var v = qs[k];
+                    if (typeof v !== 'undefined' && v !== null) {
+                        url += first ? '?' : '&';
+                        url += encodeURIComponent(k) + '=' + encodeURIComponent(String(v));
+                        first = false;
+                    }
+                }
+            }
+        }
+
+        return url;
+    }
+
+    /**
+     * parse response text into json if possible
+     * @param {object} res - fetch response
+     * @returns {Promise<object|null>} parsed json or null
+     */
+    function parseJson(res) {
+        return res.text().then(function (text) {
+            if (!text) {
+                return null;
+            }
+            try {
+                return JSON.parse(text);
+            } catch (e) {
+                return { raw: text };
+            }
+        });
+    }
+
+    /**
+     * internal request with timeout and basic retry
+     * kept private so users only call namespaced sdk methods
+     * @param {string} method - http method
+     * @param {string} path - request path
+     * @param {object} [qs] - query params
+     * @param {object|array} [body] - json body
+     * @returns {Promise<object>} wrapper with status headers and data
+     * @returns
+     *   {number} status - http status code
+     *   {object} headers - response headers object
+     *   {object|array|null} data - parsed response body or null
+     */
+    function request(method, path, qs, body) {
+        var attempt = 0;
+
+        function once() {
+            var url = buildUrl(path, qs);
+
+            var opts = {
+                method: method,
+                headers: defaultHeaders
+            };
+
+            if (typeof body !== 'undefined') {
+                opts.headers['Content-Type'] = 'application/json';
+                opts.body = JSON.stringify(body);
+            }
+
+            var timedOut = false;
+
+            return Promise.race([
+                fetch(url, opts),
+                new Promise(function (_, reject) {
+                    setTimeout(function () {
+                        timedOut = true;
+                        reject(new Error('request timeout'));
+                    }, timeoutMs);
+                })
+            ])
+            .then(function (res) {
+                if (timedOut) {
+                    throw new Error('request timeout');
+                }
+
+                if (res.status === 204) {
+                    return { status: res.status, headers: res.headers, data: null };
+                }
+
+                return parseJson(res).then(function (json) {
+                    if (res.ok) {
+                        return {
+                            status: res.status,
+                            headers: res.headers,
+                            data: json && json.data !== undefined ? json.data : json
+                        };
+                    }
+
+                    // retry on rate limit or burst limit
+                    if ((res.status === 429 || res.status === 503) && attempt < maxRetries) {
+                        attempt += 1;
+
+                        var retryAfterMs = 0;
+                        var ra = res.headers && res.headers.get ? res.headers.get('retry-after') : null;
+
+                        if (ra) {
+                            var n = parseInt(ra, 10);
+                            if (!isNaN(n)) {
+                                retryAfterMs = n * 1000;
+                            } else {
+                                var d = Date.parse(ra);
+                                if (!isNaN(d)) {
+                                    retryAfterMs = Math.max(0, d - Date.now());
+                                }
+                            }
+                        }
+
+                        if (!retryAfterMs) {
+                            retryAfterMs = attempt * 500;
+                        }
+
+                        return new Promise(function (resolve) {
+                            setTimeout(function () { resolve(once()); }, retryAfterMs);
+                        });
+                    }
+
+                    // retry on other 5xx
+                    if (res.status >= 500 && attempt < maxRetries) {
+                        attempt += 1;
+                        return new Promise(function (resolve) {
+                            setTimeout(function () { resolve(once()); }, attempt * 300);
+                        });
+                    }
+
+                    var err = new Error('http ' + res.status);
+                    err.status = res.status;
+                    err.body = json;
+                    throw err;
+                });
+            });
+        }
+
+        return once();
+    }
+
+    /* ---------------- public namespaces only ---------------- */
+
+    var self = this;
+
+    /**
+     * sheets namespace
+     * @returns {object} sheet methods
+     */
+    self.sheets = {
+
+        /**
+         * get a list of sheets
+         * @returns {Promise<object>} promise resolving to result
+         * @returns
+         *   {number} status - http status code
+         *   {object} headers - response headers
+         *   {array} data - list of sheets
+         *   {string} data[].__id - sheet id
+         *   {string} data[].name - sheet name
+         *   {boolean} data[].isOwner - user is owner
+         *   {boolean} data[].canAdmin - can admin
+         *   {boolean} data[].canUpdate - can update
+         *   {boolean} data[].canDelete - can delete
+         *   {boolean} data[].canExport - can export
+         */
+        list: function () {
+            return request('GET', '/sheets');
+        },
+
+        /**
+         * create a sheet
+         * @param {object} payload - sheet input
+         * @param {string} payload.name - sheet name
+         * @param {string} [payload.templateName] - optional template name
+         * @returns {Promise<object>} promise resolving to result
+         * @returns
+         *   {number} status - http status code
+         *   {object} headers - response headers
+         *   {object} data - created sheet
+         *   {string} data._id - sheet id
+         *   {string} data.name - sheet name
+         *   {number} data.rows - number of rows
+         */
+        create: function (payload) {
+            if (!payload || typeof payload !== 'object') {
+                throw new Error('payload is required and must be an object');
+            }
+            if (!payload.name || typeof payload.name !== 'string') {
+                throw new Error('payload.name is required and must be a string');
+            }
+            return request('POST', '/sheets', null, payload);
+        },
+
+        /**
+         * get a list of fields in a sheet
+         * @param {string} sheetId - target sheet id
+         * @returns {Promise<object>} promise resolving to result
+         * @returns
+         *   {number} status - http status code
+         *   {object} headers - response headers
+         *   {array} data - list of fields
+         *   {string} data[].key - field key
+         *   {string} data[].label - field label
+         *   {string} data[].type - field type
+         *   {boolean} data[].required - is required
+         */
+        fields: function (sheetId) {
+            if (!sheetId || typeof sheetId !== 'string') {
+                throw new Error('sheetId is required and must be a string');
+            }
+            return request('GET', '/sheets/' + encodeURIComponent(sheetId) + '/fields');
+        },
+
+        /**
+         * get sheet settings
+         * @param {string} sheetId - target sheet id
+         * @returns {Promise<object>} promise resolving to result
+         * @returns
+         *   {number} status - http status code
+         *   {object} headers - response headers
+         *   {object} data - sheet settings
+         *   {boolean} data.allowPublicExport - allow public export
+         *   {string} data.publicExportUrl - public export url
+         *   {boolean} data.allowPublicEntry - allow public entry
+         *   {string} data.publicEntryUrl - public entry url
+         *   {boolean} data.allowWebHookIn - allow webhook in
+         *   {string} data.webHookInUrl - webhook in url
+         *   {string} data.lookupUrl - lookup url
+         *   {string} data.validationUrl - validation url
+         *   {string} data.webHookOutUrl - webhook out url
+         *   {string} data.secret - secret
+         */
+        settings: function (sheetId) {
+            if (!sheetId || typeof sheetId !== 'string') {
+                throw new Error('sheetId is required and must be a string');
+            }
+            return request('GET', '/sheets/' + encodeURIComponent(sheetId) + '/settings');
+        },
+
+        /**
+         * clear all rows in a sheet
+         * @param {string} sheetId - target sheet id
+         * @returns {Promise<object>} promise resolving to result
+         * @returns
+         *   {number} status - http status code
+         *   {object} headers - response headers
+         *   {object|null} data - api response or null
+         */
+        clear: function (sheetId) {
+            if (!sheetId || typeof sheetId !== 'string') {
+                throw new Error('sheetId is required and must be a string');
+            }
+            return request('PUT', '/sheets/' + encodeURIComponent(sheetId) + '/clear');
+        },
+
+        /**
+         * rename a sheet
+         * @param {string} sheetId - target sheet id
+         * @param {object} payload - rename input
+         * @param {string} payload.name - new sheet name
+         * @param {string} [payload.description] - optional description
+         * @returns {Promise<object>} promise resolving to result
+         * @returns
+         *   {number} status - http status code
+         *   {object} headers - response headers
+         *   {object|null} data - api response or null
+         */
+        rename: function (sheetId, payload) {
+            if (!sheetId || typeof sheetId !== 'string') {
+                throw new Error('sheetId is required and must be a string');
+            }
+            if (!payload || typeof payload !== 'object') {
+                throw new Error('payload is required and must be an object');
+            }
+            if (!payload.name || typeof payload.name !== 'string') {
+                throw new Error('payload.name is required and must be a string');
+            }
+            return request('PUT', '/sheets/' + encodeURIComponent(sheetId) + '/rename', null, payload);
+        },
+
+        /**
+         * delete a sheet
+         * @param {string} sheetId - target sheet id
+         * @returns {Promise<object>} promise resolving to result
+         * @returns
+         *   {number} status - http status code
+         *   {object} headers - response headers
+         *   {object|null} data - api response or null
+         */
+        delete: function (sheetId) {
+            if (!sheetId || typeof sheetId !== 'string') {
+                throw new Error('sheetId is required and must be a string');
+            }
+            return request('DELETE', '/sheets/' + encodeURIComponent(sheetId));
+        }
+    };
+
+    /**
+     * rows namespace
+     * @returns {object} row methods
+     */
+    self.rows = {
+
+        /**
+         * get all rows in a sheet
+         * @param {string} sheetId - target sheet id
+         * @param {object} [query] - optional query params such as limit and skip
+         * @returns {Promise<object>} promise resolving to result
+         * @returns
+         *   {number} status - http status code
+         *   {object} headers - response headers
+         *   {array} data - list of row objects with arbitrary properties
+         */
+        list: function (sheetId, query) {
+            if (!sheetId || typeof sheetId !== 'string') {
+                throw new Error('sheetId is required and must be a string');
+            }
+            return request('GET', '/sheets/' + encodeURIComponent(sheetId) + '/rows', query);
+        },
+
+        /**
+         * get a single row
+         * @param {string} sheetId - target sheet id
+         * @param {string} rowId - row id
+         * @returns {Promise<object>} promise resolving to result
+         * @returns
+         *   {number} status - http status code
+         *   {object} headers - response headers
+         *   {object} data - row object with arbitrary properties
+         */
+        get: function (sheetId, rowId) {
+            if (!sheetId || typeof sheetId !== 'string') {
+                throw new Error('sheetId is required and must be a string');
+            }
+            if (!rowId || typeof rowId !== 'string') {
+                throw new Error('rowId is required and must be a string');
+            }
+            return request('GET', '/sheets/' + encodeURIComponent(sheetId) + '/rows/' + encodeURIComponent(rowId));
+        },
+
+        /**
+         * add one row or many rows
+         * @param {string} sheetId - target sheet id
+         * @param {object|array} data - row object or array of row objects supports special fields such as photo or attachment as base64
+         * @returns {Promise<object>} promise resolving to result
+         * @returns
+         *   {number} status - http status code
+         *   {object} headers - response headers
+         *   {object|array} data - created row or list of created rows with server assigned fields
+         */
+        add: function (sheetId, data) {
+            if (!sheetId || typeof sheetId !== 'string') {
+                throw new Error('sheetId is required and must be a string');
+            }
+            if (typeof data !== 'object' || data === null) {
+                throw new Error('data is required and must be an object or array');
+            }
+            return request('POST', '/sheets/' + encodeURIComponent(sheetId) + '/rows', null, data);
+        },
+
+        /**
+         * update a single row
+         * @param {string} sheetId - target sheet id
+         * @param {string} rowId - row id
+         * @param {object} data - fields to update
+         * @returns {Promise<object>} promise resolving to result
+         * @returns
+         *   {number} status - http status code
+         *   {object} headers - response headers
+         *   {object} data - updated row with arbitrary properties
+         */
+        updateOne: function (sheetId, rowId, data) {
+            if (!sheetId || typeof sheetId !== 'string') {
+                throw new Error('sheetId is required and must be a string');
+            }
+            if (!rowId || typeof rowId !== 'string') {
+                throw new Error('rowId is required and must be a string');
+            }
+            if (!data || typeof data !== 'object') {
+                throw new Error('data is required and must be an object');
+            }
+            return request('PUT', '/sheets/' + encodeURIComponent(sheetId) + '/rows/' + encodeURIComponent(rowId), null, data);
+        },
+
+        /**
+         * update many rows
+         * @param {string} sheetId - target sheet id
+         * @param {array} rows - array of row objects
+         * @returns {Promise<object>} promise resolving to result
+         * @returns
+         *   {number} status - http status code
+         *   {object} headers - response headers
+         *   {array} data - updated rows
+         */
+        updateMany: function (sheetId, rows) {
+            if (!sheetId || typeof sheetId !== 'string') {
+                throw new Error('sheetId is required and must be a string');
+            }
+            if (!rows || Object.prototype.toString.call(rows) !== '[object Array]') {
+                throw new Error('rows is required and must be an array of objects');
+            }
+            return request('PUT', '/sheets/' + encodeURIComponent(sheetId) + '/rows', null, rows);
+        },
+
+        /**
+         * delete a single row
+         * @param {string} sheetId - target sheet id
+         * @param {string} rowId - row id
+         * @returns {Promise<object>} promise resolving to result
+         * @returns
+         *   {number} status - http status code
+         *   {object} headers - response headers
+         *   {object|null} data - api response or null
+         */
+        deleteOne: function (sheetId, rowId) {
+            if (!sheetId || typeof sheetId !== 'string') {
+                throw new Error('sheetId is required and must be a string');
+            }
+            if (!rowId || typeof rowId !== 'string') {
+                throw new Error('rowId is required and must be a string');
+            }
+            return request('DELETE', '/sheets/' + encodeURIComponent(sheetId) + '/rows/' + encodeURIComponent(rowId));
+        },
+
+        /**
+         * delete many rows
+         * @param {string} sheetId - target sheet id
+         * @param {array} rowIds - array of row id strings
+         * @returns {Promise<object>} promise resolving to result
+         * @returns
+         *   {number} status - http status code
+         *   {object} headers - response headers
+         *   {object|null} data - api response or null
+         */
+        deleteMany: function (sheetId, rowIds) {
+            if (!sheetId || typeof sheetId !== 'string') {
+                throw new Error('sheetId is required and must be a string');
+            }
+            if (!rowIds || Object.prototype.toString.call(rowIds) !== '[object Array]') {
+                throw new Error('rowIds is required and must be an array of strings');
+            }
+            return request('DELETE', '/sheets/' + encodeURIComponent(sheetId) + '/rows', null, rowIds);
+        }
+    };
+
+    /**
+     * history namespace
+     * @returns {object} history methods
+     */
+    self.history = {
+
+        /**
+         * get sheet history
+         * @param {string} sheetId - target sheet id
+         * @returns {Promise<object>} promise resolving to result
+         * @returns
+         *   {number} status - http status code
+         *   {object} headers - response headers
+         *   {array} data - list of history items
+         *   {string} data[].._id - history id
+         *   {string} data[]..barcode - barcode value
+         *   {string} data[]..name - name value
+         *   {number} data[]..quantity - quantity value
+         *   {string} data[].._change - add update or delete
+         *   {string} data[].._changedBy - who changed
+         *   {string} data[].._changedOn - iso date string
+         *   {string} data[].._changedUsing - client info
+         */
+        sheet: function (sheetId) {
+            if (!sheetId || typeof sheetId !== 'string') {
+                throw new Error('sheetId is required and must be a string');
+            }
+            return request('GET', '/sheets/' + encodeURIComponent(sheetId) + '/history');
+        },
+
+        /**
+         * get row history
+         * @param {string} sheetId - target sheet id
+         * @param {string} rowId - row id
+         * @returns {Promise<object>} promise resolving to result
+         * @returns
+         *   {number} status - http status code
+         *   {object} headers - response headers
+         *   {array} data - list of history items
+         *   {string} data[].._id - history id
+         *   {string} data[]..barcode - barcode value
+         *   {string} data[]..name - name value
+         *   {number} data[]..quantity - quantity value
+         *   {string} data[].._change - add update or delete
+         *   {string} data[].._changedBy - who changed
+         *   {string} data[].._changedOn - iso date string
+         *   {string} data[].._changedUsing - client info
+         */
+        row: function (sheetId, rowId) {
+            if (!sheetId || typeof sheetId !== 'string') {
+                throw new Error('sheetId is required and must be a string');
+            }
+            if (!rowId || typeof rowId !== 'string') {
+                throw new Error('rowId is required and must be a string');
+            }
+            return request('GET', '/sheets/' + encodeURIComponent(sheetId) + '/rows/' + encodeURIComponent(rowId) + '/history');
+        }
+    };
+
+    /**
+     * users namespace
+     * @returns {object} user methods
+     */
+    self.users = {
+
+        /**
+         * get users on a sheet
+         * @param {string} sheetId - target sheet id
+         * @returns {Promise<object>} promise resolving to result
+         * @returns
+         *   {number} status - http status code
+         *   {object} headers - response headers
+         *   {array} data - list of users
+         *   {string} data[].._id - user id
+         *   {string} data[]..email - user email
+         *   {boolean} data[]..owner - owner flag
+         *   {boolean} data[]..canUpdate - can update
+         *   {boolean} data[]..canDelete - can delete
+         *   {boolean} data[]..canExport - can export
+         *   {boolean} data[]..canAdmin - can admin
+         */
+        list: function (sheetId) {
+            if (!sheetId || typeof sheetId !== 'string') {
+                throw new Error('sheetId is required and must be a string');
+            }
+            return request('GET', '/sheets/' + encodeURIComponent(sheetId) + '/users');
+        },
+
+        /**
+         * add a user to a sheet
+         * @param {string} sheetId - target sheet id
+         * @param {object} payload - user input
+         * @param {string} payload.email - user email
+         * @param {boolean} [payload.canUpdate] - can update
+         * @param {boolean} [payload.canDelete] - can delete
+         * @param {boolean} [payload.canExport] - can export
+         * @param {boolean} [payload.canAdmin] - can admin
+         * @returns {Promise<object>} promise resolving to result
+         * @returns
+         *   {number} status - http status code
+         *   {object} headers - response headers
+         *   {object} data - created user
+         *   {string} data._id - user id
+         *   {string} data.email - user email
+         *   {boolean} data.canUpdate - can update
+         *   {boolean} data.canDelete - can delete
+         *   {boolean} data.canExport - can export
+         *   {boolean} data.canAdmin - can admin
+         */
+        add: function (sheetId, payload) {
+            if (!sheetId || typeof sheetId !== 'string') {
+                throw new Error('sheetId is required and must be a string');
+            }
+            if (!payload || typeof payload !== 'object') {
+                throw new Error('payload is required and must be an object');
+            }
+            if (!payload.email || typeof payload.email !== 'string') {
+                throw new Error('payload.email is required and must be a string');
+            }
+            return request('POST', '/sheets/' + encodeURIComponent(sheetId) + '/users', null, payload);
+        },
+
+        /**
+         * update a user in a sheet
+         * @param {string} sheetId - target sheet id
+         * @param {string} userId - user id
+         * @param {object} payload - user update input
+         * @returns {Promise<object>} promise resolving to result
+         * @returns
+         *   {number} status - http status code
+         *   {object} headers - response headers
+         *   {object} data - updated user
+         *   {string} data._id - user id
+         *   {string} data.email - user email
+         *   {boolean} data.canUpdate - can update
+         *   {boolean} data.canDelete - can delete
+         *   {boolean} data.canExport - can export
+         *   {boolean} data.canAdmin - can admin
+         */
+        update: function (sheetId, userId, payload) {
+            if (!sheetId || typeof sheetId !== 'string') {
+                throw new Error('sheetId is required and must be a string');
+            }
+            if (!userId || typeof userId !== 'string') {
+                throw new Error('userId is required and must be a string');
+            }
+            if (!payload || typeof payload !== 'object') {
+                throw new Error('payload is required and must be an object');
+            }
+            return request('PUT', '/sheets/' + encodeURIComponent(sheetId) + '/users/' + encodeURIComponent(userId), null, payload);
+        },
+
+        /**
+         * remove a user from a sheet
+         * @param {string} sheetId - target sheet id
+         * @param {string} userId - user id
+         * @returns {Promise<object>} promise resolving to result
+         * @returns
+         *   {number} status - http status code
+         *   {object} headers - response headers
+         *   {object|null} data - api response or null
+         */
+        remove: function (sheetId, userId) {
+            if (!sheetId || typeof sheetId !== 'string') {
+                throw new Error('sheetId is required and must be a string');
+            }
+            if (!userId || typeof userId !== 'string') {
+                throw new Error('userId is required and must be a string');
+            }
+            return request('DELETE', '/sheets/' + encodeURIComponent(sheetId) + '/users/' + encodeURIComponent(userId));
+        }
+    };
+
+    /**
+     * hooks namespace
+     * @returns {object} hook methods
+     */
+    self.hooks = {
+
+        /**
+         * get supported hook events
+         * @param {string} sheetId - target sheet id
+         * @returns {Promise<object>} promise resolving to result
+         * @returns
+         *   {number} status - http status code
+         *   {object} headers - response headers
+         *   {array} data - list of event names
+         */
+        events: function (sheetId) {
+            if (!sheetId || typeof sheetId !== 'string') {
+                throw new Error('sheetId is required and must be a string');
+            }
+            return request('GET', '/sheets/' + encodeURIComponent(sheetId) + '/hook-events');
+        },
+
+        /**
+         * get all hooks on a sheet
+         * @param {string} sheetId - target sheet id
+         * @returns {Promise<object>} promise resolving to result
+         * @returns
+         *   {number} status - http status code
+         *   {object} headers - response headers
+         *   {array} data - list of hooks
+         *   {string} data[].._id - hook id
+         *   {string} data[]..eventName - event name
+         *   {string} data[]..sheetId - sheet id
+         *   {string} data[]..targetUrl - target url
+         */
+        list: function (sheetId) {
+            if (!sheetId || typeof sheetId !== 'string') {
+                throw new Error('sheetId is required and must be a string');
+            }
+            return request('GET', '/sheets/' + encodeURIComponent(sheetId) + '/hooks');
+        },
+
+        /**
+         * get a single hook
+         * @param {string} sheetId - target sheet id
+         * @param {string} hookId - hook id
+         * @returns {Promise<object>} promise resolving to result
+         * @returns
+         *   {number} status - http status code
+         *   {object} headers - response headers
+         *   {object} data - hook object
+         *   {string} data._id - hook id
+         *   {string} data.eventName - event name
+         *   {string} data.sheetId - sheet id
+         *   {string} data.targetUrl - target url
+         */
+        get: function (sheetId, hookId) {
+            if (!sheetId || typeof sheetId !== 'string') {
+                throw new Error('sheetId is required and must be a string');
+            }
+            if (!hookId || typeof hookId !== 'string') {
+                throw new Error('hookId is required and must be a string');
+            }
+            return request('GET', '/sheets/' + encodeURIComponent(sheetId) + '/hooks/' + encodeURIComponent(hookId));
+        },
+
+        /**
+         * create a hook
+         * @param {string} sheetId - target sheet id
+         * @param {object} payload - hook input
+         * @param {string} payload.eventName - event name
+         * @param {string} payload.targetUrl - target url
+         * @returns {Promise<object>} promise resolving to result
+         * @returns
+         *   {number} status - http status code
+         *   {object} headers - response headers
+         *   {object} data - created hook
+         *   {string} data._id - hook id
+         *   {string} data.eventName - event name
+         *   {string} data.sheetId - sheet id
+         *   {string} data.targetUrl - target url
+         */
+        create: function (sheetId, payload) {
+            if (!sheetId || typeof sheetId !== 'string') {
+                throw new Error('sheetId is required and must be a string');
+            }
+            if (!payload || typeof payload !== 'object') {
+                throw new Error('payload is required and must be an object');
+            }
+            if (!payload.eventName || typeof payload.eventName !== 'string') {
+                throw new Error('payload.eventName is required and must be a string');
+            }
+            if (!payload.targetUrl || typeof payload.targetUrl !== 'string') {
+                throw new Error('payload.targetUrl is required and must be a string');
+            }
+            return request('POST', '/sheets/' + encodeURIComponent(sheetId) + '/hooks', null, payload);
+        },
+
+        /**
+         * update a hook
+         * @param {string} sheetId - target sheet id
+         * @param {string} hookId - hook id
+         * @param {object} payload - hook update input
+         * @returns {Promise<object>} promise resolving to result
+         * @returns
+         *   {number} status - http status code
+         *   {object} headers - response headers
+         *   {object} data - updated hook
+         *   {string} data._id - hook id
+         *   {string} data.eventName - event name
+         *   {string} data.sheetId - sheet id
+         *   {string} data.targetUrl - target url
+         */
+        update: function (sheetId, hookId, payload) {
+            if (!sheetId || typeof sheetId !== 'string') {
+                throw new Error('sheetId is required and must be a string');
+            }
+            if (!hookId || typeof hookId !== 'string') {
+                throw new Error('hookId is required and must be a string');
+            }
+            if (!payload || typeof payload !== 'object') {
+                throw new Error('payload is required and must be an object');
+            }
+            return request('PUT', '/sheets/' + encodeURIComponent(sheetId) + '/hooks/' + encodeURIComponent(hookId), null, payload);
+        },
+
+        /**
+         * delete a hook
+         * @param {string} sheetId - target sheet id
+         * @param {string} hookId - hook id
+         * @returns {Promise<object>} promise resolving to result
+         * @returns
+         *   {number} status - http status code
+         *   {object} headers - response headers
+         *   {object|null} data - api response or null
+         */
+        delete: function (sheetId, hookId) {
+            if (!sheetId || typeof sheetId !== 'string') {
+                throw new Error('sheetId is required and must be a string');
+            }
+            if (!hookId || typeof hookId !== 'string') {
+                throw new Error('hookId is required and must be a string');
+            }
+            return request('DELETE', '/sheets/' + encodeURIComponent(sheetId) + '/hooks/' + encodeURIComponent(hookId));
+        }
+    };
+}
+
+module.exports = OrcaScanNode;
