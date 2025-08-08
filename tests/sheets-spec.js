@@ -1,0 +1,303 @@
+/* eslint-disable prefer-rest-params */
+var proxyquire = require('proxyquire');
+
+describe('Sheets', function() {
+    var client;
+    var mockFetch;
+    var OrcaScanNode;
+
+    beforeAll(function() {
+        // Create a base mock that can be customized per test
+        mockFetch = jasmine.createSpy('fetch').and.returnValue(
+            Promise.resolve({
+                ok: true,
+                status: 200,
+                headers: {
+                    get: function() { return null; }
+                },
+                text: function() { return Promise.resolve('{"data": {"test": "value"}}'); }
+            })
+        );
+        
+        // Load the module once for all tests
+        OrcaScanNode = proxyquire('../index.js', {
+            'node-fetch': mockFetch
+        });
+    });
+
+    beforeEach(function() {
+        // Reset the spy and create a fresh client for each test
+        mockFetch.calls.reset();
+        client = new OrcaScanNode('test-api-key');
+    });
+
+    it('should list sheets', function(done) {
+        client.sheets.list().then(function(result) {
+            expect(mockFetch).toHaveBeenCalledWith(
+                'https://api.orcascan.com/v1/sheets',
+                jasmine.objectContaining({
+                    method: 'GET',
+                    headers: jasmine.objectContaining({
+                        'Authorization': 'Bearer test-api-key'
+                    })
+                })
+            );
+            expect(result.status).toBe(200);
+            expect(result.data).toEqual({test: 'value'});
+            done();
+        });
+    });
+
+    it('should create a sheet with required name', function(done) {
+        var payload = { name: 'Test Sheet' };
+        
+        client.sheets.create(payload).then(function(result) {
+            expect(mockFetch).toHaveBeenCalledWith(
+                'https://api.orcascan.com/v1/sheets',
+                jasmine.objectContaining({
+                    method: 'POST',
+                    headers: jasmine.objectContaining({
+                        'Authorization': 'Bearer test-api-key',
+                        'Content-Type': 'application/json'
+                    }),
+                    body: JSON.stringify(payload)
+                })
+            );
+            expect(result.status).toBe(200);
+            done();
+        });
+    });
+
+    it('should create a sheet with name and template', function(done) {
+        var payload = { 
+            name: 'Test Sheet',
+            templateName: 'inventory'
+        };
+        
+        client.sheets.create(payload).then(function(result) {
+            expect(mockFetch).toHaveBeenCalledWith(
+                'https://api.orcascan.com/v1/sheets',
+                jasmine.objectContaining({
+                    method: 'POST',
+                    body: JSON.stringify(payload)
+                })
+            );
+            expect(result.status).toBe(200);
+            done();
+        });
+    });
+
+    it('should throw error when creating sheet without payload', function() {
+        expect(function() {
+            client.sheets.create();
+        }).toThrowError('payload is required and must be an object');
+    });
+
+    it('should throw error when creating sheet with non-object payload', function() {
+        expect(function() {
+            client.sheets.create('invalid');
+        }).toThrowError('payload is required and must be an object');
+
+        expect(function() {
+            client.sheets.create(null);
+        }).toThrowError('payload is required and must be an object');
+    });
+
+    it('should throw error when creating sheet without name', function() {
+        expect(function() {
+            client.sheets.create({});
+        }).toThrowError('payload.name is required and must be a string');
+    });
+
+    it('should throw error when creating sheet with non-string name', function() {
+        expect(function() {
+            client.sheets.create({ name: 123 });
+        }).toThrowError('payload.name is required and must be a string');
+
+        expect(function() {
+            client.sheets.create({ name: null });
+        }).toThrowError('payload.name is required and must be a string');
+    });
+
+    it('should get fields for a sheet', function(done) {
+        var sheetId = 'test-sheet-id';
+        
+        client.sheets.fields(sheetId).then(function(result) {
+            expect(mockFetch).toHaveBeenCalledWith(
+                'https://api.orcascan.com/v1/sheets/test-sheet-id/fields',
+                jasmine.objectContaining({
+                    method: 'GET'
+                })
+            );
+            expect(result.status).toBe(200);
+            done();
+        });
+    });
+
+    it('should throw error when getting fields without sheetId', function() {
+        expect(function() {
+            client.sheets.fields();
+        }).toThrowError('sheetId is required and must be a string');
+    });
+
+    it('should throw error when getting fields with non-string sheetId', function() {
+        expect(function() {
+            client.sheets.fields(123);
+        }).toThrowError('sheetId is required and must be a string');
+
+        expect(function() {
+            client.sheets.fields(null);
+        }).toThrowError('sheetId is required and must be a string');
+    });
+
+    it('should get settings for a sheet', function(done) {
+        var sheetId = 'test-sheet-id';
+        
+        client.sheets.settings(sheetId).then(function(result) {
+            expect(mockFetch).toHaveBeenCalledWith(
+                'https://api.orcascan.com/v1/sheets/test-sheet-id/settings',
+                jasmine.objectContaining({
+                    method: 'GET'
+                })
+            );
+            expect(result.status).toBe(200);
+            done();
+        });
+    });
+
+    it('should throw error when getting settings without sheetId', function() {
+        expect(function() {
+            client.sheets.settings();
+        }).toThrowError('sheetId is required and must be a string');
+    });
+
+    it('should throw error when getting settings with non-string sheetId', function() {
+        expect(function() {
+            client.sheets.settings(123);
+        }).toThrowError('sheetId is required and must be a string');
+    });
+
+    it('should clear all rows in a sheet', function(done) {
+        var sheetId = 'test-sheet-id';
+        
+        client.sheets.clear(sheetId).then(function(result) {
+            expect(mockFetch).toHaveBeenCalledWith(
+                'https://api.orcascan.com/v1/sheets/test-sheet-id/clear',
+                jasmine.objectContaining({
+                    method: 'PUT'
+                })
+            );
+            expect(result.status).toBe(200);
+            done();
+        });
+    });
+
+    it('should throw error when clearing sheet without sheetId', function() {
+        expect(function() {
+            client.sheets.clear();
+        }).toThrowError('sheetId is required and must be a string');
+    });
+
+    it('should throw error when clearing sheet with non-string sheetId', function() {
+        expect(function() {
+            client.sheets.clear(123);
+        }).toThrowError('sheetId is required and must be a string');
+    });
+
+    it('should rename a sheet with required name', function(done) {
+        var sheetId = 'test-sheet-id';
+        var payload = { name: 'New Sheet Name' };
+        
+        client.sheets.rename(sheetId, payload).then(function(result) {
+            expect(mockFetch).toHaveBeenCalledWith(
+                'https://api.orcascan.com/v1/sheets/test-sheet-id/rename',
+                jasmine.objectContaining({
+                    method: 'PUT',
+                    body: JSON.stringify(payload)
+                })
+            );
+            expect(result.status).toBe(200);
+            done();
+        });
+    });
+
+    it('should rename a sheet with name and description', function(done) {
+        var sheetId = 'test-sheet-id';
+        var payload = { 
+            name: 'New Sheet Name',
+            description: 'Updated description'
+        };
+        
+        client.sheets.rename(sheetId, payload).then(function(result) {
+            expect(mockFetch).toHaveBeenCalledWith(
+                'https://api.orcascan.com/v1/sheets/test-sheet-id/rename',
+                jasmine.objectContaining({
+                    method: 'PUT',
+                    body: JSON.stringify(payload)
+                })
+            );
+            expect(result.status).toBe(200);
+            done();
+        });
+    });
+
+    it('should throw error when renaming sheet without sheetId', function() {
+        expect(function() {
+            client.sheets.rename();
+        }).toThrowError('sheetId is required and must be a string');
+    });
+
+    it('should throw error when renaming sheet without payload', function() {
+        expect(function() {
+            client.sheets.rename('test-sheet-id');
+        }).toThrowError('payload is required and must be an object');
+    });
+
+    it('should throw error when renaming sheet without name in payload', function() {
+        expect(function() {
+            client.sheets.rename('test-sheet-id', {});
+        }).toThrowError('payload.name is required and must be a string');
+    });
+
+    it('should delete a sheet', function(done) {
+        var sheetId = 'test-sheet-id';
+        
+        client.sheets.delete(sheetId).then(function(result) {
+            expect(mockFetch).toHaveBeenCalledWith(
+                'https://api.orcascan.com/v1/sheets/test-sheet-id',
+                jasmine.objectContaining({
+                    method: 'DELETE'
+                })
+            );
+            expect(result.status).toBe(200);
+            done();
+        });
+    });
+
+    it('should throw error when deleting sheet without sheetId', function() {
+        expect(function() {
+            client.sheets.delete();
+        }).toThrowError('sheetId is required and must be a string');
+    });
+
+    it('should throw error when deleting sheet with non-string sheetId', function() {
+        expect(function() {
+            client.sheets.delete(123);
+        }).toThrowError('sheetId is required and must be a string');
+    });
+
+    it('should handle sheetId with special characters in URL encoding', function(done) {
+        var sheetId = 'test/sheet:id';
+        
+        client.sheets.fields(sheetId).then(function(result) {
+            expect(mockFetch).toHaveBeenCalledWith(
+                'https://api.orcascan.com/v1/sheets/test%2Fsheet%3Aid/fields',
+                jasmine.objectContaining({
+                    method: 'GET'
+                })
+            );
+            expect(result.status).toBe(200);
+            done();
+        });
+    });
+});
