@@ -1,6 +1,6 @@
 # orca-scan-code
 
-A node library to simplify working with the Orca Scan API. A promise-based interface for managing sheets, rows, users, hooks, and history.
+A node library to simplify working with the Orca Scan API _(manage sheets, rows, users, hooks, and history)_.
 
 ## Installation
 
