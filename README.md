@@ -329,16 +329,18 @@ orca.sheets.list().then(function(result) {
 
 ## Common Error Messages
 
-- `apiKey is required and must be a string` - Missing or invalid API key
-- `sheetId is required and must be a string` - Missing or invalid sheet ID
-- `payload is required and must be an object` - Missing or invalid payload
-- `http 400` - Bad request (check your payload)
-- `http 401` - Unauthorized (check your API key)
-- `http 403` - Forbidden (check your permissions)
-- `http 404` - Not found (check your IDs)
-- `http 429` - Rate limited (will retry automatically)
-- `http 500` - Server error (will retry automatically)
-- `request timeout` - Request timed out
+| Error Message                                      | Description                              |
+|----------------------------------------------------|------------------------------------------|
+| `apiKey is required and must be a string`          | Missing or invalid API key               |
+| `sheetId is required and must be a string`         | Missing or invalid sheet ID              |
+| `payload is required and must be an object`        | Missing or invalid payload               |
+| `http 400`                                         | Bad request (check your payload)         |
+| `http 401`                                         | Unauthorized (check your API key)        |
+| `http 403`                                         | Forbidden (check your permissions)       |
+| `http 404`                                         | Not found (check your IDs)               |
+| `http 429`                                         | Rate limited (will retry automatically)  |
+| `http 500`                                         | Server error (will retry automatically)  |
+| `request timeout`                                  | Request timed out                        |
 
 ## Retry Logic
 
