@@ -64,7 +64,7 @@ orca.sheets.create({
 });
 ```
 
-#### Get Sheet Fields
+#### Get Fields
 
 ```javascript
 orca.sheets.fields('sheet-id').then(function(result) {
@@ -73,7 +73,7 @@ orca.sheets.fields('sheet-id').then(function(result) {
 });
 ```
 
-#### Get Sheet Settings
+#### Get Settings
 
 ```javascript
 orca.sheets.settings('sheet-id').then(function(result) {
@@ -81,7 +81,7 @@ orca.sheets.settings('sheet-id').then(function(result) {
 });
 ```
 
-#### Clear All Rows
+#### Clear Sheet
 
 ```javascript
 orca.sheets.clear('sheet-id').then(function(result) {
@@ -113,7 +113,7 @@ orca.sheets.delete('sheet-id').then(function(result) {
 
 Manage rows within sheets.
 
-#### List Rows
+#### Get All Rows
 
 ```javascript
 // Get all rows
@@ -379,8 +379,8 @@ orca.sheets.create({
     name: 'Inventory Sheet'
 })
 .then(function(result) {
+
     var sheetId = result.data._id;
-    console.log('Created sheet:', sheetId);
     
     // 2. Add some rows
     return orca.rows.add(sheetId, [
@@ -389,7 +389,6 @@ orca.sheets.create({
     ]);
 })
 .then(function(result) {
-    console.log('Added rows:', result.data.length);
     
     // 3. List all rows
     return orca.rows.list(sheetId);
