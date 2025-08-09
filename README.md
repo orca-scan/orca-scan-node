@@ -8,36 +8,20 @@ A simple node library for the Orca Scan API. This library provides a clean, prom
 npm install orca-scan-node
 ```
 
-## Quick Start
+## Usage
 
 ```javascript
 var OrcaScan = require('orca-scan-node');
 
-// Initialize with your API key
-var orca = new OrcaScan('your-api-key-here');
-
-// List all sheets
-orca.sheets.list().then(function(result) {
-    console.log('Sheets:', result.data);
-})
-.catch(function(error) {
-    console.error('Error:', error.message);
-});
-```
-
-## Configuration
-
-You can customize the client behavior with options:
-
-```javascript
+// create instance
 var orca = new OrcaScan('your-api-key', {
-    baseUrl: 'https://api.orcascan.com/v1',  // Default
-    timeoutMs: 30000,                        // Default: 30 seconds
-    maxRetries: 3                            // Default: 3 retries
+    baseUrl: 'https://api.orcascan.com/v1',  // default endpoint
+    timeoutMs: 30000,                        // default: 30 seconds
+    maxRetries: 3                            // default: 3 retries
 });
 ```
 
-## API Reference
+## API
 
 ### Sheets
 
