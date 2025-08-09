@@ -1,6 +1,6 @@
 # orca-scan-code
 
-The official node client for the [Orca Scan API](https://orcascan.com/guides/barcode-scanner-api-f09a21c3). Manage sheets, rows, users, hooks, and history.
+The official [Orca Scan](https://orcascan.com) node client - manage sheets, rows, users, hooks, and history using the [Orca Scan API](https://orcascan.com/guides/barcode-scanner-api-f09a21c3).
 
 ## Installation
 
