@@ -10,7 +10,7 @@ npm install orca-scan-node
 
 ## Usage
 
-```javascript
+```js
 var OrcaScan = require('orca-scan-node');
 
 // create instance
@@ -29,7 +29,7 @@ Manage your Orca Scan sheets.
 
 #### List Sheets
 
-```javascript
+```js
 orca.sheets.list().then(function(result) {
     // result.data contains array of sheets
     // Each sheet has: _id, name, isOwner, canAdmin, canUpdate, canDelete, canExport
@@ -38,7 +38,7 @@ orca.sheets.list().then(function(result) {
 
 #### Create Sheet
 
-```javascript
+```js
 orca.sheets.create({
     name: 'My New Sheet',
     templateName: 'inventory'  // Optional
@@ -50,7 +50,7 @@ orca.sheets.create({
 
 #### Get Fields
 
-```javascript
+```js
 orca.sheets.fields('sheet-id').then(function(result) {
     // result.data contains array of fields
     // Each field has: key, label, type, required
@@ -59,7 +59,7 @@ orca.sheets.fields('sheet-id').then(function(result) {
 
 #### Get Settings
 
-```javascript
+```js
 orca.sheets.settings('sheet-id').then(function(result) {
     // result.data contains sheet settings
 });
@@ -67,7 +67,7 @@ orca.sheets.settings('sheet-id').then(function(result) {
 
 #### Clear Sheet
 
-```javascript
+```js
 orca.sheets.clear('sheet-id').then(function(result) {
     // All rows in the sheet have been deleted
 });
@@ -75,7 +75,7 @@ orca.sheets.clear('sheet-id').then(function(result) {
 
 #### Rename Sheet
 
-```javascript
+```js
 orca.sheets.rename('sheet-id', {
     name: 'New Sheet Name',
     description: 'Optional description'
@@ -87,7 +87,7 @@ orca.sheets.rename('sheet-id', {
 
 #### Delete Sheet
 
-```javascript
+```js
 orca.sheets.delete('sheet-id').then(function(result) {
     // Sheet has been deleted
 });
@@ -99,7 +99,7 @@ Manage rows within sheets.
 
 #### Get All Rows
 
-```javascript
+```js
 // Get all rows
 orca.rows.list('sheet-id').then(function(result) {
     // result.data contains array of rows
@@ -117,7 +117,7 @@ orca.rows.list('sheet-id', {
 
 #### Get Single Row
 
-```javascript
+```js
 orca.rows.get('sheet-id', 'row-id').then(function(result) {
     // result.data contains the row
 });
@@ -125,7 +125,7 @@ orca.rows.get('sheet-id', 'row-id').then(function(result) {
 
 #### Add Rows
 
-```javascript
+```js
 // Add single row
 orca.rows.add('sheet-id', {
     name: 'Item Name',
@@ -148,7 +148,7 @@ orca.rows.add('sheet-id', [
 
 #### Update Rows
 
-```javascript
+```js
 // Update single row
 orca.rows.updateOne('sheet-id', 'row-id', {
     quantity: 15
@@ -169,7 +169,7 @@ orca.rows.updateMany('sheet-id', [
 
 #### Delete Rows
 
-```javascript
+```js
 // Delete single row
 orca.rows.deleteOne('sheet-id', 'row-id').then(function(result) {
     // Row has been deleted
@@ -187,7 +187,7 @@ Track changes to sheets and rows.
 
 #### Get Sheet History
 
-```javascript
+```js
 orca.history.sheet('sheet-id').then(function(result) {
     // result.data contains array of history items
     // Each item has: _id, barcode, name, quantity, _change, _changedBy, _changedOn, _changedUsing
@@ -196,7 +196,7 @@ orca.history.sheet('sheet-id').then(function(result) {
 
 #### Get Row History
 
-```javascript
+```js
 orca.history.row('sheet-id', 'row-id').then(function(result) {
     // result.data contains array of history items for this row
 });
@@ -208,7 +208,7 @@ Manage user access to sheets.
 
 #### List Users
 
-```javascript
+```js
 orca.users.list('sheet-id').then(function(result) {
     // result.data contains array of users
     // Each user has: _id, email, owner, canUpdate, canDelete, canExport, canAdmin
@@ -217,7 +217,7 @@ orca.users.list('sheet-id').then(function(result) {
 
 #### Add User
 
-```javascript
+```js
 orca.users.add('sheet-id', {
     email: 'user@example.com',
     canUpdate: true,
@@ -232,7 +232,7 @@ orca.users.add('sheet-id', {
 
 #### Update User
 
-```javascript
+```js
 orca.users.update('sheet-id', 'user-id', {
     canUpdate: true,
     canDelete: true
@@ -244,7 +244,7 @@ orca.users.update('sheet-id', 'user-id', {
 
 #### Remove User
 
-```javascript
+```js
 orca.users.remove('sheet-id', 'user-id').then(function(result) {
     // User has been removed from the sheet
 });
@@ -256,7 +256,7 @@ Manage webhooks for sheet events.
 
 #### Get Supported Events
 
-```javascript
+```js
 orca.hooks.events('sheet-id').then(function(result) {
     // result.data contains array of supported event names
 });
@@ -264,7 +264,7 @@ orca.hooks.events('sheet-id').then(function(result) {
 
 #### List Hooks
 
-```javascript
+```js
 orca.hooks.list('sheet-id').then(function(result) {
     // result.data contains array of hooks
     // Each hook has: _id, eventName, sheetId, targetUrl
@@ -273,7 +273,7 @@ orca.hooks.list('sheet-id').then(function(result) {
 
 #### Get Single Hook
 
-```javascript
+```js
 orca.hooks.get('sheet-id', 'hook-id').then(function(result) {
     // result.data contains the hook
 });
@@ -281,7 +281,7 @@ orca.hooks.get('sheet-id', 'hook-id').then(function(result) {
 
 #### Create Hook
 
-```javascript
+```js
 orca.hooks.create('sheet-id', {
     eventName: 'row.add',
     targetUrl: 'https://example.com/webhook'
@@ -293,7 +293,7 @@ orca.hooks.create('sheet-id', {
 
 #### Update Hook
 
-```javascript
+```js
 orca.hooks.update('sheet-id', 'hook-id', {
     targetUrl: 'https://new-example.com/webhook'
 })
@@ -304,7 +304,7 @@ orca.hooks.update('sheet-id', 'hook-id', {
 
 #### Delete Hook
 
-```javascript
+```js
 orca.hooks.delete('sheet-id', 'hook-id').then(function(result) {
     // Hook has been deleted
 });
@@ -314,7 +314,7 @@ orca.hooks.delete('sheet-id', 'hook-id').then(function(result) {
 
 All methods return promises that can be handled with `.then()` and `.catch()`:
 
-```javascript
+```js
 orca.sheets.list().then(function(result) {
     // Success - result contains: { status, headers, data }
     console.log('Status:', result.status);
@@ -344,10 +344,11 @@ orca.sheets.list().then(function(result) {
 
 ## Retry Logic
 
-The client automatically retries on:
-- **429 (Rate Limit)** - Waits for `retry-after` header or uses exponential backoff
-- **503 (Service Unavailable)** - Uses exponential backoff
-- **5xx Server Errors** - Uses exponential backoff
+Requests are automatically retried on:
+
+- **429 (Rate Limit)** - waits for `retry-after` header or uses exponential backoff
+- **503 (Service Unavailable)** - uses exponential backoff
+- **5xx Server Errors** - uses exponential backoff
 
 Retries are limited by the `maxRetries` option (default: 3).
 
@@ -355,12 +356,11 @@ Retries are limited by the `maxRetries` option (default: 3).
 
 ### Complete Workflow
 
-```javascript
+```js
 var OrcaScan = require('orca-scan-node');
-
 var orca = new OrcaScan('your-api-key');
 
-// 1. Create a new sheet
+// 1. create a sheet
 orca.sheets.create({
     name: 'Inventory Sheet'
 })
@@ -368,7 +368,7 @@ orca.sheets.create({
 
     var sheetId = result.data._id;
     
-    // 2. Add some rows
+    // 2. add rows
     return orca.rows.add(sheetId, [
         { name: 'Laptop', quantity: 5, category: 'Electronics' },
         { name: 'Desk Chair', quantity: 10, category: 'Furniture' }
@@ -376,7 +376,7 @@ orca.sheets.create({
 })
 .then(function(result) {
     
-    // 3. List all rows
+    // 3. get all rows
     return orca.rows.list(sheetId);
 })
 .then(function(result) {
@@ -389,7 +389,7 @@ orca.sheets.create({
 
 ### Error Handling Example
 
-```javascript
+```js
 orca.sheets.list().then(function(result) {
     if (result.data.length === 0) {
         console.log('No sheets found');
