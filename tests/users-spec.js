@@ -31,10 +31,10 @@ describe('Users', function() {
         client = new OrcaScanNode('test-api-key');
     });
 
-    it('should list users on a sheet', function(done) {
+    it('should list users on a sheet', function() {
         var sheetId = 'test-sheet-id';
         
-        client.users.list(sheetId).then(function(result) {
+        return client.users.list(sheetId).then(function(result) {
             expect(mockFetch).toHaveBeenCalledWith(
                 'https://api.orcascan.com/v1/sheets/test-sheet-id/users',
                 jasmine.objectContaining({
@@ -47,7 +47,6 @@ describe('Users', function() {
             expect(result.status).toBe(200);
             expect(result.data).toBeDefined();
             expect(Array.isArray(result.data)).toBe(true);
-            done();
         });
     });
 
@@ -67,11 +66,11 @@ describe('Users', function() {
         }).toThrowError('sheetId is required and must be a string');
     });
 
-    it('should add a user to a sheet with required email', function(done) {
+    it('should add a user to a sheet with required email', function() {
         var sheetId = 'test-sheet-id';
         var payload = { email: 'newuser@example.com' };
         
-        client.users.add(sheetId, payload).then(function(result) {
+        return client.users.add(sheetId, payload).then(function(result) {
             expect(mockFetch).toHaveBeenCalledWith(
                 'https://api.orcascan.com/v1/sheets/test-sheet-id/users',
                 jasmine.objectContaining({
@@ -84,11 +83,10 @@ describe('Users', function() {
                 })
             );
             expect(result.status).toBe(200);
-            done();
         });
     });
 
-    it('should add a user with all permissions', function(done) {
+    it('should add a user with all permissions', function() {
         var sheetId = 'test-sheet-id';
         var payload = { 
             email: 'admin@example.com',
@@ -98,7 +96,7 @@ describe('Users', function() {
             canAdmin: true
         };
         
-        client.users.add(sheetId, payload).then(function(result) {
+        return client.users.add(sheetId, payload).then(function(result) {
             expect(mockFetch).toHaveBeenCalledWith(
                 'https://api.orcascan.com/v1/sheets/test-sheet-id/users',
                 jasmine.objectContaining({
@@ -107,11 +105,10 @@ describe('Users', function() {
                 })
             );
             expect(result.status).toBe(200);
-            done();
         });
     });
 
-    it('should add a user with partial permissions', function(done) {
+    it('should add a user with partial permissions', function() {
         var sheetId = 'test-sheet-id';
         var payload = { 
             email: 'viewer@example.com',
@@ -121,7 +118,7 @@ describe('Users', function() {
             canAdmin: false
         };
         
-        client.users.add(sheetId, payload).then(function(result) {
+        return client.users.add(sheetId, payload).then(function(result) {
             expect(mockFetch).toHaveBeenCalledWith(
                 'https://api.orcascan.com/v1/sheets/test-sheet-id/users',
                 jasmine.objectContaining({
@@ -130,7 +127,6 @@ describe('Users', function() {
                 })
             );
             expect(result.status).toBe(200);
-            done();
         });
     });
 
@@ -172,12 +168,12 @@ describe('Users', function() {
         }).toThrowError('payload.email is required and must be a string');
     });
 
-    it('should update a user in a sheet', function(done) {
+    it('should update a user in a sheet', function() {
         var sheetId = 'test-sheet-id';
         var userId = 'user1';
         var payload = { canUpdate: true, canDelete: true };
         
-        client.users.update(sheetId, userId, payload).then(function(result) {
+        return client.users.update(sheetId, userId, payload).then(function(result) {
             expect(mockFetch).toHaveBeenCalledWith(
                 'https://api.orcascan.com/v1/sheets/test-sheet-id/users/user1',
                 jasmine.objectContaining({
@@ -186,11 +182,10 @@ describe('Users', function() {
                 })
             );
             expect(result.status).toBe(200);
-            done();
         });
     });
 
-    it('should update user with all permission fields', function(done) {
+    it('should update user with all permission fields', function() {
         var sheetId = 'test-sheet-id';
         var userId = 'user1';
         var payload = { 
@@ -200,7 +195,7 @@ describe('Users', function() {
             canAdmin: false
         };
         
-        client.users.update(sheetId, userId, payload).then(function(result) {
+        return client.users.update(sheetId, userId, payload).then(function(result) {
             expect(mockFetch).toHaveBeenCalledWith(
                 'https://api.orcascan.com/v1/sheets/test-sheet-id/users/user1',
                 jasmine.objectContaining({
@@ -209,7 +204,6 @@ describe('Users', function() {
                 })
             );
             expect(result.status).toBe(200);
-            done();
         });
     });
 
@@ -251,11 +245,11 @@ describe('Users', function() {
         }).toThrowError('payload is required and must be an object');
     });
 
-    it('should remove a user from a sheet', function(done) {
+    it('should remove a user from a sheet', function() {
         var sheetId = 'test-sheet-id';
         var userId = 'user1';
         
-        client.users.remove(sheetId, userId).then(function(result) {
+        return client.users.remove(sheetId, userId).then(function(result) {
             expect(mockFetch).toHaveBeenCalledWith(
                 'https://api.orcascan.com/v1/sheets/test-sheet-id/users/user1',
                 jasmine.objectContaining({
@@ -263,7 +257,6 @@ describe('Users', function() {
                 })
             );
             expect(result.status).toBe(200);
-            done();
         });
     });
 
@@ -289,10 +282,10 @@ describe('Users', function() {
         }).toThrowError('userId is required and must be a string');
     });
 
-    it('should handle sheetId with special characters in URL encoding', function(done) {
+    it('should handle sheetId with special characters in URL encoding', function() {
         var sheetId = 'test/sheet:id';
         
-        client.users.list(sheetId).then(function(result) {
+        return client.users.list(sheetId).then(function(result) {
             expect(mockFetch).toHaveBeenCalledWith(
                 'https://api.orcascan.com/v1/sheets/test%2Fsheet%3Aid/users',
                 jasmine.objectContaining({
@@ -300,15 +293,14 @@ describe('Users', function() {
                 })
             );
             expect(result.status).toBe(200);
-            done();
         });
     });
 
-    it('should handle userId with special characters in URL encoding', function(done) {
+    it('should handle userId with special characters in URL encoding', function() {
         var sheetId = 'test-sheet-id';
         var userId = 'user/with:special';
         
-        client.users.remove(sheetId, userId).then(function(result) {
+        return client.users.remove(sheetId, userId).then(function(result) {
             expect(mockFetch).toHaveBeenCalledWith(
                 'https://api.orcascan.com/v1/sheets/test-sheet-id/users/user%2Fwith%3Aspecial',
                 jasmine.objectContaining({
@@ -316,14 +308,13 @@ describe('Users', function() {
                 })
             );
             expect(result.status).toBe(200);
-            done();
         });
     });
 
-    it('should return user data with expected structure', function(done) {
+    it('should return user data with expected structure', function() {
         var sheetId = 'test-sheet-id';
         
-        client.users.list(sheetId).then(function(result) {
+        return client.users.list(sheetId).then(function(result) {
             expect(result.data).toBeDefined();
             expect(result.data.length).toBeGreaterThan(0);
             
@@ -335,12 +326,10 @@ describe('Users', function() {
             expect(user.canDelete).toBeDefined();
             expect(user.canExport).toBeDefined();
             expect(user.canAdmin).toBeDefined();
-            
-            done();
         });
     });
 
-    it('should handle empty users response', function(done) {
+    it('should handle empty users response', function() {
         // Mock empty response
         mockFetch.and.returnValue(
             Promise.resolve({
@@ -355,10 +344,9 @@ describe('Users', function() {
 
         var sheetId = 'test-sheet-id';
         
-        client.users.list(sheetId).then(function(result) {
+        return client.users.list(sheetId).then(function(result) {
             expect(result.status).toBe(200);
             expect(result.data).toEqual([]);
-            done();
         });
     });
 });

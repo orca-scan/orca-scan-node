@@ -31,8 +31,8 @@ describe('Sheets', function() {
         client = new OrcaScanNode('test-api-key');
     });
 
-    it('should list sheets', function(done) {
-        client.sheets.list().then(function(result) {
+    it('should list sheets', function() {
+        return client.sheets.list().then(function(result) {
             expect(mockFetch).toHaveBeenCalledWith(
                 'https://api.orcascan.com/v1/sheets',
                 jasmine.objectContaining({
@@ -44,14 +44,13 @@ describe('Sheets', function() {
             );
             expect(result.status).toBe(200);
             expect(result.data).toEqual({test: 'value'});
-            done();
         });
     });
 
-    it('should create a sheet with required name', function(done) {
+    it('should create a sheet with required name', function() {
         var payload = { name: 'Test Sheet' };
         
-        client.sheets.create(payload).then(function(result) {
+        return client.sheets.create(payload).then(function(result) {
             expect(mockFetch).toHaveBeenCalledWith(
                 'https://api.orcascan.com/v1/sheets',
                 jasmine.objectContaining({
@@ -64,17 +63,16 @@ describe('Sheets', function() {
                 })
             );
             expect(result.status).toBe(200);
-            done();
         });
     });
 
-    it('should create a sheet with name and template', function(done) {
+    it('should create a sheet with name and template', function() {
         var payload = { 
             name: 'Test Sheet',
             templateName: 'inventory'
         };
         
-        client.sheets.create(payload).then(function(result) {
+        return client.sheets.create(payload).then(function(result) {
             expect(mockFetch).toHaveBeenCalledWith(
                 'https://api.orcascan.com/v1/sheets',
                 jasmine.objectContaining({
@@ -83,7 +81,6 @@ describe('Sheets', function() {
                 })
             );
             expect(result.status).toBe(200);
-            done();
         });
     });
 
@@ -119,10 +116,10 @@ describe('Sheets', function() {
         }).toThrowError('payload.name is required and must be a string');
     });
 
-    it('should get fields for a sheet', function(done) {
+    it('should get fields for a sheet', function() {
         var sheetId = 'test-sheet-id';
         
-        client.sheets.fields(sheetId).then(function(result) {
+        return client.sheets.fields(sheetId).then(function(result) {
             expect(mockFetch).toHaveBeenCalledWith(
                 'https://api.orcascan.com/v1/sheets/test-sheet-id/fields',
                 jasmine.objectContaining({
@@ -130,7 +127,6 @@ describe('Sheets', function() {
                 })
             );
             expect(result.status).toBe(200);
-            done();
         });
     });
 
@@ -150,10 +146,10 @@ describe('Sheets', function() {
         }).toThrowError('sheetId is required and must be a string');
     });
 
-    it('should get settings for a sheet', function(done) {
+    it('should get settings for a sheet', function() {
         var sheetId = 'test-sheet-id';
         
-        client.sheets.settings(sheetId).then(function(result) {
+        return client.sheets.settings(sheetId).then(function(result) {
             expect(mockFetch).toHaveBeenCalledWith(
                 'https://api.orcascan.com/v1/sheets/test-sheet-id/settings',
                 jasmine.objectContaining({
@@ -161,7 +157,6 @@ describe('Sheets', function() {
                 })
             );
             expect(result.status).toBe(200);
-            done();
         });
     });
 
@@ -177,10 +172,10 @@ describe('Sheets', function() {
         }).toThrowError('sheetId is required and must be a string');
     });
 
-    it('should clear all rows in a sheet', function(done) {
+    it('should clear all rows in a sheet', function() {
         var sheetId = 'test-sheet-id';
         
-        client.sheets.clear(sheetId).then(function(result) {
+        return client.sheets.clear(sheetId).then(function(result) {
             expect(mockFetch).toHaveBeenCalledWith(
                 'https://api.orcascan.com/v1/sheets/test-sheet-id/clear',
                 jasmine.objectContaining({
@@ -188,7 +183,6 @@ describe('Sheets', function() {
                 })
             );
             expect(result.status).toBe(200);
-            done();
         });
     });
 
@@ -204,11 +198,11 @@ describe('Sheets', function() {
         }).toThrowError('sheetId is required and must be a string');
     });
 
-    it('should rename a sheet with required name', function(done) {
+    it('should rename a sheet with required name', function() {
         var sheetId = 'test-sheet-id';
         var payload = { name: 'New Sheet Name' };
         
-        client.sheets.rename(sheetId, payload).then(function(result) {
+        return client.sheets.rename(sheetId, payload).then(function(result) {
             expect(mockFetch).toHaveBeenCalledWith(
                 'https://api.orcascan.com/v1/sheets/test-sheet-id/rename',
                 jasmine.objectContaining({
@@ -217,18 +211,17 @@ describe('Sheets', function() {
                 })
             );
             expect(result.status).toBe(200);
-            done();
         });
     });
 
-    it('should rename a sheet with name and description', function(done) {
+    it('should rename a sheet with name and description', function() {
         var sheetId = 'test-sheet-id';
         var payload = { 
             name: 'New Sheet Name',
             description: 'Updated description'
         };
         
-        client.sheets.rename(sheetId, payload).then(function(result) {
+        return client.sheets.rename(sheetId, payload).then(function(result) {
             expect(mockFetch).toHaveBeenCalledWith(
                 'https://api.orcascan.com/v1/sheets/test-sheet-id/rename',
                 jasmine.objectContaining({
@@ -237,7 +230,6 @@ describe('Sheets', function() {
                 })
             );
             expect(result.status).toBe(200);
-            done();
         });
     });
 
@@ -259,10 +251,10 @@ describe('Sheets', function() {
         }).toThrowError('payload.name is required and must be a string');
     });
 
-    it('should delete a sheet', function(done) {
+    it('should delete a sheet', function() {
         var sheetId = 'test-sheet-id';
         
-        client.sheets.delete(sheetId).then(function(result) {
+        return client.sheets.delete(sheetId).then(function(result) {
             expect(mockFetch).toHaveBeenCalledWith(
                 'https://api.orcascan.com/v1/sheets/test-sheet-id',
                 jasmine.objectContaining({
@@ -270,7 +262,6 @@ describe('Sheets', function() {
                 })
             );
             expect(result.status).toBe(200);
-            done();
         });
     });
 
@@ -286,10 +277,10 @@ describe('Sheets', function() {
         }).toThrowError('sheetId is required and must be a string');
     });
 
-    it('should handle sheetId with special characters in URL encoding', function(done) {
+    it('should handle sheetId with special characters in URL encoding', function() {
         var sheetId = 'test/sheet:id';
         
-        client.sheets.fields(sheetId).then(function(result) {
+        return client.sheets.fields(sheetId).then(function(result) {
             expect(mockFetch).toHaveBeenCalledWith(
                 'https://api.orcascan.com/v1/sheets/test%2Fsheet%3Aid/fields',
                 jasmine.objectContaining({
@@ -297,7 +288,6 @@ describe('Sheets', function() {
                 })
             );
             expect(result.status).toBe(200);
-            done();
         });
     });
 });

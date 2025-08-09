@@ -31,10 +31,10 @@ describe('Rows', function() {
         client = new OrcaScanNode('test-api-key');
     });
 
-    it('should list rows without query parameters', function(done) {
+    it('should list rows without query parameters', function() {
         var sheetId = 'test-sheet-id';
         
-        client.rows.list(sheetId).then(function(result) {
+        return client.rows.list(sheetId).then(function(result) {
             expect(mockFetch).toHaveBeenCalledWith(
                 'https://api.orcascan.com/v1/sheets/test-sheet-id/rows',
                 jasmine.objectContaining({
@@ -42,15 +42,14 @@ describe('Rows', function() {
                 })
             );
             expect(result.status).toBe(200);
-            done();
         });
     });
 
-    it('should list rows with query parameters', function(done) {
+    it('should list rows with query parameters', function() {
         var sheetId = 'test-sheet-id';
         var query = { limit: 10, skip: 20 };
         
-        client.rows.list(sheetId, query).then(function(result) {
+        return client.rows.list(sheetId, query).then(function(result) {
             expect(mockFetch).toHaveBeenCalledWith(
                 'https://api.orcascan.com/v1/sheets/test-sheet-id/rows?limit=10&skip=20',
                 jasmine.objectContaining({
@@ -58,7 +57,6 @@ describe('Rows', function() {
                 })
             );
             expect(result.status).toBe(200);
-            done();
         });
     });
 
@@ -78,11 +76,11 @@ describe('Rows', function() {
         }).toThrowError('sheetId is required and must be a string');
     });
 
-    it('should get a single row', function(done) {
+    it('should get a single row', function() {
         var sheetId = 'test-sheet-id';
         var rowId = 'test-row-id';
         
-        client.rows.get(sheetId, rowId).then(function(result) {
+        return client.rows.get(sheetId, rowId).then(function(result) {
             expect(mockFetch).toHaveBeenCalledWith(
                 'https://api.orcascan.com/v1/sheets/test-sheet-id/rows/test-row-id',
                 jasmine.objectContaining({
@@ -90,7 +88,6 @@ describe('Rows', function() {
                 })
             );
             expect(result.status).toBe(200);
-            done();
         });
     });
 
@@ -112,11 +109,11 @@ describe('Rows', function() {
         }).toThrowError('rowId is required and must be a string');
     });
 
-    it('should add a single row', function(done) {
+    it('should add a single row', function() {
         var sheetId = 'test-sheet-id';
         var data = { name: 'Test Item', quantity: 5 };
         
-        client.rows.add(sheetId, data).then(function(result) {
+        return client.rows.add(sheetId, data).then(function(result) {
             expect(mockFetch).toHaveBeenCalledWith(
                 'https://api.orcascan.com/v1/sheets/test-sheet-id/rows',
                 jasmine.objectContaining({
@@ -128,18 +125,17 @@ describe('Rows', function() {
                 })
             );
             expect(result.status).toBe(200);
-            done();
         });
     });
 
-    it('should add multiple rows', function(done) {
+    it('should add multiple rows', function() {
         var sheetId = 'test-sheet-id';
         var data = [
             { name: 'Item 1', quantity: 5 },
             { name: 'Item 2', quantity: 10 }
         ];
         
-        client.rows.add(sheetId, data).then(function(result) {
+        return client.rows.add(sheetId, data).then(function(result) {
             expect(mockFetch).toHaveBeenCalledWith(
                 'https://api.orcascan.com/v1/sheets/test-sheet-id/rows',
                 jasmine.objectContaining({
@@ -148,18 +144,17 @@ describe('Rows', function() {
                 })
             );
             expect(result.status).toBe(200);
-            done();
         });
     });
 
-    it('should add row with special fields like photo', function(done) {
+    it('should add row with special fields like photo', function() {
         var sheetId = 'test-sheet-id';
         var data = { 
             name: 'Test Item', 
             photo: 'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD...'
         };
         
-        client.rows.add(sheetId, data).then(function(result) {
+        return client.rows.add(sheetId, data).then(function(result) {
             expect(mockFetch).toHaveBeenCalledWith(
                 'https://api.orcascan.com/v1/sheets/test-sheet-id/rows',
                 jasmine.objectContaining({
@@ -168,7 +163,6 @@ describe('Rows', function() {
                 })
             );
             expect(result.status).toBe(200);
-            done();
         });
     });
 
@@ -196,12 +190,12 @@ describe('Rows', function() {
         }).toThrowError('data is required and must be an object or array');
     });
 
-    it('should update a single row', function(done) {
+    it('should update a single row', function() {
         var sheetId = 'test-sheet-id';
         var rowId = 'test-row-id';
         var data = { quantity: 15 };
         
-        client.rows.updateOne(sheetId, rowId, data).then(function(result) {
+        return client.rows.updateOne(sheetId, rowId, data).then(function(result) {
             expect(mockFetch).toHaveBeenCalledWith(
                 'https://api.orcascan.com/v1/sheets/test-sheet-id/rows/test-row-id',
                 jasmine.objectContaining({
@@ -210,7 +204,6 @@ describe('Rows', function() {
                 })
             );
             expect(result.status).toBe(200);
-            done();
         });
     });
 
@@ -238,14 +231,14 @@ describe('Rows', function() {
         }).toThrowError('data is required and must be an object');
     });
 
-    it('should update many rows', function(done) {
+    it('should update many rows', function() {
         var sheetId = 'test-sheet-id';
         var rows = [
             { _id: 'row1', quantity: 15 },
             { _id: 'row2', quantity: 20 }
         ];
         
-        client.rows.updateMany(sheetId, rows).then(function(result) {
+        return client.rows.updateMany(sheetId, rows).then(function(result) {
             expect(mockFetch).toHaveBeenCalledWith(
                 'https://api.orcascan.com/v1/sheets/test-sheet-id/rows',
                 jasmine.objectContaining({
@@ -254,7 +247,6 @@ describe('Rows', function() {
                 })
             );
             expect(result.status).toBe(200);
-            done();
         });
     });
 
@@ -280,11 +272,11 @@ describe('Rows', function() {
         }).toThrowError('rows is required and must be an array of objects');
     });
 
-    it('should delete a single row', function(done) {
+    it('should delete a single row', function() {
         var sheetId = 'test-sheet-id';
         var rowId = 'test-row-id';
         
-        client.rows.deleteOne(sheetId, rowId).then(function(result) {
+        return client.rows.deleteOne(sheetId, rowId).then(function(result) {
             expect(mockFetch).toHaveBeenCalledWith(
                 'https://api.orcascan.com/v1/sheets/test-sheet-id/rows/test-row-id',
                 jasmine.objectContaining({
@@ -292,7 +284,6 @@ describe('Rows', function() {
                 })
             );
             expect(result.status).toBe(200);
-            done();
         });
     });
 
@@ -308,11 +299,11 @@ describe('Rows', function() {
         }).toThrowError('rowId is required and must be a string');
     });
 
-    it('should delete many rows', function(done) {
+    it('should delete many rows', function() {
         var sheetId = 'test-sheet-id';
         var rowIds = ['row1', 'row2', 'row3'];
         
-        client.rows.deleteMany(sheetId, rowIds).then(function(result) {
+        return client.rows.deleteMany(sheetId, rowIds).then(function(result) {
             expect(mockFetch).toHaveBeenCalledWith(
                 'https://api.orcascan.com/v1/sheets/test-sheet-id/rows',
                 jasmine.objectContaining({
@@ -321,7 +312,6 @@ describe('Rows', function() {
                 })
             );
             expect(result.status).toBe(200);
-            done();
         });
     });
 
@@ -347,14 +337,14 @@ describe('Rows', function() {
         }).toThrowError('rowIds is required and must be an array of strings');
     });
 
-    it('should handle query parameters with special characters', function(done) {
+    it('should handle query parameters with special characters', function() {
         var sheetId = 'test-sheet-id';
         var query = { 
             filter: 'name contains "test"',
             sort: 'name asc'
         };
         
-        client.rows.list(sheetId, query).then(function(result) {
+        return client.rows.list(sheetId, query).then(function(result) {
             expect(mockFetch).toHaveBeenCalledWith(
                 'https://api.orcascan.com/v1/sheets/test-sheet-id/rows?filter=name%20contains%20%22test%22&sort=name%20asc',
                 jasmine.objectContaining({
@@ -362,15 +352,14 @@ describe('Rows', function() {
                 })
             );
             expect(result.status).toBe(200);
-            done();
         });
     });
 
-    it('should handle rowId with special characters in URL encoding', function(done) {
+    it('should handle rowId with special characters in URL encoding', function() {
         var sheetId = 'test-sheet-id';
         var rowId = 'test/row:id';
         
-        client.rows.get(sheetId, rowId).then(function(result) {
+        return client.rows.get(sheetId, rowId).then(function(result) {
             expect(mockFetch).toHaveBeenCalledWith(
                 'https://api.orcascan.com/v1/sheets/test-sheet-id/rows/test%2Frow%3Aid',
                 jasmine.objectContaining({
@@ -378,7 +367,6 @@ describe('Rows', function() {
                 })
             );
             expect(result.status).toBe(200);
-            done();
         });
     });
 });

@@ -31,10 +31,10 @@ describe('History', function() {
         client = new OrcaScanNode('test-api-key');
     });
 
-    it('should get sheet history', function(done) {
+    it('should get sheet history', function() {
         var sheetId = 'test-sheet-id';
         
-        client.history.sheet(sheetId).then(function(result) {
+        return client.history.sheet(sheetId).then(function(result) {
             expect(mockFetch).toHaveBeenCalledWith(
                 'https://api.orcascan.com/v1/sheets/test-sheet-id/history',
                 jasmine.objectContaining({
@@ -47,7 +47,6 @@ describe('History', function() {
             expect(result.status).toBe(200);
             expect(result.data).toBeDefined();
             expect(Array.isArray(result.data)).toBe(true);
-            done();
         });
     });
 
@@ -71,11 +70,11 @@ describe('History', function() {
         }).toThrowError('sheetId is required and must be a string');
     });
 
-    it('should get row history', function(done) {
+    it('should get row history', function() {
         var sheetId = 'test-sheet-id';
         var rowId = 'test-row-id';
         
-        client.history.row(sheetId, rowId).then(function(result) {
+        return client.history.row(sheetId, rowId).then(function(result) {
             expect(mockFetch).toHaveBeenCalledWith(
                 'https://api.orcascan.com/v1/sheets/test-sheet-id/rows/test-row-id/history',
                 jasmine.objectContaining({
@@ -88,7 +87,6 @@ describe('History', function() {
             expect(result.status).toBe(200);
             expect(result.data).toBeDefined();
             expect(Array.isArray(result.data)).toBe(true);
-            done();
         });
     });
 
@@ -128,10 +126,10 @@ describe('History', function() {
         }).toThrowError('rowId is required and must be a string');
     });
 
-    it('should handle sheetId with special characters in URL encoding', function(done) {
+    it('should handle sheetId with special characters in URL encoding', function() {
         var sheetId = 'test/sheet:id';
         
-        client.history.sheet(sheetId).then(function(result) {
+        return client.history.sheet(sheetId).then(function(result) {
             expect(mockFetch).toHaveBeenCalledWith(
                 'https://api.orcascan.com/v1/sheets/test%2Fsheet%3Aid/history',
                 jasmine.objectContaining({
@@ -139,15 +137,14 @@ describe('History', function() {
                 })
             );
             expect(result.status).toBe(200);
-            done();
         });
     });
 
-    it('should handle rowId with special characters in URL encoding', function(done) {
+    it('should handle rowId with special characters in URL encoding', function() {
         var sheetId = 'test-sheet-id';
         var rowId = 'test/row:id';
         
-        client.history.row(sheetId, rowId).then(function(result) {
+        return client.history.row(sheetId, rowId).then(function(result) {
             expect(mockFetch).toHaveBeenCalledWith(
                 'https://api.orcascan.com/v1/sheets/test-sheet-id/rows/test%2Frow%3Aid/history',
                 jasmine.objectContaining({
@@ -155,15 +152,14 @@ describe('History', function() {
                 })
             );
             expect(result.status).toBe(200);
-            done();
         });
     });
 
-    it('should handle both sheetId and rowId with special characters', function(done) {
+    it('should handle both sheetId and rowId with special characters', function() {
         var sheetId = 'test/sheet:id';
         var rowId = 'test/row:id';
         
-        client.history.row(sheetId, rowId).then(function(result) {
+        return client.history.row(sheetId, rowId).then(function(result) {
             expect(mockFetch).toHaveBeenCalledWith(
                 'https://api.orcascan.com/v1/sheets/test%2Fsheet%3Aid/rows/test%2Frow%3Aid/history',
                 jasmine.objectContaining({
@@ -171,14 +167,13 @@ describe('History', function() {
                 })
             );
             expect(result.status).toBe(200);
-            done();
         });
     });
 
-    it('should return history data with expected structure', function(done) {
+    it('should return history data with expected structure', function() {
         var sheetId = 'test-sheet-id';
         
-        client.history.sheet(sheetId).then(function(result) {
+        return client.history.sheet(sheetId).then(function(result) {
             expect(result.data).toBeDefined();
             expect(result.data.length).toBeGreaterThan(0);
             
@@ -191,16 +186,14 @@ describe('History', function() {
             expect(historyItem._changedBy).toBeDefined();
             expect(historyItem._changedOn).toBeDefined();
             expect(historyItem._changedUsing).toBeDefined();
-            
-            done();
         });
     });
 
-    it('should return row history data with expected structure', function(done) {
+    it('should return row history data with expected structure', function() {
         var sheetId = 'test-sheet-id';
         var rowId = 'test-row-id';
         
-        client.history.row(sheetId, rowId).then(function(result) {
+        return client.history.row(sheetId, rowId).then(function(result) {
             expect(result.data).toBeDefined();
             expect(result.data.length).toBeGreaterThan(0);
             
@@ -213,12 +206,10 @@ describe('History', function() {
             expect(historyItem._changedBy).toBeDefined();
             expect(historyItem._changedOn).toBeDefined();
             expect(historyItem._changedUsing).toBeDefined();
-            
-            done();
         });
     });
 
-    it('should handle empty history response', function(done) {
+    it('should handle empty history response', function() {
         // Mock empty response
         mockFetch.and.returnValue(
             Promise.resolve({
@@ -233,14 +224,13 @@ describe('History', function() {
 
         var sheetId = 'test-sheet-id';
         
-        client.history.sheet(sheetId).then(function(result) {
+        return client.history.sheet(sheetId).then(function(result) {
             expect(result.status).toBe(200);
             expect(result.data).toEqual([]);
-            done();
         });
     });
 
-    it('should handle empty row history response', function(done) {
+    it('should handle empty row history response', function() {
         // Mock empty response
         mockFetch.and.returnValue(
             Promise.resolve({
@@ -256,10 +246,9 @@ describe('History', function() {
         var sheetId = 'test-sheet-id';
         var rowId = 'test-row-id';
         
-        client.history.row(sheetId, rowId).then(function(result) {
+        return client.history.row(sheetId, rowId).then(function(result) {
             expect(result.status).toBe(200);
             expect(result.data).toEqual([]);
-            done();
         });
     });
 });

@@ -31,10 +31,10 @@ describe('Hooks', function() {
         client = new OrcaScanNode('test-api-key');
     });
 
-    it('should get supported hook events', function(done) {
+    it('should get supported hook events', function() {
         var sheetId = 'test-sheet-id';
         
-        client.hooks.events(sheetId).then(function(result) {
+        return client.hooks.events(sheetId).then(function(result) {
             expect(mockFetch).toHaveBeenCalledWith(
                 'https://api.orcascan.com/v1/sheets/test-sheet-id/hook-events',
                 jasmine.objectContaining({
@@ -46,7 +46,6 @@ describe('Hooks', function() {
             );
             expect(result.status).toBe(200);
             expect(result.data).toBeDefined();
-            done();
         });
     });
 
@@ -66,10 +65,10 @@ describe('Hooks', function() {
         }).toThrowError('sheetId is required and must be a string');
     });
 
-    it('should list all hooks on a sheet', function(done) {
+    it('should list all hooks on a sheet', function() {
         var sheetId = 'test-sheet-id';
         
-        client.hooks.list(sheetId).then(function(result) {
+        return client.hooks.list(sheetId).then(function(result) {
             expect(mockFetch).toHaveBeenCalledWith(
                 'https://api.orcascan.com/v1/sheets/test-sheet-id/hooks',
                 jasmine.objectContaining({
@@ -79,7 +78,6 @@ describe('Hooks', function() {
             expect(result.status).toBe(200);
             expect(result.data).toBeDefined();
             expect(Array.isArray(result.data)).toBe(true);
-            done();
         });
     });
 
@@ -95,11 +93,11 @@ describe('Hooks', function() {
         }).toThrowError('sheetId is required and must be a string');
     });
 
-    it('should get a single hook', function(done) {
+    it('should get a single hook', function() {
         var sheetId = 'test-sheet-id';
         var hookId = 'hook1';
         
-        client.hooks.get(sheetId, hookId).then(function(result) {
+        return client.hooks.get(sheetId, hookId).then(function(result) {
             expect(mockFetch).toHaveBeenCalledWith(
                 'https://api.orcascan.com/v1/sheets/test-sheet-id/hooks/hook1',
                 jasmine.objectContaining({
@@ -107,7 +105,6 @@ describe('Hooks', function() {
                 })
             );
             expect(result.status).toBe(200);
-            done();
         });
     });
 
@@ -129,14 +126,14 @@ describe('Hooks', function() {
         }).toThrowError('hookId is required and must be a string');
     });
 
-    it('should create a hook with required fields', function(done) {
+    it('should create a hook with required fields', function() {
         var sheetId = 'test-sheet-id';
         var payload = { 
             eventName: 'row.add',
             targetUrl: 'https://example.com/webhook'
         };
         
-        client.hooks.create(sheetId, payload).then(function(result) {
+        return client.hooks.create(sheetId, payload).then(function(result) {
             expect(mockFetch).toHaveBeenCalledWith(
                 'https://api.orcascan.com/v1/sheets/test-sheet-id/hooks',
                 jasmine.objectContaining({
@@ -148,7 +145,6 @@ describe('Hooks', function() {
                 })
             );
             expect(result.status).toBe(200);
-            done();
         });
     });
 
@@ -204,12 +200,12 @@ describe('Hooks', function() {
         }).toThrowError('payload.targetUrl is required and must be a string');
     });
 
-    it('should update a hook', function(done) {
+    it('should update a hook', function() {
         var sheetId = 'test-sheet-id';
         var hookId = 'hook1';
         var payload = { targetUrl: 'https://new-example.com/webhook' };
         
-        client.hooks.update(sheetId, hookId, payload).then(function(result) {
+        return client.hooks.update(sheetId, hookId, payload).then(function(result) {
             expect(mockFetch).toHaveBeenCalledWith(
                 'https://api.orcascan.com/v1/sheets/test-sheet-id/hooks/hook1',
                 jasmine.objectContaining({
@@ -218,11 +214,10 @@ describe('Hooks', function() {
                 })
             );
             expect(result.status).toBe(200);
-            done();
         });
     });
 
-    it('should update hook with both eventName and targetUrl', function(done) {
+    it('should update hook with both eventName and targetUrl', function() {
         var sheetId = 'test-sheet-id';
         var hookId = 'hook1';
         var payload = { 
@@ -230,7 +225,7 @@ describe('Hooks', function() {
             targetUrl: 'https://updated-example.com/webhook'
         };
         
-        client.hooks.update(sheetId, hookId, payload).then(function(result) {
+        return client.hooks.update(sheetId, hookId, payload).then(function(result) {
             expect(mockFetch).toHaveBeenCalledWith(
                 'https://api.orcascan.com/v1/sheets/test-sheet-id/hooks/hook1',
                 jasmine.objectContaining({
@@ -239,7 +234,6 @@ describe('Hooks', function() {
                 })
             );
             expect(result.status).toBe(200);
-            done();
         });
     });
 
@@ -273,11 +267,11 @@ describe('Hooks', function() {
         }).toThrowError('payload is required and must be an object');
     });
 
-    it('should delete a hook', function(done) {
+    it('should delete a hook', function() {
         var sheetId = 'test-sheet-id';
         var hookId = 'hook1';
         
-        client.hooks.delete(sheetId, hookId).then(function(result) {
+        return client.hooks.delete(sheetId, hookId).then(function(result) {
             expect(mockFetch).toHaveBeenCalledWith(
                 'https://api.orcascan.com/v1/sheets/test-sheet-id/hooks/hook1',
                 jasmine.objectContaining({
@@ -285,7 +279,6 @@ describe('Hooks', function() {
                 })
             );
             expect(result.status).toBe(200);
-            done();
         });
     });
 
@@ -307,10 +300,10 @@ describe('Hooks', function() {
         }).toThrowError('hookId is required and must be a string');
     });
 
-    it('should handle sheetId with special characters in URL encoding', function(done) {
+    it('should handle sheetId with special characters in URL encoding', function() {
         var sheetId = 'test/sheet:id';
         
-        client.hooks.list(sheetId).then(function(result) {
+        return client.hooks.list(sheetId).then(function(result) {
             expect(mockFetch).toHaveBeenCalledWith(
                 'https://api.orcascan.com/v1/sheets/test%2Fsheet%3Aid/hooks',
                 jasmine.objectContaining({
@@ -318,15 +311,14 @@ describe('Hooks', function() {
                 })
             );
             expect(result.status).toBe(200);
-            done();
         });
     });
 
-    it('should handle hookId with special characters in URL encoding', function(done) {
+    it('should handle hookId with special characters in URL encoding', function() {
         var sheetId = 'test-sheet-id';
         var hookId = 'hook/with:special';
         
-        client.hooks.delete(sheetId, hookId).then(function(result) {
+        return client.hooks.delete(sheetId, hookId).then(function(result) {
             expect(mockFetch).toHaveBeenCalledWith(
                 'https://api.orcascan.com/v1/sheets/test-sheet-id/hooks/hook%2Fwith%3Aspecial',
                 jasmine.objectContaining({
@@ -334,14 +326,13 @@ describe('Hooks', function() {
                 })
             );
             expect(result.status).toBe(200);
-            done();
         });
     });
 
-    it('should return hook data with expected structure', function(done) {
+    it('should return hook data with expected structure', function() {
         var sheetId = 'test-sheet-id';
         
-        client.hooks.list(sheetId).then(function(result) {
+        return client.hooks.list(sheetId).then(function(result) {
             expect(result.data).toBeDefined();
             expect(result.data.length).toBeGreaterThan(0);
             
@@ -350,12 +341,10 @@ describe('Hooks', function() {
             expect(hook.eventName).toBeDefined();
             expect(hook.sheetId).toBeDefined();
             expect(hook.targetUrl).toBeDefined();
-            
-            done();
         });
     });
 
-    it('should handle empty hooks response', function(done) {
+    it('should handle empty hooks response', function() {
         // Mock empty response
         mockFetch.and.returnValue(
             Promise.resolve({
@@ -370,21 +359,20 @@ describe('Hooks', function() {
 
         var sheetId = 'test-sheet-id';
         
-        client.hooks.list(sheetId).then(function(result) {
+        return client.hooks.list(sheetId).then(function(result) {
             expect(result.status).toBe(200);
             expect(result.data).toEqual([]);
-            done();
         });
     });
 
-    it('should handle different event names', function(done) {
+    it('should handle different event names', function() {
         var sheetId = 'test-sheet-id';
         var payload = { 
             eventName: 'row.delete',
             targetUrl: 'https://example.com/delete-webhook'
         };
         
-        client.hooks.create(sheetId, payload).then(function(result) {
+        return client.hooks.create(sheetId, payload).then(function(result) {
             expect(mockFetch).toHaveBeenCalledWith(
                 'https://api.orcascan.com/v1/sheets/test-sheet-id/hooks',
                 jasmine.objectContaining({
@@ -393,18 +381,17 @@ describe('Hooks', function() {
                 })
             );
             expect(result.status).toBe(200);
-            done();
         });
     });
 
-    it('should handle complex target URLs', function(done) {
+    it('should handle complex target URLs', function() {
         var sheetId = 'test-sheet-id';
         var payload = { 
             eventName: 'row.add',
             targetUrl: 'https://api.example.com/webhooks/orca-scan?secret=abc123&version=2'
         };
         
-        client.hooks.create(sheetId, payload).then(function(result) {
+        return client.hooks.create(sheetId, payload).then(function(result) {
             expect(mockFetch).toHaveBeenCalledWith(
                 'https://api.orcascan.com/v1/sheets/test-sheet-id/hooks',
                 jasmine.objectContaining({
@@ -413,7 +400,6 @@ describe('Hooks', function() {
                 })
             );
             expect(result.status).toBe(200);
-            done();
         });
     });
 });

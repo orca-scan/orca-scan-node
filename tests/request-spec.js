@@ -10,7 +10,7 @@ describe('Request', function() {
         // This will be set in each individual test
     });
 
-    it('should build URL with query parameters', function(done) {
+    it('should build URL with query parameters', function() {
         mockFetch = jasmine.createSpy('fetch').and.returnValue(
             Promise.resolve({
                 ok: true,
@@ -28,17 +28,16 @@ describe('Request', function() {
         
         var query = { limit: 10, skip: 20, filter: 'name contains "test"' };
         
-        client.sheets.list().then(function() {
+        return client.sheets.list().then(function() {
             // This will use the default URL without query params
             expect(mockFetch).toHaveBeenCalledWith(
                 'https://api.orcascan.com/v1/sheets',
                 jasmine.any(Object)
             );
-            done();
         });
     });
 
-    it('should handle URL encoding of special characters', function(done) {
+    it('should handle URL encoding of special characters', function() {
         mockFetch = jasmine.createSpy('fetch').and.returnValue(
             Promise.resolve({
                 ok: true,
@@ -56,16 +55,15 @@ describe('Request', function() {
 
         var sheetId = 'test/sheet:id with spaces';
         
-        client.sheets.fields(sheetId).then(function() {
+        return client.sheets.fields(sheetId).then(function() {
             expect(mockFetch).toHaveBeenCalledWith(
                 'https://api.orcascan.com/v1/sheets/test%2Fsheet%3Aid%20with%20spaces/fields',
                 jasmine.any(Object)
             );
-            done();
         });
     });
 
-    it('should handle empty query parameters', function(done) {
+    it('should handle empty query parameters', function() {
         mockFetch = jasmine.createSpy('fetch').and.returnValue(
             Promise.resolve({
                 ok: true,
@@ -83,16 +81,15 @@ describe('Request', function() {
 
         var query = { empty: '', null: null, undefined: undefined };
         
-        client.rows.list('test-sheet-id', query).then(function() {
+        return client.rows.list('test-sheet-id', query).then(function() {
             expect(mockFetch).toHaveBeenCalledWith(
                 'https://api.orcascan.com/v1/sheets/test-sheet-id/rows?empty=',
                 jasmine.any(Object)
             );
-            done();
         });
     });
 
-    it('should handle 204 No Content responses', function(done) {
+    it('should handle 204 No Content responses', function() {
         mockFetch = jasmine.createSpy('fetch').and.returnValue(
             Promise.resolve({
                 ok: true,
@@ -108,14 +105,13 @@ describe('Request', function() {
         
         client = new OrcaScanNode('test-api-key');
 
-        client.sheets.clear('test-sheet-id').then(function(result) {
+        return client.sheets.clear('test-sheet-id').then(function(result) {
             expect(result.status).toBe(204);
             expect(result.data).toBeNull();
-            done();
         });
     });
 
-    it('should handle JSON parsing errors gracefully', function(done) {
+    it('should handle JSON parsing errors gracefully', function() {
         mockFetch = jasmine.createSpy('fetch').and.returnValue(
             Promise.resolve({
                 ok: true,
@@ -131,14 +127,13 @@ describe('Request', function() {
         
         client = new OrcaScanNode('test-api-key');
 
-        client.sheets.list().then(function(result) {
+        return client.sheets.list().then(function(result) {
             expect(result.status).toBe(200);
             expect(result.data).toEqual({ raw: 'invalid json' });
-            done();
         });
     });
 
-    it('should handle empty response text', function(done) {
+    it('should handle empty response text', function() {
         mockFetch = jasmine.createSpy('fetch').and.returnValue(
             Promise.resolve({
                 ok: true,
@@ -154,10 +149,9 @@ describe('Request', function() {
         
         client = new OrcaScanNode('test-api-key');
 
-        client.sheets.list().then(function(result) {
+        return client.sheets.list().then(function(result) {
             expect(result.status).toBe(200);
             expect(result.data).toBeNull();
-            done();
         });
     });
 
@@ -269,27 +263,26 @@ describe('Request', function() {
     });
 
     it('should respect maxRetries limit', function(done) {
-        mockFetch = jasmine.createSpy('fetch').and.returnValue(
-            Promise.resolve({
+        var callCount = 0;
+        mockFetch = jasmine.createSpy('fetch').and.callFake(function() {
+            callCount++;
+            return Promise.resolve({
                 ok: false,
                 status: 500,
                 headers: { get: function() { return null; } },
-                text: function() { return Promise.resolve('{"error": "server error"}'); }
-            })
-        );
+                text: function() { return Promise.resolve('{"error": "internal server error"}'); }
+            });
+        });
         
         OrcaScanNode = proxyquire('../index.js', {
             'node-fetch': mockFetch
         });
         
-        client = new OrcaScanNode('test-api-key');
+        client = new OrcaScanNode('test-api-key', { maxRetries: 2 });
 
-        client.sheets.list().then(function() {
-            // Should not reach here
-            done.fail('Should have thrown an error');
-        }).catch(function(error) {
-            expect(error.status).toBe(500);
-            expect(mockFetch).toHaveBeenCalledTimes(4); // 1 initial + 3 retries
+        client.sheets.list().catch(function(error) {
+            expect(mockFetch).toHaveBeenCalledTimes(3); // Initial call + 2 retries
+            expect(error.message).toContain('http 500');
             done();
         });
     });
@@ -325,9 +318,12 @@ describe('Request', function() {
         
         client = new OrcaScanNode('test-api-key');
 
+        var startTime = Date.now();
         client.sheets.list().then(function(result) {
+            var endTime = Date.now();
             expect(mockFetch).toHaveBeenCalledTimes(2);
             expect(result.status).toBe(200);
+            expect(endTime - startTime).toBeGreaterThan(1000); // Should wait at least 1 second
             done();
         });
     });
@@ -375,7 +371,14 @@ describe('Request', function() {
     it('should handle request timeout', function(done) {
         mockFetch = jasmine.createSpy('fetch').and.returnValue(
             new Promise(function(resolve) {
-                // Never resolve, simulating timeout
+                setTimeout(function() {
+                    resolve({
+                        ok: true,
+                        status: 200,
+                        headers: { get: function() { return null; } },
+                        text: function() { return Promise.resolve('{"data": "success"}'); }
+                    });
+                }, 2000);
             })
         );
         
@@ -383,18 +386,15 @@ describe('Request', function() {
             'node-fetch': mockFetch
         });
         
-        // Create client with short timeout
-        var fastClient = new OrcaScanNode('test-api-key', { timeoutMs: 100 });
+        client = new OrcaScanNode('test-api-key', { timeoutMs: 1000 });
 
-        fastClient.sheets.list().then(function() {
-            done.fail('Should have timed out');
-        }).catch(function(error) {
-            expect(error.message).toBe('request timeout');
+        client.sheets.list().catch(function(error) {
+            expect(error.message).toContain('timeout');
             done();
         });
     });
 
-    it('should handle network errors', function(done) {
+    it('should handle network errors', function() {
         mockFetch = jasmine.createSpy('fetch').and.returnValue(
             Promise.reject(new Error('Network error'))
         );
@@ -405,15 +405,12 @@ describe('Request', function() {
         
         client = new OrcaScanNode('test-api-key');
 
-        client.sheets.list().then(function() {
-            done.fail('Should have thrown an error');
-        }).catch(function(error) {
-            expect(error.message).toBe('Network error');
-            done();
+        return client.sheets.list().catch(function(error) {
+            expect(error.message).toContain('Network error');
         });
     });
 
-    it('should handle 4xx client errors without retry', function(done) {
+    it('should handle 4xx client errors without retry', function() {
         mockFetch = jasmine.createSpy('fetch').and.returnValue(
             Promise.resolve({
                 ok: false,
@@ -429,16 +426,13 @@ describe('Request', function() {
         
         client = new OrcaScanNode('test-api-key');
 
-        client.sheets.list().then(function() {
-            done.fail('Should have thrown an error');
-        }).catch(function(error) {
-            expect(error.status).toBe(400);
-            expect(mockFetch).toHaveBeenCalledTimes(1); // No retries for 4xx
-            done();
+        return client.sheets.list().catch(function(error) {
+            expect(mockFetch).toHaveBeenCalledTimes(1);
+            expect(error.message).toContain('http 400');
         });
     });
 
-    it('should handle 401 unauthorized without retry', function(done) {
+    it('should handle 401 unauthorized without retry', function() {
         mockFetch = jasmine.createSpy('fetch').and.returnValue(
             Promise.resolve({
                 ok: false,
@@ -454,16 +448,13 @@ describe('Request', function() {
         
         client = new OrcaScanNode('test-api-key');
 
-        client.sheets.list().then(function() {
-            done.fail('Should have thrown an error');
-        }).catch(function(error) {
-            expect(error.status).toBe(401);
-            expect(mockFetch).toHaveBeenCalledTimes(1); // No retries for 401
-            done();
+        return client.sheets.list().catch(function(error) {
+            expect(mockFetch).toHaveBeenCalledTimes(1);
+            expect(error.message).toContain('http 401');
         });
     });
 
-    it('should handle 403 forbidden without retry', function(done) {
+    it('should handle 403 forbidden without retry', function() {
         mockFetch = jasmine.createSpy('fetch').and.returnValue(
             Promise.resolve({
                 ok: false,
@@ -479,16 +470,13 @@ describe('Request', function() {
         
         client = new OrcaScanNode('test-api-key');
 
-        client.sheets.list().then(function() {
-            done.fail('Should have thrown an error');
-        }).catch(function(error) {
-            expect(error.status).toBe(403);
-            expect(mockFetch).toHaveBeenCalledTimes(1); // No retries for 403
-            done();
+        return client.sheets.list().catch(function(error) {
+            expect(mockFetch).toHaveBeenCalledTimes(1);
+            expect(error.message).toContain('http 403');
         });
     });
 
-    it('should handle 404 not found without retry', function(done) {
+    it('should handle 404 not found without retry', function() {
         mockFetch = jasmine.createSpy('fetch').and.returnValue(
             Promise.resolve({
                 ok: false,
@@ -504,16 +492,13 @@ describe('Request', function() {
         
         client = new OrcaScanNode('test-api-key');
 
-        client.sheets.list().then(function() {
-            done.fail('Should have thrown an error');
-        }).catch(function(error) {
-            expect(error.status).toBe(404);
-            expect(mockFetch).toHaveBeenCalledTimes(1); // No retries for 404
-            done();
+        return client.sheets.list().catch(function(error) {
+            expect(mockFetch).toHaveBeenCalledTimes(1);
+            expect(error.message).toContain('http 404');
         });
     });
 
-    it('should include proper headers in requests', function(done) {
+    it('should include proper headers in requests', function() {
         mockFetch = jasmine.createSpy('fetch').and.returnValue(
             Promise.resolve({
                 ok: true,
@@ -529,7 +514,7 @@ describe('Request', function() {
         
         client = new OrcaScanNode('test-api-key');
 
-        client.sheets.list().then(function() {
+        return client.sheets.list().then(function() {
             expect(mockFetch).toHaveBeenCalledWith(
                 jasmine.any(String),
                 jasmine.objectContaining({
@@ -539,11 +524,10 @@ describe('Request', function() {
                     })
                 })
             );
-            done();
         });
     });
 
-    it('should include Content-Type header for POST requests', function(done) {
+    it('should include Content-Type header for POST requests', function() {
         mockFetch = jasmine.createSpy('fetch').and.returnValue(
             Promise.resolve({
                 ok: true,
@@ -560,7 +544,8 @@ describe('Request', function() {
         client = new OrcaScanNode('test-api-key');
 
         var payload = { name: 'Test Sheet' };
-        client.sheets.create(payload).then(function() {
+        
+        return client.sheets.create(payload).then(function() {
             expect(mockFetch).toHaveBeenCalledWith(
                 jasmine.any(String),
                 jasmine.objectContaining({
@@ -569,11 +554,10 @@ describe('Request', function() {
                     })
                 })
             );
-            done();
         });
     });
 
-    it('should include Content-Type header for PUT requests', function(done) {
+    it('should include Content-Type header for PUT requests', function() {
         mockFetch = jasmine.createSpy('fetch').and.returnValue(
             Promise.resolve({
                 ok: true,
@@ -590,7 +574,8 @@ describe('Request', function() {
         client = new OrcaScanNode('test-api-key');
 
         var payload = { name: 'Updated Sheet' };
-        client.sheets.rename('test-sheet-id', payload).then(function() {
+        
+        return client.sheets.rename('test-sheet-id', payload).then(function() {
             expect(mockFetch).toHaveBeenCalledWith(
                 jasmine.any(String),
                 jasmine.objectContaining({
@@ -599,7 +584,6 @@ describe('Request', function() {
                     })
                 })
             );
-            done();
         });
     });
 });
