@@ -6,7 +6,7 @@ var fetch = require('node-fetch');
  * Simple ES5 SDK that mirrors the rest api structure using namespaces
  * @param {string} apiKey - your orca scan api key
  * @param {object} [options] - optional configuration
- * @param {string} [options.baseUrl] - override api base url defaults to https://api.orcascan.com/v1
+ * @param {string} [options.endpoint] - override api base url defaults to https://api.orcascan.com/v1
  * @param {number} [options.timeoutMs] - request timeout in milliseconds defaults to 30000
  * @param {number} [options.maxRetries] - retries on 429 503 and 5xx defaults to 3
  * @returns {object} instance with sheets rows history users and hooks namespaces
@@ -19,7 +19,7 @@ function OrcaScanNode(apiKey, options) {
 
     options = options || {};
 
-    var baseUrl = options.baseUrl || 'https://api.orcascan.com/v1';
+    var endpoint = options.endpoint || 'https://api.orcascan.com/v1';
     var timeoutMs = typeof options.timeoutMs === 'number' ? options.timeoutMs : 30000;
     var maxRetries = typeof options.maxRetries === 'number' ? options.maxRetries : 3;
 
@@ -35,7 +35,7 @@ function OrcaScanNode(apiKey, options) {
      * @returns {string} full request url
      */
     function buildUrl(path, qs) {
-        var url = baseUrl + path;
+        var url = endpoint + path;
 
         if (qs && typeof qs === 'object') {
             var first = true;

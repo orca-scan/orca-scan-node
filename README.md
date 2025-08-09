@@ -15,7 +15,7 @@ var OrcaScan = require('orca-scan-node');
 
 // create instance
 var orca = new OrcaScan('your-api-key', {
-    baseUrl: 'https://api.orcascan.com/v1',  // default endpoint
+    endpoint: 'https://api.orcascan.com/v1', // default endpoint
     timeoutMs: 30000,                        // default: 30 seconds
     maxRetries: 3                            // default: 3 retries
 });
