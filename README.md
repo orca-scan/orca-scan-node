@@ -1,6 +1,6 @@
-# Orca Scan Node Client
+# orca-scan-code
 
-A simple ES5 Node.js client library for the Orca Scan API. This library provides a clean, promise-based interface for managing sheets, rows, users, hooks, and history.
+A simple node library for the Orca Scan API. This library provides a clean, promise-based interface for managing sheets, rows, users, hooks, and history.
 
 ## Installation
 
