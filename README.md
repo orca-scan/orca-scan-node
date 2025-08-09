@@ -11,10 +11,10 @@ npm install orca-scan-node
 ## Quick Start
 
 ```javascript
-var OrcaScanNode = require('orca-scan-node');
+var OrcaScan = require('orca-scan-node');
 
 // Initialize with your API key
-var orca = new OrcaScanNode('your-api-key-here');
+var orca = new OrcaScan('your-api-key-here');
 
 // List all sheets
 orca.sheets.list().then(function(result) {
@@ -30,7 +30,7 @@ orca.sheets.list().then(function(result) {
 You can customize the client behavior with options:
 
 ```javascript
-var orca = new OrcaScanNode('your-api-key', {
+var orca = new OrcaScan('your-api-key', {
     baseUrl: 'https://api.orcascan.com/v1',  // Default
     timeoutMs: 30000,                        // Default: 30 seconds
     maxRetries: 3                            // Default: 3 retries
@@ -44,6 +44,7 @@ var orca = new OrcaScanNode('your-api-key', {
 Manage your Orca Scan sheets.
 
 #### List Sheets
+
 ```javascript
 orca.sheets.list().then(function(result) {
     // result.data contains array of sheets
@@ -52,6 +53,7 @@ orca.sheets.list().then(function(result) {
 ```
 
 #### Create Sheet
+
 ```javascript
 orca.sheets.create({
     name: 'My New Sheet',
@@ -63,6 +65,7 @@ orca.sheets.create({
 ```
 
 #### Get Sheet Fields
+
 ```javascript
 orca.sheets.fields('sheet-id').then(function(result) {
     // result.data contains array of fields
@@ -71,6 +74,7 @@ orca.sheets.fields('sheet-id').then(function(result) {
 ```
 
 #### Get Sheet Settings
+
 ```javascript
 orca.sheets.settings('sheet-id').then(function(result) {
     // result.data contains sheet settings
@@ -78,6 +82,7 @@ orca.sheets.settings('sheet-id').then(function(result) {
 ```
 
 #### Clear All Rows
+
 ```javascript
 orca.sheets.clear('sheet-id').then(function(result) {
     // All rows in the sheet have been deleted
@@ -85,6 +90,7 @@ orca.sheets.clear('sheet-id').then(function(result) {
 ```
 
 #### Rename Sheet
+
 ```javascript
 orca.sheets.rename('sheet-id', {
     name: 'New Sheet Name',
@@ -96,6 +102,7 @@ orca.sheets.rename('sheet-id', {
 ```
 
 #### Delete Sheet
+
 ```javascript
 orca.sheets.delete('sheet-id').then(function(result) {
     // Sheet has been deleted
@@ -107,6 +114,7 @@ orca.sheets.delete('sheet-id').then(function(result) {
 Manage rows within sheets.
 
 #### List Rows
+
 ```javascript
 // Get all rows
 orca.rows.list('sheet-id').then(function(result) {
@@ -124,6 +132,7 @@ orca.rows.list('sheet-id', {
 ```
 
 #### Get Single Row
+
 ```javascript
 orca.rows.get('sheet-id', 'row-id').then(function(result) {
     // result.data contains the row
@@ -131,6 +140,7 @@ orca.rows.get('sheet-id', 'row-id').then(function(result) {
 ```
 
 #### Add Rows
+
 ```javascript
 // Add single row
 orca.rows.add('sheet-id', {
@@ -153,6 +163,7 @@ orca.rows.add('sheet-id', [
 ```
 
 #### Update Rows
+
 ```javascript
 // Update single row
 orca.rows.updateOne('sheet-id', 'row-id', {
@@ -173,6 +184,7 @@ orca.rows.updateMany('sheet-id', [
 ```
 
 #### Delete Rows
+
 ```javascript
 // Delete single row
 orca.rows.deleteOne('sheet-id', 'row-id').then(function(result) {
@@ -190,6 +202,7 @@ orca.rows.deleteMany('sheet-id', ['row1', 'row2', 'row3']).then(function(result)
 Track changes to sheets and rows.
 
 #### Get Sheet History
+
 ```javascript
 orca.history.sheet('sheet-id').then(function(result) {
     // result.data contains array of history items
@@ -198,6 +211,7 @@ orca.history.sheet('sheet-id').then(function(result) {
 ```
 
 #### Get Row History
+
 ```javascript
 orca.history.row('sheet-id', 'row-id').then(function(result) {
     // result.data contains array of history items for this row
@@ -209,6 +223,7 @@ orca.history.row('sheet-id', 'row-id').then(function(result) {
 Manage user access to sheets.
 
 #### List Users
+
 ```javascript
 orca.users.list('sheet-id').then(function(result) {
     // result.data contains array of users
@@ -217,6 +232,7 @@ orca.users.list('sheet-id').then(function(result) {
 ```
 
 #### Add User
+
 ```javascript
 orca.users.add('sheet-id', {
     email: 'user@example.com',
@@ -231,6 +247,7 @@ orca.users.add('sheet-id', {
 ```
 
 #### Update User
+
 ```javascript
 orca.users.update('sheet-id', 'user-id', {
     canUpdate: true,
@@ -242,6 +259,7 @@ orca.users.update('sheet-id', 'user-id', {
 ```
 
 #### Remove User
+
 ```javascript
 orca.users.remove('sheet-id', 'user-id').then(function(result) {
     // User has been removed from the sheet
@@ -253,6 +271,7 @@ orca.users.remove('sheet-id', 'user-id').then(function(result) {
 Manage webhooks for sheet events.
 
 #### Get Supported Events
+
 ```javascript
 orca.hooks.events('sheet-id').then(function(result) {
     // result.data contains array of supported event names
@@ -260,6 +279,7 @@ orca.hooks.events('sheet-id').then(function(result) {
 ```
 
 #### List Hooks
+
 ```javascript
 orca.hooks.list('sheet-id').then(function(result) {
     // result.data contains array of hooks
@@ -268,6 +288,7 @@ orca.hooks.list('sheet-id').then(function(result) {
 ```
 
 #### Get Single Hook
+
 ```javascript
 orca.hooks.get('sheet-id', 'hook-id').then(function(result) {
     // result.data contains the hook
@@ -275,6 +296,7 @@ orca.hooks.get('sheet-id', 'hook-id').then(function(result) {
 ```
 
 #### Create Hook
+
 ```javascript
 orca.hooks.create('sheet-id', {
     eventName: 'row.add',
@@ -286,6 +308,7 @@ orca.hooks.create('sheet-id', {
 ```
 
 #### Update Hook
+
 ```javascript
 orca.hooks.update('sheet-id', 'hook-id', {
     targetUrl: 'https://new-example.com/webhook'
@@ -296,6 +319,7 @@ orca.hooks.update('sheet-id', 'hook-id', {
 ```
 
 #### Delete Hook
+
 ```javascript
 orca.hooks.delete('sheet-id', 'hook-id').then(function(result) {
     // Hook has been deleted
@@ -344,10 +368,11 @@ Retries are limited by the `maxRetries` option (default: 3).
 ## Examples
 
 ### Complete Workflow
-```javascript
-var OrcaScanNode = require('orca-scan-node');
 
-var orca = new OrcaScanNode('your-api-key');
+```javascript
+var OrcaScan = require('orca-scan-node');
+
+var orca = new OrcaScan('your-api-key');
 
 // 1. Create a new sheet
 orca.sheets.create({
@@ -378,6 +403,7 @@ orca.sheets.create({
 ```
 
 ### Error Handling Example
+
 ```javascript
 orca.sheets.list().then(function(result) {
     if (result.data.length === 0) {
