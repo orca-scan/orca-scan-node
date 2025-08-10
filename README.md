@@ -1,4 +1,4 @@
-# Orca Scan Node SDK
+# orca-scan-node
 
 The official Node.js client for [Orca Scan](https://orcascan.com).
 
