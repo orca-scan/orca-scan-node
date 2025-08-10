@@ -1,8 +1,6 @@
 # orca-scan-node
 
-The official Node.js client for the [Orca Scan](https://orcascan.com) barcode tracking system.
-
-## Features
+The official Node.js client for the [Orca Scan](https://orcascan.com) barcode tracking system. Allows you to:
 
 - **Sheets** - Create and manage sheets
 - **Rows** - Add, update, delete rows 
