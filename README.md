@@ -24,62 +24,206 @@ var orca = new OrcaScan('your-api-key', {
     timeoutMs: 30000,                        // Request timeout (30 sec)
     maxRetries: 3                            // Max retry attempts
 });
-
-orca.sheets.list().then(function(result) {
-    console.log('My sheets:', result.data);
-})
-.catch(function(err) {
-    console.error('Oops:', err.message)
-});
 ```
 
 ## API
 
-### Working with Sheets
+### Sheets
 
 ```js
-// List all sheets
-orca.sheets.list()
-  .then(result => console.log(result.data));
-
-// Create new sheet
-orca.sheets.create({
-    name: 'Inventory',
-    templateName: 'inventory'  // Optional
+// list all sheets
+orca.sheets.list().then(function(result) {
+    console.log(result.data);
 });
 
-// Delete sheet
-orca.sheets.delete('sheet-id');
+// create new sheet
+orca.sheets.create({
+    name: 'Inventory',
+    templateName: 'inventory'  // optional
+}).then(function(result) {
+    console.log('Sheet created:', result.data);
+});
+
+// get sheet fields
+orca.sheets.fields('sheet-id').then(function(result) {
+    console.log('Sheet fields:', result.data);
+});
+
+// get sheet settings
+orca.sheets.settings('sheet-id').then(function(result) {
+    console.log('Sheet settings:', result.data);
+});
+
+// clear all rows in a sheet
+orca.sheets.clear('sheet-id').then(function(result) {
+    console.log('Sheet cleared');
+});
+
+// rename a sheet
+orca.sheets.rename('sheet-id', { name: 'New Sheet Name' }).then(function(result) {
+    console.log('Sheet renamed');
+});
+
+// delete sheet
+orca.sheets.delete('sheet-id').then(function(result) {
+    console.log('Sheet deleted');
+});
 ```
 
-### Managing Rows
+### Rows
 
 ```js
-// Add single row
+// list all rows in a sheet
+orca.rows.list('sheet-id').then(function(result) {
+    console.log(result.data);
+});
+
+// get a single row
+orca.rows.get('sheet-id', 'row-id').then(function(result) {
+    console.log(result.data);
+});
+
+// add single row
 orca.rows.add('sheet-id', {
     name: 'Laptop',
     quantity: 5
+})
+.then(function(result) {
+    console.log('Row added:', result.data);
 });
 
-// Add multiple rows
+// add multiple rows
 orca.rows.add('sheet-id', [
     { name: 'Item 1', quantity: 5 },
     { name: 'Item 2', quantity: 10 }
-]);
+])
+.then(function(result) {
+    console.log('Rows added:', result.data);
+});
 
-// Update row
+// update one row
 orca.rows.updateOne('sheet-id', 'row-id', {
     quantity: 15
+})
+.then(function(result) {
+    console.log('Row updated:', result.data);
+});
+
+// update many rows
+orca.rows.updateMany('sheet-id', [
+    { _id: 'row1', quantity: 15 },
+    { _id: 'row2', quantity: 20 }
+])
+.then(function(result) {
+    console.log('Rows updated:', result.data);
+});
+
+// delete one row
+orca.rows.deleteOne('sheet-id', 'row-id').then(function(result) {
+    console.log('Row deleted');
+});
+
+// delete multiple rows
+orca.rows.deleteMany('sheet-id', ['row1', 'row2']).then(function(result) {
+    console.log('Rows deleted');
+});
+```
+
+### History
+
+```js
+// get sheet history
+orca.history.sheet('sheet-id').then(function(result) {
+    console.log(result.data);
+});
+
+// get row history
+orca.history.row('sheet-id', 'row-id').then(function(result) {
+    console.log(result.data);
+});
+```
+
+### Users
+
+```js
+// list users on a sheet
+orca.users.list('sheet-id').then(function(result) {
+    console.log(result.data);
+});
+
+// add a user to a sheet
+orca.users.add('sheet-id', {
+    email: 'user@example.com',
+    canUpdate: true,
+    canDelete: false
+})
+.then(function(result) {
+    console.log('User added:', result.data);
+});
+
+// update a user on a sheet
+orca.users.update('sheet-id', 'user-id', {
+    canUpdate: false,
+    canDelete: true
+})
+.then(function(result) {
+    console.log('User updated:', result.data);
+});
+
+// remove a user from a sheet
+orca.users.remove('sheet-id', 'user-id').then(function(result) {
+    console.log('User removed');
+});
+```
+
+### Hooks
+
+```js
+// get supported hook events
+orca.hooks.events('sheet-id').then(function(result) {
+    console.log(result.data);
+});
+
+// list all hooks on a sheet
+orca.hooks.list('sheet-id').then(function(result) {
+    console.log(result.data);
+});
+
+// get a single hook
+orca.hooks.get('sheet-id', 'hook-id').then(function(result) {
+    console.log(result.data);
+});
+
+// create a hook
+orca.hooks.create('sheet-id', {
+    eventName: 'row.added',
+    targetUrl: 'https://example.com/webhook'
+})
+.then(function(result) {
+    console.log('Hook created:', result.data);
+});
+
+// update a hook
+orca.hooks.update('sheet-id', 'hook-id', {
+    targetUrl: 'https://example.com/new-webhook'
+})
+.then(function(result) {
+    console.log('Hook updated:', result.data);
+});
+
+// delete a hook
+orca.hooks.delete('sheet-id', 'hook-id').then(function(result) {
+    console.log('Hook deleted');
 });
 ```
 
 ## Error Handling
 
 ```js
-orca.sheets.list().then(result => {
+orca.sheets.list().then(function(result) {
     console.log('Success!', result.data);
 })
-.catch(error => {
+.catch(function(error) {
     console.error('Error:', error.message);
     console.error('Status:', error.status);
 });
