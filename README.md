@@ -2,34 +2,28 @@
 
 The official Node.js client for [Orca Scan](https://orcascan.com) barcode tracking system
 
-## Quick Start
-
-1. Install the package:
+## Install
 
 ```bash
 npm install orca-scan-node
 ```
 
-2. Create a client:
+## Usage
+
 ```js
 const OrcaScan = require('orca-scan-node');
-const orca = new OrcaScan('your-api-key');
-```
 
-3. Make your first API call:
-```js
-orca.sheets.list()
-  .then(result => console.log('My sheets:', result.data))
-  .catch(err => console.error('Oops:', err.message));
-```
-
-## Options
-
-```js
 const orca = new OrcaScan('your-api-key', {
     endpoint: 'https://api.orcascan.com/v1', // Custom API endpoint
     timeoutMs: 30000,                        // Request timeout (30 sec)
     maxRetries: 3                            // Max retry attempts
+});
+
+orca.sheets.list().then(function(result) {
+    console.log('My sheets:', result.data);
+})
+.catch(function(err) {
+    console.error('Oops:', err.message)
 });
 ```
 
