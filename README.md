@@ -13,12 +13,14 @@ npm install orca-scan-node
 
 ```js
 var OrcaScan = require('orca-scan-node');
-
-// create instance
 var orca = new OrcaScan('your-api-key', {
-    endpoint: 'https://api.orcascan.com/v1', // default endpoint
-    timeoutMs: 30000,                        // default: 30 seconds
-    maxRetries: 3                            // default: 3 retries
+    endpoint: 'https://api.orcascan.com/v1', // optional
+    timeoutMs: 30000,                        // optional
+    maxRetries: 3                            // optional
+});
+
+orca.sheets.list().then(function(result) {
+    console.log(result.data);
 });
 ```
 
@@ -345,13 +347,12 @@ orca.sheets.list().then(function(result) {
 
 ## Retry Logic
 
-Requests are automatically retried on:
+Retries automatically on:
+* 429 (Rate limit) – waits per retry-after or backoff
+* 503 (Service unavailable) – backoff
+* 5xx (Server errors) – backoff
 
-- **429 (Rate Limit)** - waits for `retry-after` header or uses exponential backoff
-- **503 (Service Unavailable)** - uses exponential backoff
-- **5xx Server Errors** - uses exponential backoff
-
-Retries are limited by the `maxRetries` option (default: 3).
+Max retries: maxRetries (default: 3)
 
 ## Examples
 
@@ -388,35 +389,10 @@ orca.sheets.create({
 });
 ```
 
-### Error Handling Example
-
-```js
-orca.sheets.list().then(function(result) {
-    if (result.data.length === 0) {
-        console.log('No sheets found');
-        return;
-    }
-    
-    var firstSheet = result.data[0];
-    console.log('First sheet:', firstSheet.name);
-})
-.catch(function(error) {
-    if (error.status === 401) {
-        console.error('Invalid API key');
-    }
-    else if (error.status === 404) {
-        console.error('Resource not found');
-    }
-    else {
-        console.error('Unexpected error:', error.message);
-    }
-});
-```
-
 ## Support
 
 For issues and questions:
-- Check the [Orca Scan API documentation](https://orcascan.com/docs)
+- Check the [API documentation](https://orcascan.com/guides/barcode-scanner-api-f09a21c3)
 - Review error messages and status codes
-- Ensure your API key has the necessary permissions
 - Verify all required parameters are provided
+- Chat to us [Live](https://orcascan.com/#chat)
