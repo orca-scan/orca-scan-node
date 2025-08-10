@@ -1,8 +1,6 @@
 # orca-scan-node
 
-The official Node.js client for [Orca Scan](https://orcascan.com).
-
-Lets you manage **sheets**, **rows**, **users**, **hooks** and **history** via the [Orca Scan API](https://orcascan.com/guides/barcode-scanner-api-f09a21c3).
+The official Node.js client for [Orca Scan](https://orcascan.com), lets you manage **sheets**, **rows**, **users**, **hooks** and **history** via the [Orca Scan API](https://orcascan.com/guides/barcode-scanner-api-f09a21c3).
 
 
 ## Installation
