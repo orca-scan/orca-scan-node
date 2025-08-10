@@ -19,9 +19,9 @@ npm install orca-scan-node
 ## Usage
 
 ```js
-const OrcaScan = require('orca-scan-node');
+var OrcaScan = require('orca-scan-node');
 
-const orca = new OrcaScan('your-api-key', {
+var orca = new OrcaScan('your-api-key', {
     endpoint: 'https://api.orcascan.com/v1', // Custom API endpoint
     timeoutMs: 30000,                        // Request timeout (30 sec)
     maxRetries: 3                            // Max retry attempts
@@ -87,7 +87,7 @@ orca.sheets.list().then(result => {
 });
 ```
 
-## Common Errors
+## Errors
 
  Error                | What it means     | How to fix                            
 ----------------------|-------------------|---------------------------------------
@@ -108,20 +108,22 @@ Default: 3 retry attempts with exponential backoff
 ## Complete Example
 
 ```js
-const orca = new OrcaScan('your-api-key');
+var orca = new OrcaScan('your-api-key');
 
 // Create sheet -> Add rows -> List rows
-orca.sheets.create({ name: 'Inventory' }).then(result => {
-    const sheetId = result.data._id;
+orca.sheets.create({ name: 'Inventory' }).then(function(result) {
+
+    var sheetId = result.data._id;
+
     return orca.rows.add(sheetId, [
         { name: 'Laptop', quantity: 5 },
         { name: 'Chair', quantity: 10 }
     ]);
 })
-.then(() => {
+.then(function() {
     console.log('Items added successfully!');
 })
-.catch(err => {
+.catch(function(err) {
     console.error('Something went wrong:', err.message);
 });
 ```
