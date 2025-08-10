@@ -5,7 +5,7 @@ The official Node.js client for the [Orca Scan](https://orcascan.com) barcode tr
 ## Features
 
 - **Sheets** - Create and manage sheets
-- **Rows** - Add, update, delete sheet rows 
+- **Rows** - Add, update, delete rows 
 - **History** - Track changes to sheets and rows
 - **Users** - Control user access permissions
 - **Hooks** - Set up webhook notifications
