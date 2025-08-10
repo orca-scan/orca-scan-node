@@ -1,6 +1,14 @@
 # orca-scan-node
 
-The official Node.js client for [Orca Scan](https://orcascan.com) barcode tracking system
+The official Node.js client for the [Orca Scan](https://orcascan.com) barcode tracking system.
+
+## Features
+
+- **Sheets** - Create and manage sheets
+- **Rows** - Add, update, delete sheet rows 
+- **History** - Track changes to sheets and rows
+- **Users** - Control user access permissions
+- **Hooks** - Set up webhook notifications
 
 ## Install
 
@@ -26,14 +34,6 @@ orca.sheets.list().then(function(result) {
     console.error('Oops:', err.message)
 });
 ```
-
-## Features
-
-- **Sheets** - Create and manage sheets
-- **Rows** - Add, update, delete sheet rows 
-- **History** - Track changes to sheets and rows
-- **Users** - Control user access permissions
-- **Hooks** - Set up webhook notifications
 
 ## API
 
