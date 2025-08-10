@@ -1,398 +1,138 @@
 # orca-scan-node
 
-The official Node.js client for [Orca Scan](https://orcascan.com/guides/barcode-scanner-api-f09a21c3) - manage **sheets**, **rows**, **users**, **hooks** and **history**.
+The official Node.js client for [Orca Scan](https://orcascan.com) barcode tracking system
 
+## Quick Start
 
-## Installation
-
+1. Install the package:
 ```bash
 npm install orca-scan-node
 ```
 
-## Usage
+2. Create a client:
+```js
+const OrcaScan = require('orca-scan-node');
+const orca = new OrcaScan('your-api-key');
+```
+
+3. Make your first API call:
+```js
+orca.sheets.list()
+  .then(result => console.log('My sheets:', result.data))
+  .catch(err => console.error('Oops:', err.message));
+```
+
+## Configuration Options
 
 ```js
-var OrcaScan = require('orca-scan-node');
-var orca = new OrcaScan('your-api-key', {
-    endpoint: 'https://api.orcascan.com/v1', // optional
-    timeoutMs: 30000,                        // optional
-    maxRetries: 3                            // optional
-});
-
-orca.sheets.list().then(function(result) {
-    console.log(result.data);
+const orca = new OrcaScan('your-api-key', {
+    endpoint: 'https://api.orcascan.com/v1', // Custom API endpoint
+    timeoutMs: 30000,                        // Request timeout (30 sec)
+    maxRetries: 3                            // Max retry attempts
 });
 ```
 
-## API
+## Available Features
 
-### Sheets
+- **Sheets** - Create and manage sheets
+- **Rows** - Add, update, delete sheet rows 
+- **History** - Track changes to sheets and rows
+- **Users** - Control user access permissions
+- **Hooks** - Set up webhook notifications
 
-Manage your Orca Scan sheets.
+## API Examples
 
-#### List Sheets
-
-```js
-orca.sheets.list().then(function(result) {
-    // result.data contains array of sheets
-    // Each sheet has: _id, name, isOwner, canAdmin, canUpdate, canDelete, canExport
-});
-```
-
-#### Create Sheet
+### Working with Sheets
 
 ```js
+// List all sheets
+orca.sheets.list()
+  .then(result => console.log(result.data));
+
+// Create new sheet
 orca.sheets.create({
-    name: 'My New Sheet',
+    name: 'Inventory',
     templateName: 'inventory'  // Optional
-})
-.then(function(result) {
-    // result.data contains the created sheet
 });
+
+// Delete sheet
+orca.sheets.delete('sheet-id');
 ```
 
-#### Get Fields
-
-```js
-orca.sheets.fields('sheet-id').then(function(result) {
-    // result.data contains array of fields
-    // Each field has: key, label, type, required
-});
-```
-
-#### Get Settings
-
-```js
-orca.sheets.settings('sheet-id').then(function(result) {
-    // result.data contains sheet settings
-});
-```
-
-#### Clear Sheet
-
-```js
-orca.sheets.clear('sheet-id').then(function(result) {
-    // All rows in the sheet have been deleted
-});
-```
-
-#### Rename Sheet
-
-```js
-orca.sheets.rename('sheet-id', {
-    name: 'New Sheet Name',
-    description: 'Optional description'
-})
-.then(function(result) {
-    // Sheet has been renamed
-});
-```
-
-#### Delete Sheet
-
-```js
-orca.sheets.delete('sheet-id').then(function(result) {
-    // Sheet has been deleted
-});
-```
-
-### Rows
-
-Manage rows within sheets.
-
-#### Get All Rows
-
-```js
-// Get all rows
-orca.rows.list('sheet-id').then(function(result) {
-    // result.data contains array of rows
-});
-
-// Get rows with pagination
-orca.rows.list('sheet-id', {
-    limit: 10,
-    skip: 20
-})
-.then(function(result) {
-    // result.data contains paginated rows
-});
-```
-
-#### Get Single Row
-
-```js
-orca.rows.get('sheet-id', 'row-id').then(function(result) {
-    // result.data contains the row
-});
-```
-
-#### Add Rows
+### Managing Rows
 
 ```js
 // Add single row
 orca.rows.add('sheet-id', {
-    name: 'Item Name',
-    quantity: 5,
-    photo: 'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD...'
-})
-.then(function(result) {
-    // result.data contains the created row
+    name: 'Laptop',
+    quantity: 5
 });
 
 // Add multiple rows
 orca.rows.add('sheet-id', [
     { name: 'Item 1', quantity: 5 },
     { name: 'Item 2', quantity: 10 }
-])
-.then(function(result) {
-    // result.data contains array of created rows
-});
-```
+]);
 
-#### Update Rows
-
-```js
-// Update single row
+// Update row
 orca.rows.updateOne('sheet-id', 'row-id', {
     quantity: 15
-})
-.then(function(result) {
-    // result.data contains the updated row
-});
-
-// Update multiple rows
-orca.rows.updateMany('sheet-id', [
-    { _id: 'row1', quantity: 15 },
-    { _id: 'row2', quantity: 20 }
-])
-.then(function(result) {
-    // result.data contains array of updated rows
-});
-```
-
-#### Delete Rows
-
-```js
-// Delete single row
-orca.rows.deleteOne('sheet-id', 'row-id').then(function(result) {
-    // Row has been deleted
-});
-
-// Delete multiple rows
-orca.rows.deleteMany('sheet-id', ['row1', 'row2', 'row3']).then(function(result) {
-    // Rows have been deleted
-});
-```
-
-### History
-
-Track changes to sheets and rows.
-
-#### Get Sheet History
-
-```js
-orca.history.sheet('sheet-id').then(function(result) {
-    // result.data contains array of history items
-    // Each item has: _id, barcode, name, quantity, _change, _changedBy, _changedOn, _changedUsing
-});
-```
-
-#### Get Row History
-
-```js
-orca.history.row('sheet-id', 'row-id').then(function(result) {
-    // result.data contains array of history items for this row
-});
-```
-
-### Users
-
-Manage user access to sheets.
-
-#### List Users
-
-```js
-orca.users.list('sheet-id').then(function(result) {
-    // result.data contains array of users
-    // Each user has: _id, email, owner, canUpdate, canDelete, canExport, canAdmin
-});
-```
-
-#### Add User
-
-```js
-orca.users.add('sheet-id', {
-    email: 'user@example.com',
-    canUpdate: true,
-    canDelete: false,
-    canExport: true,
-    canAdmin: false
-})
-.then(function(result) {
-    // result.data contains the created user
-});
-```
-
-#### Update User
-
-```js
-orca.users.update('sheet-id', 'user-id', {
-    canUpdate: true,
-    canDelete: true
-})
-.then(function(result) {
-    // result.data contains the updated user
-});
-```
-
-#### Remove User
-
-```js
-orca.users.remove('sheet-id', 'user-id').then(function(result) {
-    // User has been removed from the sheet
-});
-```
-
-### Hooks
-
-Manage webhooks for sheet events.
-
-#### Get Supported Events
-
-```js
-orca.hooks.events('sheet-id').then(function(result) {
-    // result.data contains array of supported event names
-});
-```
-
-#### List Hooks
-
-```js
-orca.hooks.list('sheet-id').then(function(result) {
-    // result.data contains array of hooks
-    // Each hook has: _id, eventName, sheetId, targetUrl
-});
-```
-
-#### Get Single Hook
-
-```js
-orca.hooks.get('sheet-id', 'hook-id').then(function(result) {
-    // result.data contains the hook
-});
-```
-
-#### Create Hook
-
-```js
-orca.hooks.create('sheet-id', {
-    eventName: 'row.add',
-    targetUrl: 'https://example.com/webhook'
-})
-.then(function(result) {
-    // result.data contains the created hook
-});
-```
-
-#### Update Hook
-
-```js
-orca.hooks.update('sheet-id', 'hook-id', {
-    targetUrl: 'https://new-example.com/webhook'
-})
-.then(function(result) {
-    // result.data contains the updated hook
-});
-```
-
-#### Delete Hook
-
-```js
-orca.hooks.delete('sheet-id', 'hook-id').then(function(result) {
-    // Hook has been deleted
 });
 ```
 
 ## Error Handling
 
-All methods return promises that can be handled with `.then()` and `.catch()`:
-
 ```js
-orca.sheets.list().then(function(result) {
-    // Success - result contains: { status, headers, data }
-    console.log('Status:', result.status);
-    console.log('Data:', result.data);
+orca.sheets.list().then(result => {
+    console.log('Success!', result.data);
 })
-.catch(function(error) {
-    // Error - error contains: { message, status, body }
+.catch(error => {
     console.error('Error:', error.message);
     console.error('Status:', error.status);
 });
 ```
 
-## Common Error Messages
+## Common Errors
 
-| Error Message                                      | Description                              |
-|----------------------------------------------------|------------------------------------------|
-| `apiKey is required and must be a string`          | Missing or invalid API key               |
-| `sheetId is required and must be a string`         | Missing or invalid sheet ID              |
-| `payload is required and must be an object`        | Missing or invalid payload               |
-| `http 400`                                         | Bad request (check your payload)         |
-| `http 401`                                         | Unauthorized (check your API key)        |
-| `http 403`                                         | Forbidden (check your permissions)       |
-| `http 404`                                         | Not found (check your IDs)               |
-| `http 429`                                         | Rate limited (will retry automatically)  |
-| `http 500`                                         | Server error (will retry automatically)  |
-| `request timeout`                                  | Request timed out                        |
+ Error                | What it means     | How to fix                            
+----------------------|-------------------|---------------------------------------
+ `apiKey is required` | Missing API key   | Add your API key when creating client 
+ `http 401`           | Invalid API key   | Check your API key is correct         
+ `http 403`           | Permission denied | Verify your access rights             
+ `http 429`           | Too many requests | Requests are automatically retried    
 
-## Retry Logic
+## Automatic Retries
 
-Retries automatically on:
-* 429 (Rate limit) – waits per retry-after or backoff
-* 503 (Service unavailable) – backoff
-* 5xx (Server errors) – backoff
+The client will automatically retry on:
+- Rate limits (429)
+- Service unavailable (503) 
+- Server errors (5xx)
 
-Max retries: maxRetries (default: 3)
+Default: 3 retry attempts with exponential backoff
 
-## Examples
-
-### Complete Workflow
+## Complete Example
 
 ```js
-var OrcaScan = require('orca-scan-node');
-var orca = new OrcaScan('your-api-key');
+const orca = new OrcaScan('your-api-key');
 
-// 1. create a sheet
-orca.sheets.create({
-    name: 'Inventory Sheet'
-})
-.then(function(result) {
-
-    var sheetId = result.data._id;
-    
-    // 2. add rows
+// Create sheet -> Add rows -> List rows
+orca.sheets.create({ name: 'Inventory' }).then(result => {
+    const sheetId = result.data._id;
     return orca.rows.add(sheetId, [
-        { name: 'Laptop', quantity: 5, category: 'Electronics' },
-        { name: 'Desk Chair', quantity: 10, category: 'Furniture' }
+        { name: 'Laptop', quantity: 5 },
+        { name: 'Chair', quantity: 10 }
     ]);
 })
-.then(function(result) {
-    
-    // 3. get all rows
-    return orca.rows.list(sheetId);
+.then(() => {
+    console.log('Items added successfully!');
 })
-.then(function(result) {
-    console.log('All rows:', result.data);
-})
-.catch(function(error) {
-    console.error('Error:', error.message);
+.catch(err => {
+    console.error('Something went wrong:', err.message);
 });
 ```
 
-## Support
+## Need Help?
 
-For issues and questions:
-- Check the [API documentation](https://orcascan.com/guides/barcode-scanner-api-f09a21c3)
-- Review error messages and status codes
-- Verify all required parameters are provided
-- Chat to us [Live](https://orcascan.com/#chat)
+- 📚 [API Documentation](https://orcascan.com/docs)
+- 💬 [Live Chat Support](https://orcascan.com/#chat)
+- 🐛 [GitHub Issues](https://github.com/orca-scan/orca-scan-node/issues)
