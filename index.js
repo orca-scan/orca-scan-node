@@ -13,7 +13,8 @@ var fetch = require('node-fetch');
  */
 function OrcaScanNode(apiKey, options) {
     
-    if (!apiKey || typeof apiKey !== 'string') throw new Error('apiKey is required and must be a string');
+    if (!apiKey) throw new Error('apiKey is required');
+    if (typeof apiKey !== 'string') throw new Error('apiKey must be a string');
 
     options = options || {};
 
