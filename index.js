@@ -27,50 +27,6 @@ function OrcaScanNode(apiKey, options) {
     };
 
     /**
-     * build a url with optional query
-     * @param {string} path - path beginning with slash
-     * @param {object} [qs] - query key value pairs
-     * @returns {string} full request url
-     */
-    function buildUrl(path, qs) {
-        var url = endpoint + path;
-
-        if (qs && typeof qs === 'object') {
-            var first = true;
-            for (var k in qs) {
-                if (Object.prototype.hasOwnProperty.call(qs, k)) {
-                    var v = qs[k];
-                    if (typeof v !== 'undefined' && v !== null) {
-                        url += first ? '?' : '&';
-                        url += encodeURIComponent(k) + '=' + encodeURIComponent(String(v));
-                        first = false;
-                    }
-                }
-            }
-        }
-
-        return url;
-    }
-
-    /**
-     * parse response text into json if possible
-     * @param {object} res - fetch response
-     * @returns {Promise<object|null>} parsed json or null
-     */
-    function parseJson(res) {
-        return res.text().then(function (text) {
-            if (!text) {
-                return null;
-            }
-            try {
-                return JSON.parse(text);
-            } catch (e) {
-                return { raw: text };
-            }
-        });
-    }
-
-    /**
      * internal request with timeout and basic retry
      * kept private so users only call namespaced sdk methods
      * @param {string} method - http method
@@ -87,7 +43,7 @@ function OrcaScanNode(apiKey, options) {
         var attempt = 0;
 
         function once() {
-            var url = buildUrl(path, qs);
+            var url = buildUrl(endpoint, path, qs);
 
             var opts = {
                 method: method,
@@ -729,6 +685,55 @@ function OrcaScanNode(apiKey, options) {
             return request('DELETE', '/sheets/' + encodeURIComponent(sheetId) + '/hooks/' + encodeURIComponent(hookId));
         }
     };
+}
+
+/* --- helpers --- */
+
+/**
+ * build a url with optional query
+ * @param {string} endpoint - api endpoint
+ * @param {string} path - path beginning with slash
+ * @param {object} [qs] - query key value pairs
+ * @returns {string} full request url
+ */
+function buildUrl(endpoint, path, qs) {
+    var url = endpoint + path;
+
+    if (qs && typeof qs === 'object') {
+        var first = true;
+        for (var k in qs) {
+            if (Object.prototype.hasOwnProperty.call(qs, k)) {
+                var v = qs[k];
+                if (typeof v !== 'undefined' && v !== null) {
+                    url += first ? '?' : '&';
+                    url += encodeURIComponent(k) + '=' + encodeURIComponent(String(v));
+                    first = false;
+                }
+            }
+        }
+    }
+
+    return url;
+}
+
+/**
+ * parse response text into json if possible
+ * @param {object} res - fetch response
+ * @returns {Promise<object|null>} parsed json or null
+ */
+function parseJson(res) {
+
+    return res.text().then(function (text) {
+
+        if (!text) return null;
+
+        try {
+            return JSON.parse(text);
+        }
+        catch (e) {
+            return { raw: text };
+        }
+    });
 }
 
 module.exports = OrcaScanNode;
