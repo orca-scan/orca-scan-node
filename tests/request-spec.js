@@ -6,10 +6,6 @@ describe('Request', function() {
     var mockFetch;
     var OrcaScanNode;
 
-    beforeEach(function() {
-        // This will be set in each individual test
-    });
-
     it('should build URL with query parameters', function() {
         mockFetch = jasmine.createSpy('fetch').and.returnValue(
             Promise.resolve({
