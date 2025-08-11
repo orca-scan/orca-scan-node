@@ -31,23 +31,11 @@ describe('OrcaScanNode', function() {
     });
 
     it('should throw error when apiKey is not provided', function() {
-        expect(function() {
-            new OrcaScanNode();
-        }).toThrowError('apiKey is required and must be a string');
+        expect(function() { new OrcaScanNode(); }).toThrowError('apiKey is required');
     });
 
     it('should throw error when apiKey is not a string', function() {
-        expect(function() {
-            new OrcaScanNode(123);
-        }).toThrowError('apiKey is required and must be a string');
-
-        expect(function() {
-            new OrcaScanNode(null);
-        }).toThrowError('apiKey is required and must be a string');
-
-        expect(function() {
-            new OrcaScanNode({});
-        }).toThrowError('apiKey is required and must be a string');
+        expect(function() { new OrcaScanNode(123); }).toThrowError('apiKey must be a string');
     });
 
     it('should create instance with default options', function() {

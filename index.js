@@ -18,119 +18,13 @@ function OrcaScanNode(apiKey, options) {
 
     options = options || {};
 
-    var endpoint = options.endpoint || 'https://api.orcascan.com/v1';
-    var timeoutMs = typeof options.timeoutMs === 'number' ? options.timeoutMs : 30000;
-    var maxRetries = typeof options.maxRetries === 'number' ? options.maxRetries : 3;
-
-    var defaultHeaders = {
+    this.endpoint = options.endpoint || 'https://api.orcascan.com/v1';
+    this.timeoutMs = typeof options.timeoutMs === 'number' ? options.timeoutMs : 30000;
+    this.maxRetries = typeof options.maxRetries === 'number' ? options.maxRetries : 3;
+    this.defaultHeaders = {
         'Authorization': 'Bearer ' + apiKey,
         'Accept': 'application/json'
     };
-
-    /**
-     * internal request with timeout and basic retry
-     * kept private so users only call namespaced sdk methods
-     * @param {string} method - http method
-     * @param {string} path - request path
-     * @param {object} [qs] - query params
-     * @param {object|array} [body] - json body
-     * @returns {Promise<object>} wrapper with status headers and data
-     * @returns
-     *   {number} status - http status code
-     *   {object} headers - response headers object
-     *   {object|array|null} data - parsed response body or null
-     */
-    function request(method, path, qs, body) {
-        var attempt = 0;
-
-        function once() {
-            var url = buildUrl(endpoint, path, qs);
-
-            var opts = {
-                method: method,
-                headers: defaultHeaders
-            };
-
-            if (typeof body !== 'undefined') {
-                opts.headers['Content-Type'] = 'application/json';
-                opts.body = JSON.stringify(body);
-            }
-
-            var timedOut = false;
-
-            return Promise.race([
-                fetch(url, opts),
-                new Promise(function (_, reject) {
-                    setTimeout(function () {
-                        timedOut = true;
-                        reject(new Error('request timeout'));
-                    }, timeoutMs);
-                })
-            ])
-            .then(function (res) {
-                if (timedOut) {
-                    throw new Error('request timeout');
-                }
-
-                if (res.status === 204) {
-                    return { status: res.status, headers: res.headers, data: null };
-                }
-
-                return parseJson(res).then(function (json) {
-                    if (res.ok) {
-                        return {
-                            status: res.status,
-                            headers: res.headers,
-                            data: json && json.data !== undefined ? json.data : json
-                        };
-                    }
-
-                    // retry on rate limit or burst limit
-                    if ((res.status === 429 || res.status === 503) && attempt < maxRetries) {
-                        attempt += 1;
-
-                        var retryAfterMs = 0;
-                        var ra = res.headers && res.headers.get ? res.headers.get('retry-after') : null;
-
-                        if (ra) {
-                            var n = parseInt(ra, 10);
-                            if (!isNaN(n)) {
-                                retryAfterMs = n * 1000;
-                            } else {
-                                var d = Date.parse(ra);
-                                if (!isNaN(d)) {
-                                    retryAfterMs = Math.max(0, d - Date.now());
-                                }
-                            }
-                        }
-
-                        if (!retryAfterMs) {
-                            retryAfterMs = attempt * 500;
-                        }
-
-                        return new Promise(function (resolve) {
-                            setTimeout(function () { resolve(once()); }, retryAfterMs);
-                        });
-                    }
-
-                    // retry on other 5xx
-                    if (res.status >= 500 && attempt < maxRetries) {
-                        attempt += 1;
-                        return new Promise(function (resolve) {
-                            setTimeout(function () { resolve(once()); }, attempt * 300);
-                        });
-                    }
-
-                    var err = new Error('http ' + res.status);
-                    err.status = res.status;
-                    err.body = json;
-                    throw err;
-                });
-            });
-        }
-
-        return once();
-    }
 
     /* ---------------- public namespaces only ---------------- */
 
@@ -158,7 +52,7 @@ function OrcaScanNode(apiKey, options) {
          *   {boolean} data[].canExport - can export
          */
         list: function () {
-            return request('GET', '/sheets');
+            return request.call(self, 'GET', '/sheets');
         },
 
         /**
@@ -179,7 +73,7 @@ function OrcaScanNode(apiKey, options) {
             if (!payload || typeof payload !== 'object') throw new Error('payload is required and must be an object');
             if (!payload.name || typeof payload.name !== 'string') throw new Error('payload.name is required and must be a string');
 
-            return request('POST', '/sheets', null, payload);
+            return request.call(self, 'POST', '/sheets', null, payload);
         },
 
         /**
@@ -198,7 +92,7 @@ function OrcaScanNode(apiKey, options) {
         fields: function (sheetId) {
             if (!sheetId || typeof sheetId !== 'string') throw new Error('sheetId is required and must be a string');
 
-            return request('GET', '/sheets/' + encodeURIComponent(sheetId) + '/fields');
+            return request.call(self, 'GET', '/sheets/' + encodeURIComponent(sheetId) + '/fields');
         },
 
         /**
@@ -223,7 +117,7 @@ function OrcaScanNode(apiKey, options) {
         settings: function (sheetId) {
             if (!sheetId || typeof sheetId !== 'string') throw new Error('sheetId is required and must be a string');
 
-            return request('GET', '/sheets/' + encodeURIComponent(sheetId) + '/settings');
+            return request.call(self, 'GET', '/sheets/' + encodeURIComponent(sheetId) + '/settings');
         },
 
         /**
@@ -238,7 +132,7 @@ function OrcaScanNode(apiKey, options) {
         clear: function (sheetId) {
             if (!sheetId || typeof sheetId !== 'string') throw new Error('sheetId is required and must be a string');
 
-            return request('PUT', '/sheets/' + encodeURIComponent(sheetId) + '/clear');
+            return request.call(self, 'PUT', '/sheets/' + encodeURIComponent(sheetId) + '/clear');
         },
 
         /**
@@ -258,7 +152,7 @@ function OrcaScanNode(apiKey, options) {
             if (!payload || typeof payload !== 'object') throw new Error('payload is required and must be an object');
             if (!payload.name || typeof payload.name !== 'string') throw new Error('payload.name is required and must be a string');
 
-            return request('PUT', '/sheets/' + encodeURIComponent(sheetId) + '/rename', null, payload);
+            return request.call(self, 'PUT', '/sheets/' + encodeURIComponent(sheetId) + '/rename', null, payload);
         },
 
         /**
@@ -273,7 +167,7 @@ function OrcaScanNode(apiKey, options) {
         delete: function (sheetId) {
             if (!sheetId || typeof sheetId !== 'string') throw new Error('sheetId is required and must be a string');
 
-            return request('DELETE', '/sheets/' + encodeURIComponent(sheetId));
+            return request.call(self, 'DELETE', '/sheets/' + encodeURIComponent(sheetId));
         }
     };
 
@@ -297,7 +191,7 @@ function OrcaScanNode(apiKey, options) {
             if (!sheetId || typeof sheetId !== 'string') {
                 throw new Error('sheetId is required and must be a string');
             }
-            return request('GET', '/sheets/' + encodeURIComponent(sheetId) + '/rows', query);
+            return request.call(self, 'GET', '/sheets/' + encodeURIComponent(sheetId) + '/rows', query);
         },
 
         /**
@@ -314,7 +208,7 @@ function OrcaScanNode(apiKey, options) {
             if (!sheetId || typeof sheetId !== 'string') throw new Error('sheetId is required and must be a string');
             if (!rowId || typeof rowId !== 'string') throw new Error('rowId is required and must be a string');
 
-            return request('GET', '/sheets/' + encodeURIComponent(sheetId) + '/rows/' + encodeURIComponent(rowId));
+            return request.call(self, 'GET', '/sheets/' + encodeURIComponent(sheetId) + '/rows/' + encodeURIComponent(rowId));
         },
 
         /**
@@ -331,7 +225,7 @@ function OrcaScanNode(apiKey, options) {
             if (!sheetId || typeof sheetId !== 'string') throw new Error('sheetId is required and must be a string');
             if (typeof data !== 'object' || data === null) throw new Error('data is required and must be an object or array');
 
-            return request('POST', '/sheets/' + encodeURIComponent(sheetId) + '/rows', null, data);
+            return request.call(self, 'POST', '/sheets/' + encodeURIComponent(sheetId) + '/rows', null, data);
         },
 
         /**
@@ -350,7 +244,7 @@ function OrcaScanNode(apiKey, options) {
             if (!rowId || typeof rowId !== 'string') throw new Error('rowId is required and must be a string');
             if (!data || typeof data !== 'object') throw new Error('data is required and must be an object');
 
-            return request('PUT', '/sheets/' + encodeURIComponent(sheetId) + '/rows/' + encodeURIComponent(rowId), null, data);
+            return request.call(self, 'PUT', '/sheets/' + encodeURIComponent(sheetId) + '/rows/' + encodeURIComponent(rowId), null, data);
         },
 
         /**
@@ -367,7 +261,7 @@ function OrcaScanNode(apiKey, options) {
             if (!sheetId || typeof sheetId !== 'string') throw new Error('sheetId is required and must be a string');
             if (!rows || Object.prototype.toString.call(rows) !== '[object Array]') throw new Error('rows is required and must be an array of objects');
 
-            return request('PUT', '/sheets/' + encodeURIComponent(sheetId) + '/rows', null, rows);
+            return request.call(self, 'PUT', '/sheets/' + encodeURIComponent(sheetId) + '/rows', null, rows);
         },
 
         /**
@@ -384,7 +278,7 @@ function OrcaScanNode(apiKey, options) {
             if (!sheetId || typeof sheetId !== 'string') throw new Error('sheetId is required and must be a string');
             if (!rowId || typeof rowId !== 'string') throw new Error('rowId is required and must be a string');
 
-            return request('DELETE', '/sheets/' + encodeURIComponent(sheetId) + '/rows/' + encodeURIComponent(rowId));
+            return request.call(self, 'DELETE', '/sheets/' + encodeURIComponent(sheetId) + '/rows/' + encodeURIComponent(rowId));
         },
 
         /**
@@ -401,7 +295,7 @@ function OrcaScanNode(apiKey, options) {
             if (!sheetId || typeof sheetId !== 'string') throw new Error('sheetId is required and must be a string');
             if (!rowIds || Object.prototype.toString.call(rowIds) !== '[object Array]') throw new Error('rowIds is required and must be an array of strings');
 
-            return request('DELETE', '/sheets/' + encodeURIComponent(sheetId) + '/rows', null, rowIds);
+            return request.call(self, 'DELETE', '/sheets/' + encodeURIComponent(sheetId) + '/rows', null, rowIds);
         }
     };
 
@@ -431,7 +325,7 @@ function OrcaScanNode(apiKey, options) {
         sheet: function (sheetId) {
             if (!sheetId || typeof sheetId !== 'string') throw new Error('sheetId is required and must be a string');
 
-            return request('GET', '/sheets/' + encodeURIComponent(sheetId) + '/history');
+            return request.call(self, 'GET', '/sheets/' + encodeURIComponent(sheetId) + '/history');
         },
 
         /**
@@ -456,7 +350,7 @@ function OrcaScanNode(apiKey, options) {
             if (!sheetId || typeof sheetId !== 'string') throw new Error('sheetId is required and must be a string');
             if (!rowId || typeof rowId !== 'string') throw new Error('rowId is required and must be a string');
 
-            return request('GET', '/sheets/' + encodeURIComponent(sheetId) + '/rows/' + encodeURIComponent(rowId) + '/history');
+            return request.call(self, 'GET', '/sheets/' + encodeURIComponent(sheetId) + '/rows/' + encodeURIComponent(rowId) + '/history');
         }
     };
 
@@ -485,7 +379,7 @@ function OrcaScanNode(apiKey, options) {
         list: function (sheetId) {
             if (!sheetId || typeof sheetId !== 'string') throw new Error('sheetId is required and must be a string');
 
-            return request('GET', '/sheets/' + encodeURIComponent(sheetId) + '/users');
+            return request.call(self, 'GET', '/sheets/' + encodeURIComponent(sheetId) + '/users');
         },
 
         /**
@@ -514,7 +408,7 @@ function OrcaScanNode(apiKey, options) {
             if (!payload || typeof payload !== 'object') throw new Error('payload is required and must be an object');
             if (!payload.email || typeof payload.email !== 'string') throw new Error('payload.email is required and must be a string');
 
-            return request('POST', '/sheets/' + encodeURIComponent(sheetId) + '/users', null, payload);
+            return request.call(self, 'POST', '/sheets/' + encodeURIComponent(sheetId) + '/users', null, payload);
         },
 
         /**
@@ -539,7 +433,7 @@ function OrcaScanNode(apiKey, options) {
             if (!userId || typeof userId !== 'string') throw new Error('userId is required and must be a string');
             if (!payload || typeof payload !== 'object') throw new Error('payload is required and must be an object');
 
-            return request('PUT', '/sheets/' + encodeURIComponent(sheetId) + '/users/' + encodeURIComponent(userId), null, payload);
+            return request.call(self, 'PUT', '/sheets/' + encodeURIComponent(sheetId) + '/users/' + encodeURIComponent(userId), null, payload);
         },
 
         /**
@@ -556,7 +450,7 @@ function OrcaScanNode(apiKey, options) {
             if (!sheetId || typeof sheetId !== 'string') throw new Error('sheetId is required and must be a string');
             if (!userId || typeof userId !== 'string') throw new Error('userId is required and must be a string');
 
-            return request('DELETE', '/sheets/' + encodeURIComponent(sheetId) + '/users/' + encodeURIComponent(userId));
+            return request.call(self, 'DELETE', '/sheets/' + encodeURIComponent(sheetId) + '/users/' + encodeURIComponent(userId));
         }
     };
 
@@ -578,7 +472,7 @@ function OrcaScanNode(apiKey, options) {
         events: function (sheetId) {
             if (!sheetId || typeof sheetId !== 'string') throw new Error('sheetId is required and must be a string');
 
-            return request('GET', '/sheets/' + encodeURIComponent(sheetId) + '/hook-events');
+            return request.call(self, 'GET', '/sheets/' + encodeURIComponent(sheetId) + '/hook-events');
         },
 
         /**
@@ -597,7 +491,7 @@ function OrcaScanNode(apiKey, options) {
         list: function (sheetId) {
             if (!sheetId || typeof sheetId !== 'string') throw new Error('sheetId is required and must be a string');
 
-            return request('GET', '/sheets/' + encodeURIComponent(sheetId) + '/hooks');
+            return request.call(self, 'GET', '/sheets/' + encodeURIComponent(sheetId) + '/hooks');
         },
 
         /**
@@ -618,7 +512,7 @@ function OrcaScanNode(apiKey, options) {
             if (!sheetId || typeof sheetId !== 'string') throw new Error('sheetId is required and must be a string');
             if (!hookId || typeof hookId !== 'string') throw new Error('hookId is required and must be a string');
 
-            return request('GET', '/sheets/' + encodeURIComponent(sheetId) + '/hooks/' + encodeURIComponent(hookId));
+            return request.call(self, 'GET', '/sheets/' + encodeURIComponent(sheetId) + '/hooks/' + encodeURIComponent(hookId));
         },
 
         /**
@@ -643,7 +537,7 @@ function OrcaScanNode(apiKey, options) {
             if (!payload.eventName || typeof payload.eventName !== 'string') throw new Error('payload.eventName is required and must be a string');
             if (!payload.targetUrl || typeof payload.targetUrl !== 'string') throw new Error('payload.targetUrl is required and must be a string');
 
-            return request('POST', '/sheets/' + encodeURIComponent(sheetId) + '/hooks', null, payload);
+            return request.call(self, 'POST', '/sheets/' + encodeURIComponent(sheetId) + '/hooks', null, payload);
         },
 
         /**
@@ -666,7 +560,7 @@ function OrcaScanNode(apiKey, options) {
             if (!hookId || typeof hookId !== 'string') throw new Error('hookId is required and must be a string');
             if (!payload || typeof payload !== 'object') throw new Error('payload is required and must be an object');
 
-            return request('PUT', '/sheets/' + encodeURIComponent(sheetId) + '/hooks/' + encodeURIComponent(hookId), null, payload);
+            return request.call(self, 'PUT', '/sheets/' + encodeURIComponent(sheetId) + '/hooks/' + encodeURIComponent(hookId), null, payload);
         },
 
         /**
@@ -683,7 +577,7 @@ function OrcaScanNode(apiKey, options) {
             if (!sheetId || typeof sheetId !== 'string') throw new Error('sheetId is required and must be a string');
             if (!hookId || typeof hookId !== 'string') throw new Error('hookId is required and must be a string');
 
-            return request('DELETE', '/sheets/' + encodeURIComponent(sheetId) + '/hooks/' + encodeURIComponent(hookId));
+            return request.call(self, 'DELETE', '/sheets/' + encodeURIComponent(sheetId) + '/hooks/' + encodeURIComponent(hookId));
         }
     };
 }
@@ -735,6 +629,110 @@ function parseJson(res) {
             return { raw: text };
         }
     });
+}
+
+/**
+ * internal request with timeout and basic retry
+ * @param {string} method - http method
+ * @param {string} path - request path
+ * @param {object} [qs] - query params
+ * @param {object|array} [body] - json body
+ * @returns {Promise<object>} wrapper with status headers and data
+ */
+function request(method, path, qs, body) {
+
+    var self = this; // OrcaScanNode instance
+    var attempt = 0;
+
+    function once() {
+        var url = buildUrl(self.endpoint, path, qs);
+
+        var opts = {
+            method: method,
+            headers: self.defaultHeaders
+        };
+
+        if (typeof body !== 'undefined') {
+            opts.headers['Content-Type'] = 'application/json';
+            opts.body = JSON.stringify(body);
+        }
+
+        var timedOut = false;
+
+        return Promise.race([
+            fetch(url, opts),
+            new Promise(function (_, reject) {
+                setTimeout(function () {
+                    timedOut = true;
+                    reject(new Error('request timeout'));
+                }, self.timeoutMs);
+            })
+        ])
+        .then(function (res) {
+
+            if (timedOut) {
+                throw new Error('request timeout');
+            }
+
+            if (res.status === 204) {
+                return { status: res.status, headers: res.headers, data: null };
+            }
+
+            return parseJson(res).then(function (json) {
+
+                if (res.ok) {
+                    return {
+                        status: res.status,
+                        headers: res.headers,
+                        data: json && json.data !== undefined ? json.data : json
+                    };
+                }
+
+                // retry on rate limit or burst limit
+                if ((res.status === 429 || res.status === 503) && attempt < self.maxRetries) {
+                    attempt += 1;
+
+                    var retryAfterMs = 0;
+                    var ra = res.headers && res.headers.get ? res.headers.get('retry-after') : null;
+
+                    if (ra) {
+                        var n = parseInt(ra, 10);
+                        if (!isNaN(n)) {
+                            retryAfterMs = n * 1000;
+                        } else {
+                            var d = Date.parse(ra);
+                            if (!isNaN(d)) {
+                                retryAfterMs = Math.max(0, d - Date.now());
+                            }
+                        }
+                    }
+
+                    if (!retryAfterMs) {
+                        retryAfterMs = attempt * 500;
+                    }
+
+                    return new Promise(function (resolve) {
+                        setTimeout(function () { resolve(once()); }, retryAfterMs);
+                    });
+                }
+
+                // retry on other 5xx
+                if (res.status >= 500 && attempt < self.maxRetries) {
+                    attempt += 1;
+                    return new Promise(function (resolve) {
+                        setTimeout(function () { resolve(once()); }, attempt * 300);
+                    });
+                }
+
+                var err = new Error('http ' + res.status);
+                err.status = res.status;
+                err.body = json;
+                throw err;
+            });
+        });
+    }
+
+    return once();
 }
 
 module.exports = OrcaScanNode;
