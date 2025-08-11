@@ -13,9 +13,7 @@ var fetch = require('node-fetch');
  */
 function OrcaScanNode(apiKey, options) {
     
-    if (!apiKey || typeof apiKey !== 'string') {
-        throw new Error('apiKey is required and must be a string');
-    }
+    if (!apiKey || typeof apiKey !== 'string') throw new Error('apiKey is required and must be a string');
 
     options = options || {};
 
@@ -221,12 +219,9 @@ function OrcaScanNode(apiKey, options) {
          *   {number} data.rows - number of rows
          */
         create: function (payload) {
-            if (!payload || typeof payload !== 'object') {
-                throw new Error('payload is required and must be an object');
-            }
-            if (!payload.name || typeof payload.name !== 'string') {
-                throw new Error('payload.name is required and must be a string');
-            }
+            if (!payload || typeof payload !== 'object') throw new Error('payload is required and must be an object');
+            if (!payload.name || typeof payload.name !== 'string') throw new Error('payload.name is required and must be a string');
+
             return request('POST', '/sheets', null, payload);
         },
 
@@ -244,9 +239,8 @@ function OrcaScanNode(apiKey, options) {
          *   {boolean} data[].required - is required
          */
         fields: function (sheetId) {
-            if (!sheetId || typeof sheetId !== 'string') {
-                throw new Error('sheetId is required and must be a string');
-            }
+            if (!sheetId || typeof sheetId !== 'string') throw new Error('sheetId is required and must be a string');
+
             return request('GET', '/sheets/' + encodeURIComponent(sheetId) + '/fields');
         },
 
@@ -270,9 +264,8 @@ function OrcaScanNode(apiKey, options) {
          *   {string} data.secret - secret
          */
         settings: function (sheetId) {
-            if (!sheetId || typeof sheetId !== 'string') {
-                throw new Error('sheetId is required and must be a string');
-            }
+            if (!sheetId || typeof sheetId !== 'string') throw new Error('sheetId is required and must be a string');
+
             return request('GET', '/sheets/' + encodeURIComponent(sheetId) + '/settings');
         },
 
@@ -286,9 +279,8 @@ function OrcaScanNode(apiKey, options) {
          *   {object|null} data - api response or null
          */
         clear: function (sheetId) {
-            if (!sheetId || typeof sheetId !== 'string') {
-                throw new Error('sheetId is required and must be a string');
-            }
+            if (!sheetId || typeof sheetId !== 'string') throw new Error('sheetId is required and must be a string');
+
             return request('PUT', '/sheets/' + encodeURIComponent(sheetId) + '/clear');
         },
 
@@ -305,15 +297,10 @@ function OrcaScanNode(apiKey, options) {
          *   {object|null} data - api response or null
          */
         rename: function (sheetId, payload) {
-            if (!sheetId || typeof sheetId !== 'string') {
-                throw new Error('sheetId is required and must be a string');
-            }
-            if (!payload || typeof payload !== 'object') {
-                throw new Error('payload is required and must be an object');
-            }
-            if (!payload.name || typeof payload.name !== 'string') {
-                throw new Error('payload.name is required and must be a string');
-            }
+            if (!sheetId || typeof sheetId !== 'string') throw new Error('sheetId is required and must be a string');
+            if (!payload || typeof payload !== 'object') throw new Error('payload is required and must be an object');
+            if (!payload.name || typeof payload.name !== 'string') throw new Error('payload.name is required and must be a string');
+
             return request('PUT', '/sheets/' + encodeURIComponent(sheetId) + '/rename', null, payload);
         },
 
@@ -327,9 +314,8 @@ function OrcaScanNode(apiKey, options) {
          *   {object|null} data - api response or null
          */
         delete: function (sheetId) {
-            if (!sheetId || typeof sheetId !== 'string') {
-                throw new Error('sheetId is required and must be a string');
-            }
+            if (!sheetId || typeof sheetId !== 'string') throw new Error('sheetId is required and must be a string');
+
             return request('DELETE', '/sheets/' + encodeURIComponent(sheetId));
         }
     };
@@ -368,12 +354,9 @@ function OrcaScanNode(apiKey, options) {
          *   {object} data - row object with arbitrary properties
          */
         get: function (sheetId, rowId) {
-            if (!sheetId || typeof sheetId !== 'string') {
-                throw new Error('sheetId is required and must be a string');
-            }
-            if (!rowId || typeof rowId !== 'string') {
-                throw new Error('rowId is required and must be a string');
-            }
+            if (!sheetId || typeof sheetId !== 'string') throw new Error('sheetId is required and must be a string');
+            if (!rowId || typeof rowId !== 'string') throw new Error('rowId is required and must be a string');
+
             return request('GET', '/sheets/' + encodeURIComponent(sheetId) + '/rows/' + encodeURIComponent(rowId));
         },
 
@@ -388,12 +371,9 @@ function OrcaScanNode(apiKey, options) {
          *   {object|array} data - created row or list of created rows with server assigned fields
          */
         add: function (sheetId, data) {
-            if (!sheetId || typeof sheetId !== 'string') {
-                throw new Error('sheetId is required and must be a string');
-            }
-            if (typeof data !== 'object' || data === null) {
-                throw new Error('data is required and must be an object or array');
-            }
+            if (!sheetId || typeof sheetId !== 'string') throw new Error('sheetId is required and must be a string');
+            if (typeof data !== 'object' || data === null) throw new Error('data is required and must be an object or array');
+
             return request('POST', '/sheets/' + encodeURIComponent(sheetId) + '/rows', null, data);
         },
 
@@ -409,15 +389,10 @@ function OrcaScanNode(apiKey, options) {
          *   {object} data - updated row with arbitrary properties
          */
         updateOne: function (sheetId, rowId, data) {
-            if (!sheetId || typeof sheetId !== 'string') {
-                throw new Error('sheetId is required and must be a string');
-            }
-            if (!rowId || typeof rowId !== 'string') {
-                throw new Error('rowId is required and must be a string');
-            }
-            if (!data || typeof data !== 'object') {
-                throw new Error('data is required and must be an object');
-            }
+            if (!sheetId || typeof sheetId !== 'string') throw new Error('sheetId is required and must be a string');
+            if (!rowId || typeof rowId !== 'string') throw new Error('rowId is required and must be a string');
+            if (!data || typeof data !== 'object') throw new Error('data is required and must be an object');
+
             return request('PUT', '/sheets/' + encodeURIComponent(sheetId) + '/rows/' + encodeURIComponent(rowId), null, data);
         },
 
@@ -432,12 +407,9 @@ function OrcaScanNode(apiKey, options) {
          *   {array} data - updated rows
          */
         updateMany: function (sheetId, rows) {
-            if (!sheetId || typeof sheetId !== 'string') {
-                throw new Error('sheetId is required and must be a string');
-            }
-            if (!rows || Object.prototype.toString.call(rows) !== '[object Array]') {
-                throw new Error('rows is required and must be an array of objects');
-            }
+            if (!sheetId || typeof sheetId !== 'string') throw new Error('sheetId is required and must be a string');
+            if (!rows || Object.prototype.toString.call(rows) !== '[object Array]') throw new Error('rows is required and must be an array of objects');
+
             return request('PUT', '/sheets/' + encodeURIComponent(sheetId) + '/rows', null, rows);
         },
 
@@ -452,12 +424,9 @@ function OrcaScanNode(apiKey, options) {
          *   {object|null} data - api response or null
          */
         deleteOne: function (sheetId, rowId) {
-            if (!sheetId || typeof sheetId !== 'string') {
-                throw new Error('sheetId is required and must be a string');
-            }
-            if (!rowId || typeof rowId !== 'string') {
-                throw new Error('rowId is required and must be a string');
-            }
+            if (!sheetId || typeof sheetId !== 'string') throw new Error('sheetId is required and must be a string');
+            if (!rowId || typeof rowId !== 'string') throw new Error('rowId is required and must be a string');
+
             return request('DELETE', '/sheets/' + encodeURIComponent(sheetId) + '/rows/' + encodeURIComponent(rowId));
         },
 
@@ -472,12 +441,9 @@ function OrcaScanNode(apiKey, options) {
          *   {object|null} data - api response or null
          */
         deleteMany: function (sheetId, rowIds) {
-            if (!sheetId || typeof sheetId !== 'string') {
-                throw new Error('sheetId is required and must be a string');
-            }
-            if (!rowIds || Object.prototype.toString.call(rowIds) !== '[object Array]') {
-                throw new Error('rowIds is required and must be an array of strings');
-            }
+            if (!sheetId || typeof sheetId !== 'string') throw new Error('sheetId is required and must be a string');
+            if (!rowIds || Object.prototype.toString.call(rowIds) !== '[object Array]') throw new Error('rowIds is required and must be an array of strings');
+
             return request('DELETE', '/sheets/' + encodeURIComponent(sheetId) + '/rows', null, rowIds);
         }
     };
@@ -506,9 +472,8 @@ function OrcaScanNode(apiKey, options) {
          *   {string} data[].._changedUsing - client info
          */
         sheet: function (sheetId) {
-            if (!sheetId || typeof sheetId !== 'string') {
-                throw new Error('sheetId is required and must be a string');
-            }
+            if (!sheetId || typeof sheetId !== 'string') throw new Error('sheetId is required and must be a string');
+
             return request('GET', '/sheets/' + encodeURIComponent(sheetId) + '/history');
         },
 
@@ -531,12 +496,9 @@ function OrcaScanNode(apiKey, options) {
          *   {string} data[].._changedUsing - client info
          */
         row: function (sheetId, rowId) {
-            if (!sheetId || typeof sheetId !== 'string') {
-                throw new Error('sheetId is required and must be a string');
-            }
-            if (!rowId || typeof rowId !== 'string') {
-                throw new Error('rowId is required and must be a string');
-            }
+            if (!sheetId || typeof sheetId !== 'string') throw new Error('sheetId is required and must be a string');
+            if (!rowId || typeof rowId !== 'string') throw new Error('rowId is required and must be a string');
+
             return request('GET', '/sheets/' + encodeURIComponent(sheetId) + '/rows/' + encodeURIComponent(rowId) + '/history');
         }
     };
@@ -564,9 +526,8 @@ function OrcaScanNode(apiKey, options) {
          *   {boolean} data[]..canAdmin - can admin
          */
         list: function (sheetId) {
-            if (!sheetId || typeof sheetId !== 'string') {
-                throw new Error('sheetId is required and must be a string');
-            }
+            if (!sheetId || typeof sheetId !== 'string') throw new Error('sheetId is required and must be a string');
+
             return request('GET', '/sheets/' + encodeURIComponent(sheetId) + '/users');
         },
 
@@ -592,15 +553,10 @@ function OrcaScanNode(apiKey, options) {
          *   {boolean} data.canAdmin - can admin
          */
         add: function (sheetId, payload) {
-            if (!sheetId || typeof sheetId !== 'string') {
-                throw new Error('sheetId is required and must be a string');
-            }
-            if (!payload || typeof payload !== 'object') {
-                throw new Error('payload is required and must be an object');
-            }
-            if (!payload.email || typeof payload.email !== 'string') {
-                throw new Error('payload.email is required and must be a string');
-            }
+            if (!sheetId || typeof sheetId !== 'string') throw new Error('sheetId is required and must be a string');
+            if (!payload || typeof payload !== 'object') throw new Error('payload is required and must be an object');
+            if (!payload.email || typeof payload.email !== 'string') throw new Error('payload.email is required and must be a string');
+
             return request('POST', '/sheets/' + encodeURIComponent(sheetId) + '/users', null, payload);
         },
 
@@ -622,15 +578,10 @@ function OrcaScanNode(apiKey, options) {
          *   {boolean} data.canAdmin - can admin
          */
         update: function (sheetId, userId, payload) {
-            if (!sheetId || typeof sheetId !== 'string') {
-                throw new Error('sheetId is required and must be a string');
-            }
-            if (!userId || typeof userId !== 'string') {
-                throw new Error('userId is required and must be a string');
-            }
-            if (!payload || typeof payload !== 'object') {
-                throw new Error('payload is required and must be an object');
-            }
+            if (!sheetId || typeof sheetId !== 'string') throw new Error('sheetId is required and must be a string');
+            if (!userId || typeof userId !== 'string') throw new Error('userId is required and must be a string');
+            if (!payload || typeof payload !== 'object') throw new Error('payload is required and must be an object');
+
             return request('PUT', '/sheets/' + encodeURIComponent(sheetId) + '/users/' + encodeURIComponent(userId), null, payload);
         },
 
@@ -645,12 +596,9 @@ function OrcaScanNode(apiKey, options) {
          *   {object|null} data - api response or null
          */
         remove: function (sheetId, userId) {
-            if (!sheetId || typeof sheetId !== 'string') {
-                throw new Error('sheetId is required and must be a string');
-            }
-            if (!userId || typeof userId !== 'string') {
-                throw new Error('userId is required and must be a string');
-            }
+            if (!sheetId || typeof sheetId !== 'string') throw new Error('sheetId is required and must be a string');
+            if (!userId || typeof userId !== 'string') throw new Error('userId is required and must be a string');
+
             return request('DELETE', '/sheets/' + encodeURIComponent(sheetId) + '/users/' + encodeURIComponent(userId));
         }
     };
@@ -671,9 +619,8 @@ function OrcaScanNode(apiKey, options) {
          *   {array} data - list of event names
          */
         events: function (sheetId) {
-            if (!sheetId || typeof sheetId !== 'string') {
-                throw new Error('sheetId is required and must be a string');
-            }
+            if (!sheetId || typeof sheetId !== 'string') throw new Error('sheetId is required and must be a string');
+
             return request('GET', '/sheets/' + encodeURIComponent(sheetId) + '/hook-events');
         },
 
@@ -691,9 +638,8 @@ function OrcaScanNode(apiKey, options) {
          *   {string} data[]..targetUrl - target url
          */
         list: function (sheetId) {
-            if (!sheetId || typeof sheetId !== 'string') {
-                throw new Error('sheetId is required and must be a string');
-            }
+            if (!sheetId || typeof sheetId !== 'string') throw new Error('sheetId is required and must be a string');
+
             return request('GET', '/sheets/' + encodeURIComponent(sheetId) + '/hooks');
         },
 
@@ -712,12 +658,9 @@ function OrcaScanNode(apiKey, options) {
          *   {string} data.targetUrl - target url
          */
         get: function (sheetId, hookId) {
-            if (!sheetId || typeof sheetId !== 'string') {
-                throw new Error('sheetId is required and must be a string');
-            }
-            if (!hookId || typeof hookId !== 'string') {
-                throw new Error('hookId is required and must be a string');
-            }
+            if (!sheetId || typeof sheetId !== 'string') throw new Error('sheetId is required and must be a string');
+            if (!hookId || typeof hookId !== 'string') throw new Error('hookId is required and must be a string');
+
             return request('GET', '/sheets/' + encodeURIComponent(sheetId) + '/hooks/' + encodeURIComponent(hookId));
         },
 
@@ -738,18 +681,11 @@ function OrcaScanNode(apiKey, options) {
          *   {string} data.targetUrl - target url
          */
         create: function (sheetId, payload) {
-            if (!sheetId || typeof sheetId !== 'string') {
-                throw new Error('sheetId is required and must be a string');
-            }
-            if (!payload || typeof payload !== 'object') {
-                throw new Error('payload is required and must be an object');
-            }
-            if (!payload.eventName || typeof payload.eventName !== 'string') {
-                throw new Error('payload.eventName is required and must be a string');
-            }
-            if (!payload.targetUrl || typeof payload.targetUrl !== 'string') {
-                throw new Error('payload.targetUrl is required and must be a string');
-            }
+            if (!sheetId || typeof sheetId !== 'string') throw new Error('sheetId is required and must be a string');
+            if (!payload || typeof payload !== 'object') throw new Error('payload is required and must be an object');
+            if (!payload.eventName || typeof payload.eventName !== 'string') throw new Error('payload.eventName is required and must be a string');
+            if (!payload.targetUrl || typeof payload.targetUrl !== 'string') throw new Error('payload.targetUrl is required and must be a string');
+
             return request('POST', '/sheets/' + encodeURIComponent(sheetId) + '/hooks', null, payload);
         },
 
@@ -769,15 +705,10 @@ function OrcaScanNode(apiKey, options) {
          *   {string} data.targetUrl - target url
          */
         update: function (sheetId, hookId, payload) {
-            if (!sheetId || typeof sheetId !== 'string') {
-                throw new Error('sheetId is required and must be a string');
-            }
-            if (!hookId || typeof hookId !== 'string') {
-                throw new Error('hookId is required and must be a string');
-            }
-            if (!payload || typeof payload !== 'object') {
-                throw new Error('payload is required and must be an object');
-            }
+            if (!sheetId || typeof sheetId !== 'string') throw new Error('sheetId is required and must be a string');
+            if (!hookId || typeof hookId !== 'string') throw new Error('hookId is required and must be a string');
+            if (!payload || typeof payload !== 'object') throw new Error('payload is required and must be an object');
+
             return request('PUT', '/sheets/' + encodeURIComponent(sheetId) + '/hooks/' + encodeURIComponent(hookId), null, payload);
         },
 
@@ -792,12 +723,9 @@ function OrcaScanNode(apiKey, options) {
          *   {object|null} data - api response or null
          */
         delete: function (sheetId, hookId) {
-            if (!sheetId || typeof sheetId !== 'string') {
-                throw new Error('sheetId is required and must be a string');
-            }
-            if (!hookId || typeof hookId !== 'string') {
-                throw new Error('hookId is required and must be a string');
-            }
+            if (!sheetId || typeof sheetId !== 'string') throw new Error('sheetId is required and must be a string');
+            if (!hookId || typeof hookId !== 'string') throw new Error('hookId is required and must be a string');
+
             return request('DELETE', '/sheets/' + encodeURIComponent(sheetId) + '/hooks/' + encodeURIComponent(hookId));
         }
     };
