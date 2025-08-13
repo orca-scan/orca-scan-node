@@ -40,8 +40,6 @@ function OrcaScanNode(apiKey, options) {
          * get a list of sheets
          * @returns {Promise<object>} promise resolving to result
          * @returns
-         *   {number} status - http status code
-         *   {object} headers - response headers
          *   {array} data - list of sheets
          *   {string} data[].__id - sheet id
          *   {string} data[].name - sheet name
@@ -62,8 +60,6 @@ function OrcaScanNode(apiKey, options) {
          * @param {string} [payload.templateName] - optional template name
          * @returns {Promise<object>} promise resolving to result
          * @returns
-         *   {number} status - http status code
-         *   {object} headers - response headers
          *   {object} data - created sheet
          *   {string} data._id - sheet id
          *   {string} data.name - sheet name
@@ -81,8 +77,6 @@ function OrcaScanNode(apiKey, options) {
          * @param {string} sheetId - target sheet id
          * @returns {Promise<object>} promise resolving to result
          * @returns
-         *   {number} status - http status code
-         *   {object} headers - response headers
          *   {array} data - list of fields
          *   {string} data[].key - field key
          *   {string} data[].label - field label
@@ -100,8 +94,6 @@ function OrcaScanNode(apiKey, options) {
          * @param {string} sheetId - target sheet id
          * @returns {Promise<object>} promise resolving to result
          * @returns
-         *   {number} status - http status code
-         *   {object} headers - response headers
          *   {object} data - sheet settings
          *   {boolean} data.allowPublicExport - allow public export
          *   {string} data.publicExportUrl - public export url
@@ -125,8 +117,6 @@ function OrcaScanNode(apiKey, options) {
          * @param {string} sheetId - target sheet id
          * @returns {Promise<object>} promise resolving to result
          * @returns
-         *   {number} status - http status code
-         *   {object} headers - response headers
          *   {object|null} data - api response or null
          */
         clear: function (sheetId) {
@@ -143,8 +133,6 @@ function OrcaScanNode(apiKey, options) {
          * @param {string} [payload.description] - optional description
          * @returns {Promise<object>} promise resolving to result
          * @returns
-         *   {number} status - http status code
-         *   {object} headers - response headers
          *   {object|null} data - api response or null
          */
         rename: function (sheetId, payload) {
@@ -160,8 +148,6 @@ function OrcaScanNode(apiKey, options) {
          * @param {string} sheetId - target sheet id
          * @returns {Promise<object>} promise resolving to result
          * @returns
-         *   {number} status - http status code
-         *   {object} headers - response headers
          *   {object|null} data - api response or null
          */
         delete: function (sheetId) {
@@ -183,8 +169,6 @@ function OrcaScanNode(apiKey, options) {
          * @param {object} [query] - optional query params such as limit and skip
          * @returns {Promise<object>} promise resolving to result
          * @returns
-         *   {number} status - http status code
-         *   {object} headers - response headers
          *   {array} data - list of row objects with arbitrary properties
          */
         list: function (sheetId, query) {
@@ -200,8 +184,6 @@ function OrcaScanNode(apiKey, options) {
          * @param {string} rowId - row id
          * @returns {Promise<object>} promise resolving to result
          * @returns
-         *   {number} status - http status code
-         *   {object} headers - response headers
          *   {object} data - row object with arbitrary properties
          */
         get: function (sheetId, rowId) {
@@ -217,8 +199,6 @@ function OrcaScanNode(apiKey, options) {
          * @param {object|array} data - row object or array of row objects supports special fields such as photo or attachment as base64
          * @returns {Promise<object>} promise resolving to result
          * @returns
-         *   {number} status - http status code
-         *   {object} headers - response headers
          *   {object|array} data - created row or list of created rows with server assigned fields
          */
         add: function (sheetId, data) {
@@ -235,8 +215,6 @@ function OrcaScanNode(apiKey, options) {
          * @param {object} data - fields to update
          * @returns {Promise<object>} promise resolving to result
          * @returns
-         *   {number} status - http status code
-         *   {object} headers - response headers
          *   {object} data - updated row with arbitrary properties
          */
         updateOne: function (sheetId, rowId, data) {
@@ -253,8 +231,6 @@ function OrcaScanNode(apiKey, options) {
          * @param {array} rows - array of row objects
          * @returns {Promise<object>} promise resolving to result
          * @returns
-         *   {number} status - http status code
-         *   {object} headers - response headers
          *   {array} data - updated rows
          */
         updateMany: function (sheetId, rows) {
@@ -270,8 +246,6 @@ function OrcaScanNode(apiKey, options) {
          * @param {string} rowId - row id
          * @returns {Promise<object>} promise resolving to result
          * @returns
-         *   {number} status - http status code
-         *   {object} headers - response headers
          *   {object|null} data - api response or null
          */
         deleteOne: function (sheetId, rowId) {
@@ -287,8 +261,6 @@ function OrcaScanNode(apiKey, options) {
          * @param {array} rowIds - array of row id strings
          * @returns {Promise<object>} promise resolving to result
          * @returns
-         *   {number} status - http status code
-         *   {object} headers - response headers
          *   {object|null} data - api response or null
          */
         deleteMany: function (sheetId, rowIds) {
@@ -310,8 +282,6 @@ function OrcaScanNode(apiKey, options) {
          * @param {string} sheetId - target sheet id
          * @returns {Promise<object>} promise resolving to result
          * @returns
-         *   {number} status - http status code
-         *   {object} headers - response headers
          *   {array} data - list of history items
          *   {string} data[].._id - history id
          *   {string} data[]..barcode - barcode value
@@ -334,8 +304,6 @@ function OrcaScanNode(apiKey, options) {
          * @param {string} rowId - row id
          * @returns {Promise<object>} promise resolving to result
          * @returns
-         *   {number} status - http status code
-         *   {object} headers - response headers
          *   {array} data - list of history items
          *   {string} data[].._id - history id
          *   {string} data[]..barcode - barcode value
@@ -365,8 +333,6 @@ function OrcaScanNode(apiKey, options) {
          * @param {string} sheetId - target sheet id
          * @returns {Promise<object>} promise resolving to result
          * @returns
-         *   {number} status - http status code
-         *   {object} headers - response headers
          *   {array} data - list of users
          *   {string} data[].._id - user id
          *   {string} data[]..email - user email
@@ -393,8 +359,6 @@ function OrcaScanNode(apiKey, options) {
          * @param {boolean} [payload.canAdmin] - can admin
          * @returns {Promise<object>} promise resolving to result
          * @returns
-         *   {number} status - http status code
-         *   {object} headers - response headers
          *   {object} data - created user
          *   {string} data._id - user id
          *   {string} data.email - user email
@@ -418,8 +382,6 @@ function OrcaScanNode(apiKey, options) {
          * @param {object} payload - user update input
          * @returns {Promise<object>} promise resolving to result
          * @returns
-         *   {number} status - http status code
-         *   {object} headers - response headers
          *   {object} data - updated user
          *   {string} data._id - user id
          *   {string} data.email - user email
@@ -442,8 +404,6 @@ function OrcaScanNode(apiKey, options) {
          * @param {string} userId - user id
          * @returns {Promise<object>} promise resolving to result
          * @returns
-         *   {number} status - http status code
-         *   {object} headers - response headers
          *   {object|null} data - api response or null
          */
         remove: function (sheetId, userId) {
@@ -465,8 +425,6 @@ function OrcaScanNode(apiKey, options) {
          * @param {string} sheetId - target sheet id
          * @returns {Promise<object>} promise resolving to result
          * @returns
-         *   {number} status - http status code
-         *   {object} headers - response headers
          *   {array} data - list of event names
          */
         events: function (sheetId) {
@@ -480,8 +438,6 @@ function OrcaScanNode(apiKey, options) {
          * @param {string} sheetId - target sheet id
          * @returns {Promise<object>} promise resolving to result
          * @returns
-         *   {number} status - http status code
-         *   {object} headers - response headers
          *   {array} data - list of hooks
          *   {string} data[].._id - hook id
          *   {string} data[]..eventName - event name
@@ -500,8 +456,6 @@ function OrcaScanNode(apiKey, options) {
          * @param {string} hookId - hook id
          * @returns {Promise<object>} promise resolving to result
          * @returns
-         *   {number} status - http status code
-         *   {object} headers - response headers
          *   {object} data - hook object
          *   {string} data._id - hook id
          *   {string} data.eventName - event name
@@ -523,8 +477,6 @@ function OrcaScanNode(apiKey, options) {
          * @param {string} payload.targetUrl - target url
          * @returns {Promise<object>} promise resolving to result
          * @returns
-         *   {number} status - http status code
-         *   {object} headers - response headers
          *   {object} data - created hook
          *   {string} data._id - hook id
          *   {string} data.eventName - event name
@@ -547,8 +499,6 @@ function OrcaScanNode(apiKey, options) {
          * @param {object} payload - hook update input
          * @returns {Promise<object>} promise resolving to result
          * @returns
-         *   {number} status - http status code
-         *   {object} headers - response headers
          *   {object} data - updated hook
          *   {string} data._id - hook id
          *   {string} data.eventName - event name
@@ -569,8 +519,6 @@ function OrcaScanNode(apiKey, options) {
          * @param {string} hookId - hook id
          * @returns {Promise<object>} promise resolving to result
          * @returns
-         *   {number} status - http status code
-         *   {object} headers - response headers
          *   {object|null} data - api response or null
          */
         delete: function (sheetId, hookId) {
@@ -633,98 +581,55 @@ function parseJson(res) {
 
 /**
  * internal request with timeout and basic retry
- * @param {string} method - http method
+ * @param {string} method - HTTP method
  * @param {string} path - request path
  * @param {object} [qs] - query params
- * @param {object|array} [body] - json body
- * @returns {Promise<object>} wrapper with status headers and data
+ * @param {object|array} [body] - JSON body
+ * @returns {Promise<object>} response data
  */
 function request(method, path, qs, body) {
-
     var self = this; // OrcaScanNode instance
     var attempt = 0;
 
-    function once() {
+    function makeRequest() {
         var url = buildUrl(self.endpoint, path, qs);
-
         var opts = {
             method: method,
             headers: self.defaultHeaders
         };
 
-        if (typeof body !== 'undefined') {
+        if (body !== undefined) {
             opts.headers['Content-Type'] = 'application/json';
             opts.body = JSON.stringify(body);
         }
-
-        var timedOut = false;
 
         return Promise.race([
             fetch(url, opts),
             new Promise(function (_, reject) {
                 setTimeout(function () {
-                    timedOut = true;
                     reject(new Error('request timeout'));
                 }, self.timeoutMs);
             })
         ])
         .then(function (res) {
-
-            if (timedOut) {
-                throw new Error('request timeout');
-            }
-
-            if (res.status === 204) {
-                return { status: res.status, headers: res.headers, data: null };
-            }
+            if (res.status === 204) return null;
 
             return parseJson(res).then(function (json) {
-
                 if (res.ok) {
-                    return {
-                        status: res.status,
-                        headers: res.headers,
-                        data: json && json.data !== undefined ? json.data : json
-                    };
+                    return json?.data !== undefined ? json.data : json;
                 }
 
-                // retry on rate limit or burst limit
-                if ((res.status === 429 || res.status === 503) && attempt < self.maxRetries) {
-                    attempt += 1;
-
-                    var retryAfterMs = 0;
-                    var ra = res.headers && res.headers.get ? res.headers.get('retry-after') : null;
-
-                    if (ra) {
-                        var n = parseInt(ra, 10);
-                        if (!isNaN(n)) {
-                            retryAfterMs = n * 1000;
-                        } else {
-                            var d = Date.parse(ra);
-                            if (!isNaN(d)) {
-                                retryAfterMs = Math.max(0, d - Date.now());
-                            }
-                        }
-                    }
-
-                    if (!retryAfterMs) {
-                        retryAfterMs = attempt * 500;
-                    }
-
+                if (shouldRetry(res.status) && attempt < self.maxRetries) {
+                    attempt++;
+                    var retryDelay = calculateRetryDelay(res, attempt);
                     return new Promise(function (resolve) {
-                        setTimeout(function () { resolve(once()); }, retryAfterMs);
+                        setTimeout(function () {
+                            resolve(makeRequest());
+                        }, retryDelay);
                     });
                 }
 
-                // retry on other 5xx
-                if (res.status >= 500 && attempt < self.maxRetries) {
-                    attempt += 1;
-                    return new Promise(function (resolve) {
-                        setTimeout(function () { resolve(once()); }, attempt * 300);
-                    });
-                }
-
-                var err = new Error('http ' + res.status);
+                var err = new Error('HTTP ' + res.status);
                 err.status = res.status;
                 err.body = json;
                 throw err;
@@ -732,7 +637,34 @@ function request(method, path, qs, body) {
         });
     }
 
-    return once();
+    return makeRequest();
+}
+
+/**
+ * Determines if a request should be retried based on status code.
+ * @param {number} status - HTTP status code
+ * @returns {boolean} true if retryable
+ */
+function shouldRetry(status) {
+    return status === 429 || status === 503 || (status >= 500 && status < 600);
+}
+
+/**
+ * Calculates retry delay based on response headers or attempt count.
+ * @param {object} res - fetch response
+ * @param {number} attempt - current retry attempt
+ * @returns {number} delay in milliseconds
+ */
+function calculateRetryDelay(res, attempt) {
+    var retryAfter = res.headers?.get('retry-after');
+    if (retryAfter) {
+        var parsed = parseInt(retryAfter, 10);
+        if (!isNaN(parsed)) return parsed * 1000;
+
+        var date = Date.parse(retryAfter);
+        if (!isNaN(date)) return Math.max(0, date - Date.now());
+    }
+    return attempt * 500;
 }
 
 module.exports = OrcaScanNode;

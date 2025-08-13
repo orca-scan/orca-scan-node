@@ -44,9 +44,8 @@ describe('Users', function() {
                     })
                 })
             );
-            expect(result.status).toBe(200);
-            expect(result.data).toBeDefined();
-            expect(Array.isArray(result.data)).toBe(true);
+            expect(result).toBeDefined();
+            expect(Array.isArray(result)).toBe(true);
         });
     });
 
@@ -82,7 +81,7 @@ describe('Users', function() {
                     body: JSON.stringify(payload)
                 })
             );
-            expect(result.status).toBe(200);
+            expect(result).toBeDefined();
         });
     });
 
@@ -104,7 +103,7 @@ describe('Users', function() {
                     body: JSON.stringify(payload)
                 })
             );
-            expect(result.status).toBe(200);
+            expect(result).toBeDefined();
         });
     });
 
@@ -126,7 +125,7 @@ describe('Users', function() {
                     body: JSON.stringify(payload)
                 })
             );
-            expect(result.status).toBe(200);
+            expect(result).toBeDefined();
         });
     });
 
@@ -181,7 +180,7 @@ describe('Users', function() {
                     body: JSON.stringify(payload)
                 })
             );
-            expect(result.status).toBe(200);
+            expect(result).toBeDefined();
         });
     });
 
@@ -203,7 +202,7 @@ describe('Users', function() {
                     body: JSON.stringify(payload)
                 })
             );
-            expect(result.status).toBe(200);
+            expect(result).toBeDefined();
         });
     });
 
@@ -256,7 +255,7 @@ describe('Users', function() {
                     method: 'DELETE'
                 })
             );
-            expect(result.status).toBe(200);
+            expect(result).toBeDefined();
         });
     });
 
@@ -292,7 +291,7 @@ describe('Users', function() {
                     method: 'GET'
                 })
             );
-            expect(result.status).toBe(200);
+            expect(result).toBeDefined();
         });
     });
 
@@ -307,7 +306,7 @@ describe('Users', function() {
                     method: 'DELETE'
                 })
             );
-            expect(result.status).toBe(200);
+            expect(result).toBeDefined();
         });
     });
 
@@ -315,10 +314,10 @@ describe('Users', function() {
         var sheetId = 'test-sheet-id';
         
         return client.users.list(sheetId).then(function(result) {
-            expect(result.data).toBeDefined();
-            expect(result.data.length).toBeGreaterThan(0);
+            expect(result).toBeDefined();
+            expect(result.length).toBeGreaterThan(0);
             
-            var user = result.data[0];
+            var user = result[0];
             expect(user._id).toBeDefined();
             expect(user.email).toBeDefined();
             expect(user.owner).toBeDefined();
@@ -345,8 +344,7 @@ describe('Users', function() {
         var sheetId = 'test-sheet-id';
         
         return client.users.list(sheetId).then(function(result) {
-            expect(result.status).toBe(200);
-            expect(result.data).toEqual([]);
+            expect(result).toEqual([]);
         });
     });
 });

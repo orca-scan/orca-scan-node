@@ -44,9 +44,8 @@ describe('History', function() {
                     })
                 })
             );
-            expect(result.status).toBe(200);
-            expect(result.data).toBeDefined();
-            expect(Array.isArray(result.data)).toBe(true);
+            expect(result).toBeDefined();
+            expect(Array.isArray(result)).toBe(true);
         });
     });
 
@@ -84,9 +83,8 @@ describe('History', function() {
                     })
                 })
             );
-            expect(result.status).toBe(200);
-            expect(result.data).toBeDefined();
-            expect(Array.isArray(result.data)).toBe(true);
+            expect(result).toBeDefined();
+            expect(Array.isArray(result)).toBe(true);
         });
     });
 
@@ -136,7 +134,7 @@ describe('History', function() {
                     method: 'GET'
                 })
             );
-            expect(result.status).toBe(200);
+            expect(result).toBeDefined();
         });
     });
 
@@ -151,7 +149,7 @@ describe('History', function() {
                     method: 'GET'
                 })
             );
-            expect(result.status).toBe(200);
+            expect(result).toBeDefined();
         });
     });
 
@@ -166,7 +164,7 @@ describe('History', function() {
                     method: 'GET'
                 })
             );
-            expect(result.status).toBe(200);
+            expect(result).toBeDefined();
         });
     });
 
@@ -174,10 +172,10 @@ describe('History', function() {
         var sheetId = 'test-sheet-id';
         
         return client.history.sheet(sheetId).then(function(result) {
-            expect(result.data).toBeDefined();
-            expect(result.data.length).toBeGreaterThan(0);
+            expect(result).toBeDefined();
+            expect(result.length).toBeGreaterThan(0);
             
-            var historyItem = result.data[0];
+            var historyItem = result[0];
             expect(historyItem._id).toBeDefined();
             expect(historyItem.barcode).toBeDefined();
             expect(historyItem.name).toBeDefined();
@@ -194,10 +192,10 @@ describe('History', function() {
         var rowId = 'test-row-id';
         
         return client.history.row(sheetId, rowId).then(function(result) {
-            expect(result.data).toBeDefined();
-            expect(result.data.length).toBeGreaterThan(0);
+            expect(result).toBeDefined();
+            expect(result.length).toBeGreaterThan(0);
             
-            var historyItem = result.data[0];
+            var historyItem = result[0];
             expect(historyItem._id).toBeDefined();
             expect(historyItem.barcode).toBeDefined();
             expect(historyItem.name).toBeDefined();
@@ -225,8 +223,7 @@ describe('History', function() {
         var sheetId = 'test-sheet-id';
         
         return client.history.sheet(sheetId).then(function(result) {
-            expect(result.status).toBe(200);
-            expect(result.data).toEqual([]);
+            expect(result).toEqual([]);
         });
     });
 
@@ -247,8 +244,7 @@ describe('History', function() {
         var rowId = 'test-row-id';
         
         return client.history.row(sheetId, rowId).then(function(result) {
-            expect(result.status).toBe(200);
-            expect(result.data).toEqual([]);
+            expect(result).toEqual([]);
         });
     });
 });

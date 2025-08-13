@@ -44,8 +44,7 @@ describe('Hooks', function() {
                     })
                 })
             );
-            expect(result.status).toBe(200);
-            expect(result.data).toBeDefined();
+            expect(result).toBeDefined();
         });
     });
 
@@ -75,9 +74,8 @@ describe('Hooks', function() {
                     method: 'GET'
                 })
             );
-            expect(result.status).toBe(200);
-            expect(result.data).toBeDefined();
-            expect(Array.isArray(result.data)).toBe(true);
+            expect(result).toBeDefined();
+            expect(Array.isArray(result)).toBe(true);
         });
     });
 
@@ -104,7 +102,7 @@ describe('Hooks', function() {
                     method: 'GET'
                 })
             );
-            expect(result.status).toBe(200);
+            expect(result).toBeDefined();
         });
     });
 
@@ -144,7 +142,7 @@ describe('Hooks', function() {
                     body: JSON.stringify(payload)
                 })
             );
-            expect(result.status).toBe(200);
+            expect(result).toBeDefined();
         });
     });
 
@@ -213,7 +211,7 @@ describe('Hooks', function() {
                     body: JSON.stringify(payload)
                 })
             );
-            expect(result.status).toBe(200);
+            expect(result).toBeDefined();
         });
     });
 
@@ -233,7 +231,7 @@ describe('Hooks', function() {
                     body: JSON.stringify(payload)
                 })
             );
-            expect(result.status).toBe(200);
+            expect(result).toBeDefined();
         });
     });
 
@@ -278,7 +276,7 @@ describe('Hooks', function() {
                     method: 'DELETE'
                 })
             );
-            expect(result.status).toBe(200);
+            expect(result).toBeDefined();
         });
     });
 
@@ -310,7 +308,7 @@ describe('Hooks', function() {
                     method: 'GET'
                 })
             );
-            expect(result.status).toBe(200);
+            expect(result).toBeDefined();
         });
     });
 
@@ -325,7 +323,7 @@ describe('Hooks', function() {
                     method: 'DELETE'
                 })
             );
-            expect(result.status).toBe(200);
+            expect(result).toBeDefined();
         });
     });
 
@@ -333,10 +331,10 @@ describe('Hooks', function() {
         var sheetId = 'test-sheet-id';
         
         return client.hooks.list(sheetId).then(function(result) {
-            expect(result.data).toBeDefined();
-            expect(result.data.length).toBeGreaterThan(0);
+            expect(result).toBeDefined();
+            expect(result.length).toBeGreaterThan(0);
             
-            var hook = result.data[0];
+            var hook = result[0];
             expect(hook._id).toBeDefined();
             expect(hook.eventName).toBeDefined();
             expect(hook.sheetId).toBeDefined();
@@ -360,8 +358,7 @@ describe('Hooks', function() {
         var sheetId = 'test-sheet-id';
         
         return client.hooks.list(sheetId).then(function(result) {
-            expect(result.status).toBe(200);
-            expect(result.data).toEqual([]);
+            expect(result).toEqual([]);
         });
     });
 
@@ -380,7 +377,7 @@ describe('Hooks', function() {
                     body: JSON.stringify(payload)
                 })
             );
-            expect(result.status).toBe(200);
+            expect(result).toBeDefined();
         });
     });
 
@@ -399,7 +396,7 @@ describe('Hooks', function() {
                     body: JSON.stringify(payload)
                 })
             );
-            expect(result.status).toBe(200);
+            expect(result).toBeDefined();
         });
     });
 });

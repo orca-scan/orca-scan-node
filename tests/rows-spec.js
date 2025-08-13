@@ -41,7 +41,7 @@ describe('Rows', function() {
                     method: 'GET'
                 })
             );
-            expect(result.status).toBe(200);
+            expect(result).toBeDefined();
         });
     });
 
@@ -56,7 +56,7 @@ describe('Rows', function() {
                     method: 'GET'
                 })
             );
-            expect(result.status).toBe(200);
+            expect(result).toBeDefined();
         });
     });
 
@@ -87,7 +87,7 @@ describe('Rows', function() {
                     method: 'GET'
                 })
             );
-            expect(result.status).toBe(200);
+            expect(result).toBeDefined();
         });
     });
 
@@ -124,7 +124,7 @@ describe('Rows', function() {
                     body: JSON.stringify(data)
                 })
             );
-            expect(result.status).toBe(200);
+            expect(result).toBeDefined();
         });
     });
 
@@ -143,7 +143,7 @@ describe('Rows', function() {
                     body: JSON.stringify(data)
                 })
             );
-            expect(result.status).toBe(200);
+            expect(result).toBeDefined();
         });
     });
 
@@ -162,7 +162,7 @@ describe('Rows', function() {
                     body: JSON.stringify(data)
                 })
             );
-            expect(result.status).toBe(200);
+            expect(result).toBeDefined();
         });
     });
 
@@ -203,7 +203,7 @@ describe('Rows', function() {
                     body: JSON.stringify(data)
                 })
             );
-            expect(result.status).toBe(200);
+            expect(result).toBeDefined();
         });
     });
 
@@ -246,7 +246,7 @@ describe('Rows', function() {
                     body: JSON.stringify(rows)
                 })
             );
-            expect(result.status).toBe(200);
+            expect(result).toBeDefined();
         });
     });
 
@@ -283,7 +283,7 @@ describe('Rows', function() {
                     method: 'DELETE'
                 })
             );
-            expect(result.status).toBe(200);
+            expect(result).toBeDefined();
         });
     });
 
@@ -311,7 +311,7 @@ describe('Rows', function() {
                     body: JSON.stringify(rowIds)
                 })
             );
-            expect(result.status).toBe(200);
+            expect(result).toBeDefined();
         });
     });
 
@@ -351,7 +351,7 @@ describe('Rows', function() {
                     method: 'GET'
                 })
             );
-            expect(result.status).toBe(200);
+            expect(result).toBeDefined();
         });
     });
 
@@ -366,7 +366,7 @@ describe('Rows', function() {
                     method: 'GET'
                 })
             );
-            expect(result.status).toBe(200);
+            expect(result).toBeDefined();
         });
     });
 });

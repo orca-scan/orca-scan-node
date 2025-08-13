@@ -42,8 +42,7 @@ describe('Sheets', function() {
                     })
                 })
             );
-            expect(result.status).toBe(200);
-            expect(result.data).toEqual({test: 'value'});
+            expect(result).toEqual({test: 'value'});
         });
     });
 
@@ -62,7 +61,7 @@ describe('Sheets', function() {
                     body: JSON.stringify(payload)
                 })
             );
-            expect(result.status).toBe(200);
+            expect(result).toBeDefined();
         });
     });
 
@@ -80,7 +79,7 @@ describe('Sheets', function() {
                     body: JSON.stringify(payload)
                 })
             );
-            expect(result.status).toBe(200);
+            expect(result).toBeDefined();
         });
     });
 
@@ -126,7 +125,7 @@ describe('Sheets', function() {
                     method: 'GET'
                 })
             );
-            expect(result.status).toBe(200);
+            expect(result).toBeDefined();
         });
     });
 
@@ -156,7 +155,7 @@ describe('Sheets', function() {
                     method: 'GET'
                 })
             );
-            expect(result.status).toBe(200);
+            expect(result).toBeDefined();
         });
     });
 
@@ -182,7 +181,7 @@ describe('Sheets', function() {
                     method: 'PUT'
                 })
             );
-            expect(result.status).toBe(200);
+            expect(result).toBeDefined();
         });
     });
 
@@ -210,7 +209,7 @@ describe('Sheets', function() {
                     body: JSON.stringify(payload)
                 })
             );
-            expect(result.status).toBe(200);
+            expect(result).toBeDefined();
         });
     });
 
@@ -229,7 +228,7 @@ describe('Sheets', function() {
                     body: JSON.stringify(payload)
                 })
             );
-            expect(result.status).toBe(200);
+            expect(result).toBeDefined();
         });
     });
 
@@ -261,7 +260,7 @@ describe('Sheets', function() {
                     method: 'DELETE'
                 })
             );
-            expect(result.status).toBe(200);
+            expect(result).toBeDefined();
         });
     });
 
@@ -287,7 +286,7 @@ describe('Sheets', function() {
                     method: 'GET'
                 })
             );
-            expect(result.status).toBe(200);
+            expect(result).toBeDefined();
         });
     });
 });
