@@ -23,8 +23,8 @@ var OrcaScan = require('orca-scan-node');
 // Get your API key from cloud.orcascan.com > account settings
 var orca = new OrcaScan('your-api-key', {
     endpoint: 'https://api.orcascan.com/v1', // API endpoint (default)
-    timeoutMs: 30000,                        // Request timeout in milliseconds (default: 30 sec)
-    maxRetries: 3                            // Max retry attempts on 429, 503, and 5xx errors (default: 3)
+    timeoutMs: 30000,                        // Request timeout (default: 30 sec)
+    maxRetries: 3                            // Max retry attempts (default: 3)
 });
 ```
 
