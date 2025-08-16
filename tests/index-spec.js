@@ -1,7 +1,7 @@
 /* eslint-disable prefer-rest-params */
 var proxyquire = require('proxyquire');
 
-describe('OrcaScanNode', function() {
+describe('orca-scan-node', function() {
     var client;
     var mockFetch;
     var OrcaScanNode;

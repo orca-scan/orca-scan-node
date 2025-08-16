@@ -115,36 +115,6 @@ describe('Sheets', function() {
         }).toThrowError('payload.name is required and must be a string');
     });
 
-    it('should get fields for a sheet', function() {
-        var sheetId = 'test-sheet-id';
-        
-        return client.sheets.fields(sheetId).then(function(result) {
-            expect(mockFetch).toHaveBeenCalledWith(
-                'https://api.orcascan.com/v1/sheets/test-sheet-id/fields',
-                jasmine.objectContaining({
-                    method: 'GET'
-                })
-            );
-            expect(result).toBeDefined();
-        });
-    });
-
-    it('should throw error when getting fields without sheetId', function() {
-        expect(function() {
-            client.sheets.fields();
-        }).toThrowError('sheetId is required and must be a string');
-    });
-
-    it('should throw error when getting fields with non-string sheetId', function() {
-        expect(function() {
-            client.sheets.fields(123);
-        }).toThrowError('sheetId is required and must be a string');
-
-        expect(function() {
-            client.sheets.fields(null);
-        }).toThrowError('sheetId is required and must be a string');
-    });
-
     it('should get settings for a sheet', function() {
         var sheetId = 'test-sheet-id';
         
@@ -279,9 +249,9 @@ describe('Sheets', function() {
     it('should handle sheetId with special characters in URL encoding', function() {
         var sheetId = 'test/sheet:id';
         
-        return client.sheets.fields(sheetId).then(function(result) {
+        return client.sheets.settings(sheetId).then(function(result) {
             expect(mockFetch).toHaveBeenCalledWith(
-                'https://api.orcascan.com/v1/sheets/test%2Fsheet%3Aid/fields',
+                'https://api.orcascan.com/v1/sheets/test%2Fsheet%3Aid/settings',
                 jasmine.objectContaining({
                     method: 'GET'
                 })

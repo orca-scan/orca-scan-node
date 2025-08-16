@@ -5,17 +5,12 @@ var fetch = require('node-fetch');
  * Orca Scan node client
  * Simple ES5 SDK that mirrors the rest api structure using namespaces
  * 
- * @description
- * Supports various barcode formats including QR codes and Code 128
- * QR codes: up to 7,089 numeric or 4,296 alphanumeric characters
- * Code 128: high-density linear barcode encoding up to 128 characters
- * 
  * @param {string} apiKey - your orca scan api key
  * @param {object} [options] - optional configuration
  * @param {string} [options.endpoint] - override api base url defaults to https://api.orcascan.com/v1
  * @param {number} [options.timeoutMs] - request timeout in milliseconds defaults to 30000
  * @param {number} [options.maxRetries] - retries on 429 503 and 5xx defaults to 3
- * @returns {object} instance with sheets rows history users and hooks namespaces
+ * @returns {object} instance with sheets, rows, fields, history, users, and hooks namespaces
  * 
  * @description
  * API rate limit: 15 requests per second
@@ -79,34 +74,6 @@ function OrcaScanNode(apiKey, options) {
             if (!payload.name || typeof payload.name !== 'string') throw new Error('payload.name is required and must be a string');
 
             return request.call(self, 'POST', '/sheets', null, payload);
-        },
-
-        /**
-         * Get a list of fields in a sheet
-         * Returns field definitions including type, validation rules, and display settings
-         * @param {string} sheetId - target sheet id
-         * @returns {Promise<object>} promise resolving to result
-         *   {array} data - list of fields
-         *   {string} data[].key - field key
-         *   {string} data[].label - field label
-         *   {string} data[].type - field type (string, integer, datetime, photo, attachment, uniqueId, barcode, location, signature, checkbox, select, multiselect, number, email, phone, url, date, time)
-         *   {boolean} data[].required - is required
-         *   {string} data[].placeholder - guidance text when field is empty
-         *   {boolean} data[].autofocus - if true, UI auto selects this field first
-         *   {boolean} data[].autoselect - if true, existing text is highlighted on focus
-         *   {boolean} data[].emptyOnEdit - if true, value is cleared when record edited
-         *   {boolean} data[].emptyOnScan - if true, existing value is removed on scan
-         *   {boolean} data[].hiddenMobile - if true, field is hidden on mobile
-         *   {boolean} data[].hiddenWeb - if true, field is hidden on web
-         *   {boolean} data[].readonlyWeb - if true, field is read-only on web
-         *   {boolean} data[].readonlyMobile - if true, field is read-only on mobile
-         *   {boolean} data[].useInMobileSearch - if true, field is searchable in mobile list
-         *   {boolean} data[].useValueInList - if true, field is visible in mobile list
-         */
-        fields: function (sheetId) {
-            if (!sheetId || typeof sheetId !== 'string') throw new Error('sheetId is required and must be a string');
-
-            return request.call(self, 'GET', '/sheets/' + encodeURIComponent(sheetId) + '/fields');
         },
 
         /**
@@ -282,6 +249,130 @@ function OrcaScanNode(apiKey, options) {
             if (!rowIds || Object.prototype.toString.call(rowIds) !== '[object Array]') throw new Error('rowIds is required and must be an array of strings');
 
             return request.call(self, 'DELETE', '/sheets/' + encodeURIComponent(sheetId) + '/rows', null, rowIds);
+        }
+    };
+
+    /**
+     * fields namespace
+     * @returns {object} field methods
+     */
+    self.fields = {
+
+        /**
+         * Get a list of fields in a sheet
+         * @param {string} sheetId - target sheet id
+         * @returns {Promise<object>} promise resolving to result
+         *   {array} data - list of fields
+         *   {string} data[].key - field key
+         *   {string} data[].label - field label
+         *   {string} data[].type - field type (string, integer, datetime, photo, attachment, uniqueId, barcode, location, signature, checkbox, select, multiselect, number, email, phone, url, date, time)
+         *   {boolean} data[].required - is required
+         *   {string} data[].placeholder - guidance text when field is empty
+         *   {boolean} data[].autofocus - if true, UI auto selects this field first
+         *   {boolean} data[].autoselect - if true, existing text is highlighted on focus
+         *   {boolean} data[].emptyOnEdit - if true, value is cleared when record edited
+         *   {boolean} data[].emptyOnScan - if true, existing value is removed on scan
+         *   {boolean} data[].hiddenMobile - if true, field is hidden on mobile
+         *   {boolean} data[].hiddenWeb - if true, field is hidden on web
+         *   {boolean} data[].readonlyWeb - if true, field is read-only on web
+         *   {boolean} data[].readonlyMobile - if true, field is read-only on mobile
+         *   {boolean} data[].useInMobileSearch - if true, field is searchable in mobile list
+         *   {boolean} data[].useValueInList - if true, field is visible in mobile list
+         */
+        list: function (sheetId) {
+            if (!sheetId || typeof sheetId !== 'string') throw new Error('sheetId is required and must be a string');
+
+            return request.call(self, 'GET', '/sheets/' + encodeURIComponent(sheetId) + '/fields');
+        },
+
+        /**
+         * Get a single field by key
+         * @param {string} sheetId - target sheet id
+         * @param {string} fieldKey - field key
+         * @returns {Promise<object>} promise resolving to result
+         *   {object} data - field object with all properties
+         */
+        get: function (sheetId, fieldKey) {
+            if (!sheetId || typeof sheetId !== 'string') throw new Error('sheetId is required and must be a string');
+            if (!fieldKey || typeof fieldKey !== 'string') throw new Error('fieldKey is required and must be a string');
+
+            return request.call(self, 'GET', '/sheets/' + encodeURIComponent(sheetId) + '/fields/' + encodeURIComponent(fieldKey));
+        },
+
+        /**
+         * Create a new field in a sheet
+         * @param {string} sheetId - target sheet id
+         * @param {object} payload - field definition
+         * @param {string} payload.key - field key (unique identifier)
+         * @param {string} payload.label - field label (display name)
+         * @param {string} payload.type - field type (string, integer, datetime, photo, attachment, uniqueId, barcode, location, signature, checkbox, select, multiselect, number, email, phone, url, date, time)
+         * @param {boolean} [payload.required=false] - is field required
+         * @param {string} [payload.placeholder] - guidance text when field is empty
+         * @param {boolean} [payload.autofocus=false] - if true, UI auto selects this field first
+         * @param {boolean} [payload.autoselect=false] - if true, existing text is highlighted on focus
+         * @param {boolean} [payload.emptyOnEdit=false] - if true, value is cleared when record edited
+         * @param {boolean} [payload.emptyOnScan=false] - if true, existing value is removed on scan
+         * @param {boolean} [payload.hiddenMobile=false] - if true, field is hidden on mobile
+         * @param {boolean} [payload.hiddenWeb=false] - if true, field is hidden on web
+         * @param {boolean} [payload.readonlyWeb=false] - if true, field is read-only on web
+         * @param {boolean} [payload.readonlyMobile=false] - if true, field is read-only on mobile
+         * @param {boolean} [payload.useInMobileSearch=true] - if true, field is searchable in mobile list
+         * @param {boolean} [payload.useValueInList=true] - if true, field is visible in mobile list
+         * @returns {Promise<object>} promise resolving to result
+         *   {object} data - created field with all properties
+         */
+        create: function (sheetId, payload) {
+            if (!sheetId || typeof sheetId !== 'string') throw new Error('sheetId is required and must be a string');
+            if (!payload || typeof payload !== 'object') throw new Error('payload is required and must be an object');
+            if (!payload.key || typeof payload.key !== 'string') throw new Error('payload.key is required and must be a string');
+            if (!payload.label || typeof payload.label !== 'string') throw new Error('payload.label is required and must be a string');
+            if (!payload.type || typeof payload.type !== 'string') throw new Error('payload.type is required and must be a string');
+
+            return request.call(self, 'POST', '/sheets/' + encodeURIComponent(sheetId) + '/fields', null, payload);
+        },
+
+        /**
+         * Update an existing field in a sheet
+         * @param {string} sheetId - target sheet id
+         * @param {string} fieldKey - field key to update
+         * @param {object} payload - field update data
+         * @param {string} [payload.label] - new field label
+         * @param {string} [payload.type] - new field type
+         * @param {boolean} [payload.required] - is field required
+         * @param {string} [payload.placeholder] - guidance text when field is empty
+         * @param {boolean} [payload.autofocus] - if true, UI auto selects this field first
+         * @param {boolean} [payload.autoselect] - if true, existing text is highlighted on focus
+         * @param {boolean} [payload.emptyOnEdit] - if true, value is cleared when record edited
+         * @param {boolean} [payload.emptyOnScan] - if true, existing value is removed on scan
+         * @param {boolean} [payload.hiddenMobile] - if true, field is hidden on mobile
+         * @param {boolean} [payload.hiddenWeb] - if true, field is hidden on web
+         * @param {boolean} [payload.readonlyWeb] - if true, field is read-only on web
+         * @param {boolean} [payload.readonlyMobile] - if true, field is read-only on mobile
+         * @param {boolean} [payload.useInMobileSearch] - if true, field is searchable in mobile list
+         * @param {boolean} [payload.useValueInList] - if true, field is visible in mobile list
+         * @returns {Promise<object>} promise resolving to result
+         *   {object} data - updated field with all properties
+         */
+        update: function (sheetId, fieldKey, payload) {
+            if (!sheetId || typeof sheetId !== 'string') throw new Error('sheetId is required and must be a string');
+            if (!fieldKey || typeof fieldKey !== 'string') throw new Error('fieldKey is required and must be a string');
+            if (!payload || typeof payload !== 'object') throw new Error('payload is required and must be an object');
+
+            return request.call(self, 'PUT', '/sheets/' + encodeURIComponent(sheetId) + '/fields/' + encodeURIComponent(fieldKey), null, payload);
+        },
+
+        /**
+         * Delete a field from a sheet
+         * @param {string} sheetId - target sheet id
+         * @param {string} fieldKey - field key to delete
+         * @returns {Promise<object>} promise resolving to result
+         *   {object|null} data - api response or null
+         */
+        delete: function (sheetId, fieldKey) {
+            if (!sheetId || typeof sheetId !== 'string') throw new Error('sheetId is required and must be a string');
+            if (!fieldKey || typeof fieldKey !== 'string') throw new Error('fieldKey is required and must be a string');
+
+            return request.call(self, 'DELETE', '/sheets/' + encodeURIComponent(sheetId) + '/fields/' + encodeURIComponent(fieldKey));
         }
     };
 
