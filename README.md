@@ -35,7 +35,7 @@ var orca = new OrcaScan('your-api-key', {
 ```js
 // list all sheets
 orca.sheets.list().then(function(result) {
-    console.log(result.data);
+    console.log(result); // May be result.data or result depending on API response
 });
 
 // create new sheet
@@ -43,17 +43,17 @@ orca.sheets.create({
     name: 'Inventory',
     templateName: 'inventory'  // optional
 }).then(function(result) {
-    console.log('Sheet created:', result.data);
+    console.log('Sheet created:', result); // May be result.data or result depending on API response
 });
 
 // get sheet fields
 orca.fields.list('sheet-id').then(function(result) {
-    console.log('Sheet fields:', result.data);
+    console.log('Sheet fields:', result); // May be result.data or result depending on API response
 });
 
 // get sheet settings
 orca.sheets.settings('sheet-id').then(function(result) {
-    console.log('Sheet settings:', result.data);
+    console.log('Sheet settings:', result); // May be result.data or result depending on API response
 });
 
 // clear all rows in a sheet
@@ -62,7 +62,10 @@ orca.sheets.clear('sheet-id').then(function(result) {
 });
 
 // rename a sheet
-orca.sheets.rename('sheet-id', { name: 'New Sheet Name' }).then(function(result) {
+orca.sheets.rename('sheet-id', { 
+    name: 'New Sheet Name',
+    description: 'Optional description'  // optional
+}).then(function(result) {
     console.log('Sheet renamed');
 });
 
@@ -77,12 +80,12 @@ orca.sheets.delete('sheet-id').then(function(result) {
 ```js
 // list all fields in a sheet
 orca.fields.list('sheet-id').then(function(result) {
-    console.log('Sheet fields:', result.data);
+    console.log('Sheet fields:', result); // May be result.data or result depending on API response
 });
 
 // get a single field
 orca.fields.get('sheet-id', 'field-key').then(function(result) {
-    console.log('Field:', result.data);
+    console.log('Field:', result); // May be result.data or result depending on API response
 });
 
 // create a new field
@@ -94,7 +97,7 @@ orca.fields.create('sheet-id', {
     placeholder: 'Enter product code'
 })
 .then(function(result) {
-    console.log('Field created:', result.data);
+    console.log('Field created:', result); // May be result.data or result depending on API response
 });
 
 // create field with advanced options
@@ -104,10 +107,11 @@ orca.fields.create('sheet-id', {
     type: 'photo',
     required: false,
     hiddenWeb: true,
-    useInMobileSearch: false
+    useInMobileSearch: false,
+    useValueInList: true
 })
 .then(function(result) {
-    console.log('Advanced field created:', result.data);
+    console.log('Advanced field created:', result); // May be result.data or result depending on API response
 });
 
 // update a field
@@ -116,7 +120,7 @@ orca.fields.update('sheet-id', 'field-key', {
     required: false
 })
 .then(function(result) {
-    console.log('Field updated:', result.data);
+    console.log('Field updated:', result); // May be result.data or result depending on API response
 });
 
 // delete a field
@@ -133,8 +137,6 @@ The following field types are supported:
 - **integer** - Whole numbers
 - **number** - Decimal numbers
 - **datetime** - Date and time
-- **date** - Date only
-- **time** - Time only
 - **photo** - Image upload (.jpg, .png, .gif, .bmp, .webp, .tiff, .svg)
 - **attachment** - File upload (.doc, .docx, .csv, .txt, .ppt, .pptx, .pdf, .xls, .xlsx, .mp4)
 - **uniqueId** - Auto-generated unique identifier
@@ -153,17 +155,17 @@ The following field types are supported:
 ```js
 // list all rows in a sheet
 orca.rows.list('sheet-id').then(function(result) {
-    console.log(result.data);
+    console.log(result); // May be result.data or result depending on API response
 });
 
 // list rows with pagination
 orca.rows.list('sheet-id', { limit: 10, skip: 20 }).then(function(result) {
-    console.log(result.data);
+    console.log(result); // May be result.data or result depending on API response
 });
 
 // get a single row
 orca.rows.get('sheet-id', 'row-id').then(function(result) {
-    console.log(result.data);
+    console.log(result); // May be result.data or result depending on API response
 });
 
 // add single row
@@ -172,7 +174,7 @@ orca.rows.add('sheet-id', {
     quantity: 5
 })
 .then(function(result) {
-    console.log('Row added:', result.data);
+    console.log('Row added:', result); // May be result.data or result depending on API response
 });
 
 // add row with photo (base64 encoded)
@@ -182,7 +184,7 @@ orca.rows.add('sheet-id', {
     quantity: 1
 })
 .then(function(result) {
-    console.log('Row with photo added:', result.data);
+    console.log('Row with photo added:', result); // May be result.data or result depending on API response
 });
 
 // add row with attachment (base64 encoded)
@@ -192,7 +194,7 @@ orca.rows.add('sheet-id', {
     quantity: 1
 })
 .then(function(result) {
-    console.log('Row with attachment added:', result.data);
+    console.log('Row with attachment added:', result); // May be result.data or result depending on API response
 });
 
 // add multiple rows
@@ -201,7 +203,7 @@ orca.rows.add('sheet-id', [
     { name: 'Item 2', quantity: 10 }
 ])
 .then(function(result) {
-    console.log('Rows added:', result.data);
+    console.log('Rows added:', result); // May be result.data or result depending on API response
 });
 
 // update one row
@@ -209,7 +211,7 @@ orca.rows.updateOne('sheet-id', 'row-id', {
     quantity: 15
 })
 .then(function(result) {
-    console.log('Row updated:', result.data);
+    console.log('Row updated:', result); // May be result.data or result depending on API response
 });
 
 // update many rows
@@ -218,7 +220,7 @@ orca.rows.updateMany('sheet-id', [
     { _id: 'row2', quantity: 20 }
 ])
 .then(function(result) {
-    console.log('Rows updated:', result.data);
+    console.log('Rows updated:', result); // May be result.data or result depending on API response
 });
 
 // delete one row
@@ -239,12 +241,12 @@ orca.rows.deleteMany('sheet-id', ['row1', 'row2']).then(function(result) {
 ```js
 // get sheet history
 orca.history.sheet('sheet-id').then(function(result) {
-    console.log(result.data);
+    console.log(result); // May be result.data or result depending on API response
 });
 
 // get row history
 orca.history.row('sheet-id', 'row-id').then(function(result) {
-    console.log(result.data);
+    console.log(result); // May be result.data or result depending on API response
 });
 ```
 
@@ -253,17 +255,19 @@ orca.history.row('sheet-id', 'row-id').then(function(result) {
 ```js
 // list users on a sheet
 orca.users.list('sheet-id').then(function(result) {
-    console.log(result.data);
+    console.log(result); // May be result.data or result depending on API response
 });
 
 // add a user to a sheet
 orca.users.add('sheet-id', {
     email: 'user@example.com',
     canUpdate: true,
-    canDelete: false
+    canDelete: false,
+    canExport: true,    // optional
+    canAdmin: false     // optional
 })
 .then(function(result) {
-    console.log('User added:', result.data);
+    console.log('User added:', result); // May be result.data or result depending on API response
 });
 
 // update a user on a sheet
@@ -272,7 +276,7 @@ orca.users.update('sheet-id', 'user-id', {
     canDelete: true
 })
 .then(function(result) {
-    console.log('User updated:', result.data);
+    console.log('User updated:', result); // May be result.data or result depending on API response
 });
 
 // remove a user from a sheet
@@ -286,17 +290,17 @@ orca.users.remove('sheet-id', 'user-id').then(function(result) {
 ```js
 // get supported hook events
 orca.hooks.events('sheet-id').then(function(result) {
-    console.log(result.data);
+    console.log(result); // May be result.data or result depending on API response
 });
 
 // list all hooks on a sheet
 orca.hooks.list('sheet-id').then(function(result) {
-    console.log(result.data);
+    console.log(result); // May be result.data or result depending on API response
 });
 
 // get a single hook
 orca.hooks.get('sheet-id', 'hook-id').then(function(result) {
-    console.log(result.data);
+    console.log(result); // May be result.data or result depending on API response
 });
 
 // create a hook
@@ -305,7 +309,7 @@ orca.hooks.create('sheet-id', {
     targetUrl: 'https://example.com/webhook'
 })
 .then(function(result) {
-    console.log('Hook created:', result.data);
+    console.log('Hook created:', result); // May be result.data or result depending on API response
 });
 
 // update a hook
@@ -313,7 +317,7 @@ orca.hooks.update('sheet-id', 'hook-id', {
     targetUrl: 'https://example.com/new-webhook'
 })
 .then(function(result) {
-    console.log('Hook updated:', result.data);
+    console.log('Hook updated:', result); // May be result.data or result depending on API response
 });
 
 // delete a hook
@@ -326,11 +330,12 @@ orca.hooks.delete('sheet-id', 'hook-id').then(function(result) {
 
 ```js
 orca.sheets.list().then(function(result) {
-    console.log('Success!', result.data);
+    console.log('Success!', result); // May be result.data or result depending on API response
 })
 .catch(function(error) {
     console.error('Error:', error.message);
     console.error('Status:', error.status);
+    console.error('Response body:', error.body);  // Additional error details
 });
 ```
 
@@ -375,7 +380,7 @@ var orca = new OrcaScan('your-api-key');
 // Create sheet -> Add rows -> List rows
 orca.sheets.create({ name: 'Inventory' }).then(function(result) {
 
-    var sheetId = result.data._id;
+    var sheetId = result._id; // May be result.data._id or result._id depending on API response
 
     return orca.rows.add(sheetId, [
         { name: 'Laptop', quantity: 5 },
