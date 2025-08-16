@@ -20,7 +20,7 @@ npm install orca-scan-node
 ```js
 var OrcaScan = require('orca-scan-node');
 
-// Get your API key from cloud.orcascan.com > account settings
+// get your API key from cloud.orcascan.com > account settings
 var orca = new OrcaScan('your-api-key', {
     endpoint: 'https://api.orcascan.com/v1', // API endpoint (default)
     timeoutMs: 30000,                        // Request timeout (default: 30 sec)
