@@ -4,12 +4,23 @@ var fetch = require('node-fetch');
 /**
  * Orca Scan node client
  * Simple ES5 SDK that mirrors the rest api structure using namespaces
+ * 
+ * @description
+ * Supports various barcode formats including QR codes and Code 128
+ * QR codes: up to 7,089 numeric or 4,296 alphanumeric characters
+ * Code 128: high-density linear barcode encoding up to 128 characters
+ * 
  * @param {string} apiKey - your orca scan api key
  * @param {object} [options] - optional configuration
  * @param {string} [options.endpoint] - override api base url defaults to https://api.orcascan.com/v1
  * @param {number} [options.timeoutMs] - request timeout in milliseconds defaults to 30000
  * @param {number} [options.maxRetries] - retries on 429 503 and 5xx defaults to 3
  * @returns {object} instance with sheets rows history users and hooks namespaces
+ * 
+ * @description
+ * API rate limit: 15 requests per second
+ * Automatic retry on 429 (Too Many Requests), 503 (Service Unavailable), and 5xx errors
+ * Retry delay respects Retry-After header when provided
  */
 function OrcaScanNode(apiKey, options) {
     
@@ -37,29 +48,27 @@ function OrcaScanNode(apiKey, options) {
     self.sheets = {
 
         /**
-         * get a list of sheets
-         * @returns {Promise<object>} promise resolving to result
-         * @returns
-         *   {array} data - list of sheets
-         *   {string} data[].__id - sheet id
-         *   {string} data[].name - sheet name
-         *   {boolean} data[].isOwner - user is owner
-         *   {boolean} data[].canAdmin - can admin
-         *   {boolean} data[].canUpdate - can update
-         *   {boolean} data[].canDelete - can delete
-         *   {boolean} data[].canExport - can export
+         * Get a list of sheets
+         * @returns {Promise<object>} Promise resolving to an array of sheet objects, each containing:
+         *   {array} data - list of sheet objects
+         *   {string} data[]._id - Sheet ID
+         *   {string} data[].name - Sheet name
+         *   {boolean} data[].isOwner - Indicates if the user is the owner
+         *   {boolean} data[].canAdmin - Indicates if the user can administer the sheet
+         *   {boolean} data[].canUpdate - Indicates if the user can update the sheet
+         *   {boolean} data[].canDelete - Indicates if the user can delete the sheet
+         *   {boolean} data[].canExport - Indicates if the user can export the sheet
          */
         list: function () {
             return request.call(self, 'GET', '/sheets');
         },
 
         /**
-         * create a sheet
+         * Create a sheet
          * @param {object} payload - sheet input
          * @param {string} payload.name - sheet name
          * @param {string} [payload.templateName] - optional template name
          * @returns {Promise<object>} promise resolving to result
-         * @returns
          *   {object} data - created sheet
          *   {string} data._id - sheet id
          *   {string} data.name - sheet name
@@ -73,15 +82,26 @@ function OrcaScanNode(apiKey, options) {
         },
 
         /**
-         * get a list of fields in a sheet
+         * Get a list of fields in a sheet
+         * Returns field definitions including type, validation rules, and display settings
          * @param {string} sheetId - target sheet id
          * @returns {Promise<object>} promise resolving to result
-         * @returns
          *   {array} data - list of fields
          *   {string} data[].key - field key
          *   {string} data[].label - field label
-         *   {string} data[].type - field type
+         *   {string} data[].type - field type (string, integer, datetime, photo, attachment, uniqueId, barcode, location, signature, checkbox, select, multiselect, number, email, phone, url, date, time)
          *   {boolean} data[].required - is required
+         *   {string} data[].placeholder - guidance text when field is empty
+         *   {boolean} data[].autofocus - if true, UI auto selects this field first
+         *   {boolean} data[].autoselect - if true, existing text is highlighted on focus
+         *   {boolean} data[].emptyOnEdit - if true, value is cleared when record edited
+         *   {boolean} data[].emptyOnScan - if true, existing value is removed on scan
+         *   {boolean} data[].hiddenMobile - if true, field is hidden on mobile
+         *   {boolean} data[].hiddenWeb - if true, field is hidden on web
+         *   {boolean} data[].readonlyWeb - if true, field is read-only on web
+         *   {boolean} data[].readonlyMobile - if true, field is read-only on mobile
+         *   {boolean} data[].useInMobileSearch - if true, field is searchable in mobile list
+         *   {boolean} data[].useValueInList - if true, field is visible in mobile list
          */
         fields: function (sheetId) {
             if (!sheetId || typeof sheetId !== 'string') throw new Error('sheetId is required and must be a string');
@@ -93,7 +113,6 @@ function OrcaScanNode(apiKey, options) {
          * get sheet settings
          * @param {string} sheetId - target sheet id
          * @returns {Promise<object>} promise resolving to result
-         * @returns
          *   {object} data - sheet settings
          *   {boolean} data.allowPublicExport - allow public export
          *   {string} data.publicExportUrl - public export url
@@ -116,7 +135,6 @@ function OrcaScanNode(apiKey, options) {
          * clear all rows in a sheet
          * @param {string} sheetId - target sheet id
          * @returns {Promise<object>} promise resolving to result
-         * @returns
          *   {object|null} data - api response or null
          */
         clear: function (sheetId) {
@@ -132,7 +150,6 @@ function OrcaScanNode(apiKey, options) {
          * @param {string} payload.name - new sheet name
          * @param {string} [payload.description] - optional description
          * @returns {Promise<object>} promise resolving to result
-         * @returns
          *   {object|null} data - api response or null
          */
         rename: function (sheetId, payload) {
@@ -147,7 +164,6 @@ function OrcaScanNode(apiKey, options) {
          * delete a sheet
          * @param {string} sheetId - target sheet id
          * @returns {Promise<object>} promise resolving to result
-         * @returns
          *   {object|null} data - api response or null
          */
         delete: function (sheetId) {
@@ -168,7 +184,6 @@ function OrcaScanNode(apiKey, options) {
          * @param {string} sheetId - target sheet id
          * @param {object} [query] - optional query params such as limit and skip
          * @returns {Promise<object>} promise resolving to result
-         * @returns
          *   {array} data - list of row objects with arbitrary properties
          */
         list: function (sheetId, query) {
@@ -183,7 +198,6 @@ function OrcaScanNode(apiKey, options) {
          * @param {string} sheetId - target sheet id
          * @param {string} rowId - row id
          * @returns {Promise<object>} promise resolving to result
-         * @returns
          *   {object} data - row object with arbitrary properties
          */
         get: function (sheetId, rowId) {
@@ -198,8 +212,12 @@ function OrcaScanNode(apiKey, options) {
          * @param {string} sheetId - target sheet id
          * @param {object|array} data - row object or array of row objects supports special fields such as photo or attachment as base64
          * @returns {Promise<object>} promise resolving to result
-         * @returns
          *   {object|array} data - created row or list of created rows with server assigned fields
+         * 
+         * @description
+         * Photo fields support: .jpg, .png, .gif, .bmp, .webp, .tiff, .svg
+         * Attachment fields support: .doc, .docx, .csv, .txt, .ppt, .pptx, .pdf, .xls, .xlsx, .mp4
+         * Files should be provided as base64 strings
          */
         add: function (sheetId, data) {
             if (!sheetId || typeof sheetId !== 'string') throw new Error('sheetId is required and must be a string');
@@ -214,7 +232,6 @@ function OrcaScanNode(apiKey, options) {
          * @param {string} rowId - row id
          * @param {object} data - fields to update
          * @returns {Promise<object>} promise resolving to result
-         * @returns
          *   {object} data - updated row with arbitrary properties
          */
         updateOne: function (sheetId, rowId, data) {
@@ -230,7 +247,6 @@ function OrcaScanNode(apiKey, options) {
          * @param {string} sheetId - target sheet id
          * @param {array} rows - array of row objects
          * @returns {Promise<object>} promise resolving to result
-         * @returns
          *   {array} data - updated rows
          */
         updateMany: function (sheetId, rows) {
@@ -245,7 +261,6 @@ function OrcaScanNode(apiKey, options) {
          * @param {string} sheetId - target sheet id
          * @param {string} rowId - row id
          * @returns {Promise<object>} promise resolving to result
-         * @returns
          *   {object|null} data - api response or null
          */
         deleteOne: function (sheetId, rowId) {
@@ -260,7 +275,6 @@ function OrcaScanNode(apiKey, options) {
          * @param {string} sheetId - target sheet id
          * @param {array} rowIds - array of row id strings
          * @returns {Promise<object>} promise resolving to result
-         * @returns
          *   {object|null} data - api response or null
          */
         deleteMany: function (sheetId, rowIds) {
@@ -281,16 +295,15 @@ function OrcaScanNode(apiKey, options) {
          * get sheet history
          * @param {string} sheetId - target sheet id
          * @returns {Promise<object>} promise resolving to result
-         * @returns
          *   {array} data - list of history items
-         *   {string} data[].._id - history id
-         *   {string} data[]..barcode - barcode value
-         *   {string} data[]..name - name value
-         *   {number} data[]..quantity - quantity value
-         *   {string} data[].._change - add update or delete
-         *   {string} data[].._changedBy - who changed
-         *   {string} data[].._changedOn - iso date string
-         *   {string} data[].._changedUsing - client info
+         *   {string} data[]._id - history id
+         *   {string} data[].barcode - barcode value
+         *   {string} data[].name - name value
+         *   {number} data[].quantity - quantity value
+         *   {string} data[]._change - add update or delete
+         *   {string} data[]._changedBy - who changed
+         *   {string} data[]._changedOn - iso date string
+         *   {string} data[]._changedUsing - client info
          */
         sheet: function (sheetId) {
             if (!sheetId || typeof sheetId !== 'string') throw new Error('sheetId is required and must be a string');
@@ -303,16 +316,15 @@ function OrcaScanNode(apiKey, options) {
          * @param {string} sheetId - target sheet id
          * @param {string} rowId - row id
          * @returns {Promise<object>} promise resolving to result
-         * @returns
          *   {array} data - list of history items
-         *   {string} data[].._id - history id
-         *   {string} data[]..barcode - barcode value
-         *   {string} data[]..name - name value
-         *   {number} data[]..quantity - quantity value
-         *   {string} data[].._change - add update or delete
-         *   {string} data[].._changedBy - who changed
-         *   {string} data[].._changedOn - iso date string
-         *   {string} data[].._changedUsing - client info
+         *   {string} data[]._id - history id
+         *   {string} data[].barcode - barcode value
+         *   {string} data[].name - name value
+         *   {number} data[].quantity - quantity value
+         *   {string} data[]._change - add update or delete
+         *   {string} data[]._changedBy - who changed
+         *   {string} data[]._changedOn - iso date string
+         *   {string} data[]._changedUsing - client info
          */
         row: function (sheetId, rowId) {
             if (!sheetId || typeof sheetId !== 'string') throw new Error('sheetId is required and must be a string');
@@ -332,15 +344,14 @@ function OrcaScanNode(apiKey, options) {
          * get users on a sheet
          * @param {string} sheetId - target sheet id
          * @returns {Promise<object>} promise resolving to result
-         * @returns
          *   {array} data - list of users
-         *   {string} data[].._id - user id
-         *   {string} data[]..email - user email
-         *   {boolean} data[]..owner - owner flag
-         *   {boolean} data[]..canUpdate - can update
-         *   {boolean} data[]..canDelete - can delete
-         *   {boolean} data[]..canExport - can export
-         *   {boolean} data[]..canAdmin - can admin
+         *   {string} data[]._id - user id
+         *   {string} data[].email - user email
+         *   {boolean} data[].owner - owner flag
+         *   {boolean} data[].canUpdate - can update
+         *   {boolean} data[].canDelete - can delete
+         *   {boolean} data[].canExport - can export
+         *   {boolean} data[].canAdmin - can admin
          */
         list: function (sheetId) {
             if (!sheetId || typeof sheetId !== 'string') throw new Error('sheetId is required and must be a string');
@@ -358,7 +369,6 @@ function OrcaScanNode(apiKey, options) {
          * @param {boolean} [payload.canExport] - can export
          * @param {boolean} [payload.canAdmin] - can admin
          * @returns {Promise<object>} promise resolving to result
-         * @returns
          *   {object} data - created user
          *   {string} data._id - user id
          *   {string} data.email - user email
@@ -381,7 +391,6 @@ function OrcaScanNode(apiKey, options) {
          * @param {string} userId - user id
          * @param {object} payload - user update input
          * @returns {Promise<object>} promise resolving to result
-         * @returns
          *   {object} data - updated user
          *   {string} data._id - user id
          *   {string} data.email - user email
@@ -403,7 +412,6 @@ function OrcaScanNode(apiKey, options) {
          * @param {string} sheetId - target sheet id
          * @param {string} userId - user id
          * @returns {Promise<object>} promise resolving to result
-         * @returns
          *   {object|null} data - api response or null
          */
         remove: function (sheetId, userId) {
@@ -424,7 +432,6 @@ function OrcaScanNode(apiKey, options) {
          * get supported hook events
          * @param {string} sheetId - target sheet id
          * @returns {Promise<object>} promise resolving to result
-         * @returns
          *   {array} data - list of event names
          */
         events: function (sheetId) {
@@ -437,12 +444,11 @@ function OrcaScanNode(apiKey, options) {
          * get all hooks on a sheet
          * @param {string} sheetId - target sheet id
          * @returns {Promise<object>} promise resolving to result
-         * @returns
          *   {array} data - list of hooks
-         *   {string} data[].._id - hook id
-         *   {string} data[]..eventName - event name
-         *   {string} data[]..sheetId - sheet id
-         *   {string} data[]..targetUrl - target url
+         *   {string} data[]._id - hook id
+         *   {string} data[].eventName - event name
+         *   {string} data[].sheetId - sheet id
+         *   {string} data[].targetUrl - target url
          */
         list: function (sheetId) {
             if (!sheetId || typeof sheetId !== 'string') throw new Error('sheetId is required and must be a string');
@@ -455,7 +461,6 @@ function OrcaScanNode(apiKey, options) {
          * @param {string} sheetId - target sheet id
          * @param {string} hookId - hook id
          * @returns {Promise<object>} promise resolving to result
-         * @returns
          *   {object} data - hook object
          *   {string} data._id - hook id
          *   {string} data.eventName - event name
@@ -476,7 +481,6 @@ function OrcaScanNode(apiKey, options) {
          * @param {string} payload.eventName - event name
          * @param {string} payload.targetUrl - target url
          * @returns {Promise<object>} promise resolving to result
-         * @returns
          *   {object} data - created hook
          *   {string} data._id - hook id
          *   {string} data.eventName - event name
@@ -498,7 +502,6 @@ function OrcaScanNode(apiKey, options) {
          * @param {string} hookId - hook id
          * @param {object} payload - hook update input
          * @returns {Promise<object>} promise resolving to result
-         * @returns
          *   {object} data - updated hook
          *   {string} data._id - hook id
          *   {string} data.eventName - event name
@@ -518,7 +521,6 @@ function OrcaScanNode(apiKey, options) {
          * @param {string} sheetId - target sheet id
          * @param {string} hookId - hook id
          * @returns {Promise<object>} promise resolving to result
-         * @returns
          *   {object|null} data - api response or null
          */
         delete: function (sheetId, hookId) {
