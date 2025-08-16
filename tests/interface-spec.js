@@ -33,7 +33,7 @@ describe('Interface', function() {
         expect(client.hooks).toBeDefined();
     });
 
-    it('should have sheets namespace with correct methods', function() {
+    it('should expose sheet methods', function() {
         expect(typeof client.sheets.list).toBe('function');
         expect(typeof client.sheets.create).toBe('function');
         expect(typeof client.sheets.settings).toBe('function');
@@ -42,7 +42,7 @@ describe('Interface', function() {
         expect(typeof client.sheets.delete).toBe('function');
     });
 
-    it('should have rows namespace with correct methods', function() {
+    it('should expose rows methods', function() {
         expect(typeof client.rows.list).toBe('function');
         expect(typeof client.rows.get).toBe('function');
         expect(typeof client.rows.add).toBe('function');
@@ -52,7 +52,7 @@ describe('Interface', function() {
         expect(typeof client.rows.deleteMany).toBe('function');
     });
 
-    it('should have fields namespace with correct methods', function() {
+    it('should expose fields methods', function() {
         expect(typeof client.fields.list).toBe('function');
         expect(typeof client.fields.get).toBe('function');
         expect(typeof client.fields.create).toBe('function');
@@ -60,19 +60,19 @@ describe('Interface', function() {
         expect(typeof client.fields.delete).toBe('function');
     });
 
-    it('should have history namespace with correct methods', function() {
+    it('should expose history methods', function() {
         expect(typeof client.history.sheet).toBe('function');
         expect(typeof client.history.row).toBe('function');
     });
 
-    it('should have users namespace with correct methods', function() {
+    it('should expose users methods', function() {
         expect(typeof client.users.list).toBe('function');
         expect(typeof client.users.add).toBe('function');
         expect(typeof client.users.update).toBe('function');
         expect(typeof client.users.remove).toBe('function');
     });
 
-    it('should have hooks namespace with correct methods', function() {
+    it('should expose hooks methods', function() {
         expect(typeof client.hooks.events).toBe('function');
         expect(typeof client.hooks.list).toBe('function');
         expect(typeof client.hooks.get).toBe('function');
@@ -140,9 +140,6 @@ describe('Interface', function() {
     });
 
     it('should have consistent method names across namespaces where appropriate', function() {
-        // REST APIs commonly use the same method names across different resources
-        // This is expected and good design - it provides consistency
-        var commonMethods = ['list', 'get', 'create', 'update', 'delete'];
         
         // Verify that common methods exist where they make sense
         expect(typeof client.sheets.list).toBe('function');
