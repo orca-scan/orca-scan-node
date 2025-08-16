@@ -247,19 +247,4 @@ describe('Interface', function() {
             expect(e.message).toMatch(/is required and must be/);
         }
     });
-
-    it('should have methods that handle URL encoding consistently', function() {
-        // Test that methods properly encode special characters in URLs
-        // This test verifies that the SDK has URL encoding capabilities
-        // The actual encoding is tested in the individual namespace tests
-        
-        var testId = 'test/sheet:id';
-        
-        // Verify that the method exists and can be called
-        expect(typeof client.sheets.settings).toBe('function');
-        
-        // The actual URL encoding is tested in sheets-spec.js
-        // This test just ensures the interface is consistent
-        expect(client.sheets.settings).toBeDefined();
-    });
 });
