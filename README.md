@@ -4,6 +4,7 @@ The official Node.js client for the [Orca Scan](https://orcascan.com) barcode tr
 
 - **Sheets** - Create and manage sheets
 - **Rows** - Add, update, delete rows 
+- **Fields** - Manage sheet fields and their properties
 - **History** - Track changes to sheets and rows
 - **Users** - Control user access permissions
 - **Hooks** - Set up webhook notifications
@@ -21,10 +22,16 @@ var OrcaScan = require('orca-scan-node');
 
 // Get your API key from cloud.orcascan.com > account settings
 var orca = new OrcaScan('your-api-key', {
-    endpoint: 'https://api.orcascan.com/v1', // Custom API endpoint
-    timeoutMs: 30000,                        // Request timeout (30 sec)
-    maxRetries: 3                            // Max retry attempts
+    endpoint: 'https://api.orcascan.com/v1', // Custom API endpoint (default)
+    timeoutMs: 30000,                        // Request timeout in milliseconds (default: 30 sec)
+    maxRetries: 3                            // Max retry attempts on 429, 503, and 5xx errors (default: 3)
 });
+
+### Configuration Options
+
+- **endpoint** - Custom API endpoint URL (default: `https://api.orcascan.com/v1`)
+- **timeoutMs** - Request timeout in milliseconds (default: `30000`)
+- **maxRetries** - Maximum retry attempts for failed requests (default: `3`)
 ```
 
 ## API
@@ -46,7 +53,7 @@ orca.sheets.create({
 });
 
 // get sheet fields
-orca.sheets.fields('sheet-id').then(function(result) {
+orca.fields.list('sheet-id').then(function(result) {
     console.log('Sheet fields:', result.data);
 });
 
@@ -71,11 +78,89 @@ orca.sheets.delete('sheet-id').then(function(result) {
 });
 ```
 
+### Fields
+
+```js
+// list all fields in a sheet
+orca.fields.list('sheet-id').then(function(result) {
+    console.log('Sheet fields:', result.data);
+});
+
+// get a single field
+orca.fields.get('sheet-id', 'field-key').then(function(result) {
+    console.log('Field:', result.data);
+});
+
+// create a new field
+orca.fields.create('sheet-id', {
+    key: 'product_code',
+    label: 'Product Code',
+    type: 'string',
+    required: true,
+    placeholder: 'Enter product code'
+}).then(function(result) {
+    console.log('Field created:', result.data);
+});
+
+// create field with advanced options
+orca.fields.create('sheet-id', {
+    key: 'product_photo',
+    label: 'Product Photo',
+    type: 'photo',
+    required: false,
+    hiddenWeb: true,
+    useInMobileSearch: false
+}).then(function(result) {
+    console.log('Advanced field created:', result.data);
+});
+
+// update a field
+orca.fields.update('sheet-id', 'field-key', {
+    label: 'Updated Label',
+    required: false
+}).then(function(result) {
+    console.log('Field updated:', result.data);
+});
+
+// delete a field
+orca.fields.delete('sheet-id', 'field-key').then(function(result) {
+    console.log('Field deleted');
+});
+```
+
+### Field Types
+
+The following field types are supported:
+
+- **string** - Text input
+- **integer** - Whole numbers
+- **number** - Decimal numbers
+- **datetime** - Date and time
+- **date** - Date only
+- **time** - Time only
+- **photo** - Image upload (.jpg, .png, .gif, .bmp, .webp, .tiff, .svg)
+- **attachment** - File upload (.doc, .docx, .csv, .txt, .ppt, .pptx, .pdf, .xls, .xlsx, .mp4)
+- **uniqueId** - Auto-generated unique identifier
+- **barcode** - Barcode/QR code scanning
+- **location** - GPS coordinates
+- **signature** - Digital signature
+- **checkbox** - Boolean true/false
+- **select** - Single choice dropdown
+- **multiselect** - Multiple choice selection
+- **email** - Email address validation
+- **phone** - Phone number
+- **url** - Web URL
+
 ### Rows
 
 ```js
 // list all rows in a sheet
 orca.rows.list('sheet-id').then(function(result) {
+    console.log(result.data);
+});
+
+// list rows with pagination
+orca.rows.list('sheet-id', { limit: 10, skip: 20 }).then(function(result) {
     console.log(result.data);
 });
 
@@ -91,6 +176,26 @@ orca.rows.add('sheet-id', {
 })
 .then(function(result) {
     console.log('Row added:', result.data);
+});
+
+// add row with photo (base64 encoded)
+orca.rows.add('sheet-id', {
+    name: 'Product with Photo',
+    photo: 'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQ...',
+    quantity: 1
+})
+.then(function(result) {
+    console.log('Row with photo added:', result.data);
+});
+
+// add row with attachment (base64 encoded)
+orca.rows.add('sheet-id', {
+    name: 'Product with Manual',
+    manual: 'data:application/pdf;base64,JVBERi0xLjQKMSAwIG9iago8PAovVHlwZSAvQ2F0YWxvZwo...',
+    quantity: 1
+})
+.then(function(result) {
+    console.log('Row with attachment added:', result.data);
 });
 
 // add multiple rows
@@ -129,6 +234,8 @@ orca.rows.deleteMany('sheet-id', ['row1', 'row2']).then(function(result) {
     console.log('Rows deleted');
 });
 ```
+
+**Note:** Photo and attachment fields support base64 encoding. Photos support: .jpg, .png, .gif, .bmp, .webp, .tiff, .svg. Attachments support: .doc, .docx, .csv, .txt, .ppt, .pptx, .pdf, .xls, .xlsx, .mp4.
 
 ### History
 
@@ -238,6 +345,8 @@ orca.sheets.list().then(function(result) {
  `http 401`           | Invalid API key   | Check your API key is correct         
  `http 403`           | Permission denied | Verify your access rights             
  `http 429`           | Too many requests | Requests are automatically retried    
+ `http 404`           | Resource not found | Check sheet/row/field ID is correct
+ `http 422`           | Validation error   | Check field types and required fields    
 
 ## Automatic Retries
 
@@ -247,6 +356,19 @@ The client will automatically retry on:
 - Server errors (5xx)
 
 Default: 3 retry attempts with exponential backoff
+
+## File Uploads
+
+The client supports file uploads for photo and attachment fields:
+
+- **Photos**: .jpg, .png, .gif, .bmp, .webp, .tiff, .svg
+- **Attachments**: .doc, .docx, .csv, .txt, .ppt, .pptx, .pdf, .xls, .xlsx, .mp4
+
+Files should be provided as base64 strings with appropriate data URI format.
+
+## Rate Limits
+
+API rate limit: 15 requests per second. The client automatically handles rate limiting with retries and respects the `Retry-After` header when provided.
 
 ## Complete Example
 
