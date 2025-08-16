@@ -22,16 +22,10 @@ var OrcaScan = require('orca-scan-node');
 
 // Get your API key from cloud.orcascan.com > account settings
 var orca = new OrcaScan('your-api-key', {
-    endpoint: 'https://api.orcascan.com/v1', // Custom API endpoint (default)
+    endpoint: 'https://api.orcascan.com/v1', // API endpoint (default)
     timeoutMs: 30000,                        // Request timeout in milliseconds (default: 30 sec)
     maxRetries: 3                            // Max retry attempts on 429, 503, and 5xx errors (default: 3)
 });
-
-### Configuration Options
-
-- **endpoint** - Custom API endpoint URL (default: `https://api.orcascan.com/v1`)
-- **timeoutMs** - Request timeout in milliseconds (default: `30000`)
-- **maxRetries** - Maximum retry attempts for failed requests (default: `3`)
 ```
 
 ## API
@@ -98,7 +92,8 @@ orca.fields.create('sheet-id', {
     type: 'string',
     required: true,
     placeholder: 'Enter product code'
-}).then(function(result) {
+})
+.then(function(result) {
     console.log('Field created:', result.data);
 });
 
@@ -110,7 +105,8 @@ orca.fields.create('sheet-id', {
     required: false,
     hiddenWeb: true,
     useInMobileSearch: false
-}).then(function(result) {
+})
+.then(function(result) {
     console.log('Advanced field created:', result.data);
 });
 
@@ -118,7 +114,8 @@ orca.fields.create('sheet-id', {
 orca.fields.update('sheet-id', 'field-key', {
     label: 'Updated Label',
     required: false
-}).then(function(result) {
+})
+.then(function(result) {
     console.log('Field updated:', result.data);
 });
 
