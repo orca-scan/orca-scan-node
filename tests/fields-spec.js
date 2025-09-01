@@ -31,7 +31,7 @@ describe('Fields', function() {
         client = new OrcaScanNode('test-api-key');
     });
 
-    it('should list fields for a sheet', function() {
+    it('should fetch fields list from API', function() {
         var sheetId = 'test-sheet-id';
         
         return client.fields.list(sheetId).then(function(result) {
@@ -48,13 +48,13 @@ describe('Fields', function() {
         });
     });
 
-    it('should throw error when listing fields without sheetId', function() {
+    it('should reject when sheetId is missing', function() {
         expect(function() {
             client.fields.list();
         }).toThrowError('sheetId is required and must be a string');
     });
 
-    it('should throw error when listing fields with non-string sheetId', function() {
+    it('should reject when sheetId is not a string', function() {
         expect(function() {
             client.fields.list(123);
         }).toThrowError('sheetId is required and must be a string');
@@ -64,7 +64,7 @@ describe('Fields', function() {
         }).toThrowError('sheetId is required and must be a string');
     });
 
-    it('should get a single field by key', function() {
+    it('should fetch single field by key', function() {
         var sheetId = 'test-sheet-id';
         var fieldKey = 'test-field';
         
@@ -82,19 +82,19 @@ describe('Fields', function() {
         });
     });
 
-    it('should throw error when getting field without sheetId', function() {
+    it('should reject when getting field without sheetId', function() {
         expect(function() {
             client.fields.get();
         }).toThrowError('sheetId is required and must be a string');
     });
 
-    it('should throw error when getting field without fieldKey', function() {
+    it('should reject when getting field without fieldKey', function() {
         expect(function() {
             client.fields.get('test-sheet-id');
         }).toThrowError('fieldKey is required and must be a string');
     });
 
-    it('should throw error when getting field with non-string sheetId', function() {
+    it('should reject when getting field with non-string sheetId', function() {
         expect(function() {
             client.fields.get(123, 'test-field');
         }).toThrowError('sheetId is required and must be a string');
