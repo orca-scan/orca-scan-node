@@ -400,3 +400,7 @@ orca.sheets.create({ name: 'Inventory' }).then(function(result) {
 - 📚 [API Documentation](https://orcascan.com/docs)
 - 💬 [Live Chat Support](https://orcascan.com/#chat)
 - 🐛 [GitHub Issues](https://github.com/orca-scan/orca-scan-node/issues)
+
+## License
+
+Licensed under [MIT License](LICENSE) &copy; Orca Scan, the [Barcode Scanner app for iOS and Android](https://orcascan.com).
