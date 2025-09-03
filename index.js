@@ -15,7 +15,7 @@ var fetch = require('node-fetch');
  * @description
  * API rate limit: 15 requests per second
  * Automatic retry on 429 (Too Many Requests), 503 (Service Unavailable), and 5xx errors
- * Retry delay respects Retry-After header when provided
+ * Retry delay respects the Retry-After header
  */
 function OrcaScanNode(apiKey, options) {
     
