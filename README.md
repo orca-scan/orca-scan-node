@@ -305,7 +305,7 @@ orca.hooks.get('sheet-id', 'hook-id').then(function(result) {
 
 // create a hook
 orca.hooks.create('sheet-id', {
-    eventName: 'row.added',
+    eventName: 'rows:add',
     targetUrl: 'https://example.com/webhook'
 })
 .then(function(result) {
