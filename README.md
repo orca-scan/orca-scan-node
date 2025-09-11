@@ -46,11 +46,6 @@ orca.sheets.create({
     console.log('Sheet created:', result); // May be result.data or result depending on API response
 });
 
-// get sheet fields
-orca.fields.list('sheet-id').then(function(result) {
-    console.log('Sheet fields:', result); // May be result.data or result depending on API response
-});
-
 // get sheet settings
 orca.sheets.settings('sheet-id').then(function(result) {
     console.log('Sheet settings:', result); // May be result.data or result depending on API response
