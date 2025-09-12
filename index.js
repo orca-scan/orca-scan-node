@@ -149,13 +149,22 @@ function OrcaScanNode(apiKey, options) {
         /**
          * get all rows in a sheet
          * @param {string} sheetId - target sheet id
-         * @param {object} [query] - optional query params such as limit and skip
+         * @param {object} [options] - optional call options
+         * @param {boolean} [options.withTitle=false] - if true, returns field titles rather than keys
          * @returns {Promise<object>} promise resolving to result
          *   {array} data - list of row objects with arbitrary properties
          */
-        list: function (sheetId, query) {
+        list: function (sheetId, options) {
             if (!sheetId || typeof sheetId !== 'string') {
                 throw new Error('sheetId is required and must be a string');
+            }
+
+            options = options || {};
+            var query = null;
+
+            if (options && options.withTitle === true) {
+                query = query || {};
+                query.withTitles = true;
             }
             return request.call(self, 'GET', '/sheets/' + encodeURIComponent(sheetId) + '/rows', query);
         },
@@ -164,20 +173,31 @@ function OrcaScanNode(apiKey, options) {
          * get a single row
          * @param {string} sheetId - target sheet id
          * @param {string} rowId - row id
+         * @param {object} [options] - optional call options
+         * @param {boolean} [options.withTitle=false] - if true, returns field titles rather than keys
          * @returns {Promise<object>} promise resolving to result
          *   {object} data - row object with arbitrary properties
          */
-        get: function (sheetId, rowId) {
+        get: function (sheetId, rowId, options) {
             if (!sheetId || typeof sheetId !== 'string') throw new Error('sheetId is required and must be a string');
             if (!rowId || typeof rowId !== 'string') throw new Error('rowId is required and must be a string');
 
-            return request.call(self, 'GET', '/sheets/' + encodeURIComponent(sheetId) + '/rows/' + encodeURIComponent(rowId));
+            options = options || {};
+            var query = null;
+
+            if (options && options.withTitle === true) {
+                query = { withTitles: true };
+            }
+
+            return request.call(self, 'GET', '/sheets/' + encodeURIComponent(sheetId) + '/rows/' + encodeURIComponent(rowId), query);
         },
 
         /**
          * add one row or many rows
          * @param {string} sheetId - target sheet id
          * @param {object|array} data - row object or array of row objects supports special fields such as photo or attachment as base64
+         * @param {object} [options] - optional call options
+         * @param {boolean} [options.withTitle=false] - if true, returns field titles rather than keys
          * @returns {Promise<object>} promise resolving to result
          *   {object|array} data - created row or list of created rows with server assigned fields
          * 
@@ -186,11 +206,18 @@ function OrcaScanNode(apiKey, options) {
          * Attachment fields support: .doc, .docx, .csv, .txt, .ppt, .pptx, .pdf, .xls, .xlsx, .mp4
          * Files should be provided as base64 strings
          */
-        add: function (sheetId, data) {
+        add: function (sheetId, data, options) {
             if (!sheetId || typeof sheetId !== 'string') throw new Error('sheetId is required and must be a string');
             if (typeof data !== 'object' || data === null) throw new Error('data is required and must be an object or array');
 
-            return request.call(self, 'POST', '/sheets/' + encodeURIComponent(sheetId) + '/rows', null, data);
+            options = options || {};
+            var query = null;
+
+            if (options && options.withTitle === true) {
+                query = { withTitles: true };
+            }
+
+            return request.call(self, 'POST', '/sheets/' + encodeURIComponent(sheetId) + '/rows', query, data);
         },
 
         /**
@@ -198,29 +225,47 @@ function OrcaScanNode(apiKey, options) {
          * @param {string} sheetId - target sheet id
          * @param {string} rowId - row id
          * @param {object} data - fields to update
+         * @param {object} [options] - optional call options
+         * @param {boolean} [options.withTitle=false] - if true, returns field titles rather than keys
          * @returns {Promise<object>} promise resolving to result
          *   {object} data - updated row with arbitrary properties
          */
-        updateOne: function (sheetId, rowId, data) {
+        updateOne: function (sheetId, rowId, data, options) {
             if (!sheetId || typeof sheetId !== 'string') throw new Error('sheetId is required and must be a string');
             if (!rowId || typeof rowId !== 'string') throw new Error('rowId is required and must be a string');
             if (!data || typeof data !== 'object') throw new Error('data is required and must be an object');
 
-            return request.call(self, 'PUT', '/sheets/' + encodeURIComponent(sheetId) + '/rows/' + encodeURIComponent(rowId), null, data);
+            options = options || {};
+            var query = null;
+
+            if (options && options.withTitle === true) {
+                query = { withTitles: true };
+            }
+
+            return request.call(self, 'PUT', '/sheets/' + encodeURIComponent(sheetId) + '/rows/' + encodeURIComponent(rowId), query, data);
         },
 
         /**
          * update many rows
          * @param {string} sheetId - target sheet id
          * @param {array} rows - array of row objects
+         * @param {object} [options] - optional call options
+         * @param {boolean} [options.withTitle=false] - if true, returns field titles rather than keys
          * @returns {Promise<object>} promise resolving to result
          *   {array} data - updated rows
          */
-        updateMany: function (sheetId, rows) {
+        updateMany: function (sheetId, rows, options) {
             if (!sheetId || typeof sheetId !== 'string') throw new Error('sheetId is required and must be a string');
             if (!rows || Object.prototype.toString.call(rows) !== '[object Array]') throw new Error('rows is required and must be an array of objects');
 
-            return request.call(self, 'PUT', '/sheets/' + encodeURIComponent(sheetId) + '/rows', null, rows);
+            options = options || {};
+            var query = null;
+
+            if (options && options.withTitle === true) {
+                query = { withTitles: true };
+            }
+
+            return request.call(self, 'PUT', '/sheets/' + encodeURIComponent(sheetId) + '/rows', query, rows);
         },
 
         /**
