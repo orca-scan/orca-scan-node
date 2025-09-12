@@ -160,10 +160,9 @@ function OrcaScanNode(apiKey, options) {
             }
 
             options = options || {};
-            var query = null;
+            var query = {};
 
             if (options && options.withTitle === true) {
-                query = query || {};
                 query.withTitles = true;
             }
             return request.call(self, 'GET', '/sheets/' + encodeURIComponent(sheetId) + '/rows', query);
