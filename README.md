@@ -153,11 +153,6 @@ orca.rows.list('sheet-id').then(function(result) {
     console.log(result); // May be result.data or result depending on API response
 });
 
-// list rows with pagination
-orca.rows.list('sheet-id', { limit: 10, skip: 20 }).then(function(result) {
-    console.log(result); // May be result.data or result depending on API response
-});
-
 // get a single row
 orca.rows.get('sheet-id', 'row-id').then(function(result) {
     console.log(result); // May be result.data or result depending on API response
@@ -228,6 +223,10 @@ orca.rows.deleteMany('sheet-id', ['row1', 'row2']).then(function(result) {
     console.log('Rows deleted');
 });
 ```
+
+All rows methods also accept an optional options object. Currently supported options:
+
+- **withTitle**: When true, appends `?withTitles=true` to the request.
 
 **Note:** Photo and attachment fields support base64 encoding. Photos support: .jpg, .png, .gif, .bmp, .webp, .tiff, .svg. Attachments support: .doc, .docx, .csv, .txt, .ppt, .pptx, .pdf, .xls, .xlsx, .mp4.
 
