@@ -165,6 +165,7 @@ function OrcaScanNode(apiKey, options) {
             if (options && options.withTitle === true) {
                 query.withTitles = true;
             }
+
             return request.call(self, 'GET', '/sheets/' + encodeURIComponent(sheetId) + '/rows', query);
         },
 
@@ -182,10 +183,10 @@ function OrcaScanNode(apiKey, options) {
             if (!rowId || typeof rowId !== 'string') throw new Error('rowId is required and must be a string');
 
             options = options || {};
-            var query = null;
+            var query = {};
 
             if (options && options.withTitle === true) {
-                query = { withTitles: true };
+                query.withTitles = true;
             }
 
             return request.call(self, 'GET', '/sheets/' + encodeURIComponent(sheetId) + '/rows/' + encodeURIComponent(rowId), query);
@@ -210,10 +211,10 @@ function OrcaScanNode(apiKey, options) {
             if (typeof data !== 'object' || data === null) throw new Error('data is required and must be an object or array');
 
             options = options || {};
-            var query = null;
+            var query = {};
 
             if (options && options.withTitle === true) {
-                query = { withTitles: true };
+                query.withTitles = true;
             }
 
             return request.call(self, 'POST', '/sheets/' + encodeURIComponent(sheetId) + '/rows', query, data);
@@ -235,10 +236,10 @@ function OrcaScanNode(apiKey, options) {
             if (!data || typeof data !== 'object') throw new Error('data is required and must be an object');
 
             options = options || {};
-            var query = null;
+            var query = {};
 
             if (options && options.withTitle === true) {
-                query = { withTitles: true };
+                query.withTitles = true;
             }
 
             return request.call(self, 'PUT', '/sheets/' + encodeURIComponent(sheetId) + '/rows/' + encodeURIComponent(rowId), query, data);
@@ -258,10 +259,10 @@ function OrcaScanNode(apiKey, options) {
             if (!rows || Object.prototype.toString.call(rows) !== '[object Array]') throw new Error('rows is required and must be an array of objects');
 
             options = options || {};
-            var query = null;
+            var query = {};
 
             if (options && options.withTitle === true) {
-                query = { withTitles: true };
+                query.withTitles = true;
             }
 
             return request.call(self, 'PUT', '/sheets/' + encodeURIComponent(sheetId) + '/rows', query, rows);
