@@ -148,13 +148,15 @@ The following field types are supported:
 ### Rows
 
 ```js
+const options = { withTitles: true };
+
 // list all rows in a sheet
-orca.rows.list('sheet-id').then(function(result) {
+orca.rows.list('sheet-id', options).then(function(result) {
     console.log(result); // May be result.data or result depending on API response
 });
 
 // get a single row
-orca.rows.get('sheet-id', 'row-id').then(function(result) {
+orca.rows.get('sheet-id', 'row-id', options).then(function(result) {
     console.log(result); // May be result.data or result depending on API response
 });
 
@@ -162,7 +164,7 @@ orca.rows.get('sheet-id', 'row-id').then(function(result) {
 orca.rows.add('sheet-id', {
     name: 'Laptop',
     quantity: 5
-})
+}, options)
 .then(function(result) {
     console.log('Row added:', result); // May be result.data or result depending on API response
 });
@@ -172,7 +174,7 @@ orca.rows.add('sheet-id', {
     name: 'Product with Photo',
     photo: 'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQ...',
     quantity: 1
-})
+}, options)
 .then(function(result) {
     console.log('Row with photo added:', result); // May be result.data or result depending on API response
 });
@@ -182,7 +184,7 @@ orca.rows.add('sheet-id', {
     name: 'Product with Manual',
     manual: 'data:application/pdf;base64,JVBERi0xLjQKMSAwIG9iago8PAovVHlwZSAvQ2F0YWxvZwo...',
     quantity: 1
-})
+}, options)
 .then(function(result) {
     console.log('Row with attachment added:', result); // May be result.data or result depending on API response
 });
@@ -191,7 +193,7 @@ orca.rows.add('sheet-id', {
 orca.rows.add('sheet-id', [
     { name: 'Item 1', quantity: 5 },
     { name: 'Item 2', quantity: 10 }
-])
+], options)
 .then(function(result) {
     console.log('Rows added:', result); // May be result.data or result depending on API response
 });
@@ -199,7 +201,7 @@ orca.rows.add('sheet-id', [
 // update one row
 orca.rows.updateOne('sheet-id', 'row-id', {
     quantity: 15
-})
+}, options)
 .then(function(result) {
     console.log('Row updated:', result); // May be result.data or result depending on API response
 });
@@ -208,7 +210,7 @@ orca.rows.updateOne('sheet-id', 'row-id', {
 orca.rows.updateMany('sheet-id', [
     { _id: 'row1', quantity: 15 },
     { _id: 'row2', quantity: 20 }
-])
+], options)
 .then(function(result) {
     console.log('Rows updated:', result); // May be result.data or result depending on API response
 });
@@ -226,7 +228,7 @@ orca.rows.deleteMany('sheet-id', ['row1', 'row2']).then(function(result) {
 
 All rows methods also accept an optional options object. Currently supported options:
 
-- **withTitle**: When true, appends `?withTitles=true` to the request.
+- **withTitle**: When true, it returns the field titles.
 
 **Note:** Photo and attachment fields support base64 encoding. Photos support: .jpg, .png, .gif, .bmp, .webp, .tiff, .svg. Attachments support: .doc, .docx, .csv, .txt, .ppt, .pptx, .pdf, .xls, .xlsx, .mp4.
 
