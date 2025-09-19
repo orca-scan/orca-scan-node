@@ -251,6 +251,7 @@ function OrcaScanNode(apiKey, options) {
          * @param {array} rows - array of row objects
          * @param {object} [options] - optional call options
          * @param {boolean} [options.withTitle=false] - if true, returns field titles rather than keys
+         * @param {boolean} [options.partial=false] - if true, update only changed fields while all other fields remain intact
          * @returns {Promise<object>} promise resolving to result
          *   {array} data - updated rows
          */
@@ -263,6 +264,10 @@ function OrcaScanNode(apiKey, options) {
 
             if (options && options.withTitle === true) {
                 query.withTitles = true;
+            }
+
+            if (options && options.partial === true) {
+                query.partial = true;
             }
 
             return request.call(self, 'PUT', '/sheets/' + encodeURIComponent(sheetId) + '/rows', query, rows);

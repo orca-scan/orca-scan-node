@@ -148,7 +148,7 @@ The following field types are supported:
 ### Rows
 
 ```js
-const options = { withTitles: true };
+let options = { withTitles: true };
 
 // list all rows in a sheet
 orca.rows.list('sheet-id', options).then(function(result) {
@@ -206,6 +206,8 @@ orca.rows.updateOne('sheet-id', 'row-id', {
     console.log('Row updated:', result); // May be result.data or result depending on API response
 });
 
+
+options = { partial: true, withTitles: true };
 // update many rows
 orca.rows.updateMany('sheet-id', [
     { _id: 'row1', quantity: 15 },
@@ -229,6 +231,7 @@ orca.rows.deleteMany('sheet-id', ['row1', 'row2']).then(function(result) {
 All rows methods also accept an optional options object. Currently supported options:
 
 - **withTitle**: When true, it returns the field titles.
+- **parital**: When if true, update only changed fields while all other fields remain intact (only available for updateMany)
 
 **Note:** Photo and attachment fields support base64 encoding. Photos support: .jpg, .png, .gif, .bmp, .webp, .tiff, .svg. Attachments support: .doc, .docx, .csv, .txt, .ppt, .pptx, .pdf, .xls, .xlsx, .mp4.
 
