@@ -85,9 +85,8 @@ orca.fields.get('sheet-id', 'field-key').then(function(result) {
 
 // create a new field
 orca.fields.create('sheet-id', {
-    key: 'product_code',
     label: 'Product Code',
-    type: 'string',
+    format: 'text',
     required: true,
     placeholder: 'Enter product code'
 })
