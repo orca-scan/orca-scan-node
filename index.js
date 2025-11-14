@@ -374,9 +374,8 @@ function OrcaScanNode(apiKey, options) {
         create: function (sheetId, payload) {
             if (!sheetId || typeof sheetId !== 'string') throw new Error('sheetId is required and must be a string');
             if (!payload || typeof payload !== 'object') throw new Error('payload is required and must be an object');
-            if (!payload.key || typeof payload.key !== 'string') throw new Error('payload.key is required and must be a string');
             if (!payload.label || typeof payload.label !== 'string') throw new Error('payload.label is required and must be a string');
-            if (!payload.type || typeof payload.type !== 'string') throw new Error('payload.type is required and must be a string');
+            if (!payload.format || typeof payload.format !== 'string') throw new Error('payload.format is required and must be a string');
 
             return request.call(self, 'POST', '/sheets/' + encodeURIComponent(sheetId) + '/fields', null, payload);
         },
