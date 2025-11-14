@@ -96,9 +96,8 @@ orca.fields.create('sheet-id', {
 
 // create field with advanced options
 orca.fields.create('sheet-id', {
-    key: 'product_photo',
     label: 'Product Photo',
-    type: 'photo',
+    format: 'photo',
     required: false,
     hiddenWeb: true,
     useInMobileSearch: false,

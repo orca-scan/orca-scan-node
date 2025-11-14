@@ -353,9 +353,8 @@ function OrcaScanNode(apiKey, options) {
          * Create a new field in a sheet
          * @param {string} sheetId - target sheet id
          * @param {object} payload - field definition
-         * @param {string} payload.key - field key (unique identifier)
          * @param {string} payload.label - field label (display name)
-         * @param {string} payload.type - field type (string, integer, datetime, photo, attachment, uniqueId, barcode, location, signature, checkbox, select, multiselect, number, email, phone, url, date, time)
+         * @param {string} payload.format - field format (text, date time, etc)
          * @param {boolean} [payload.required=false] - is field required
          * @param {string} [payload.placeholder] - guidance text when field is empty
          * @param {boolean} [payload.autofocus=false] - if true, UI auto selects this field first
