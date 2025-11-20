@@ -353,9 +353,8 @@ function OrcaScanNode(apiKey, options) {
          * Create a new field in a sheet
          * @param {string} sheetId - target sheet id
          * @param {object} payload - field definition
-         * @param {string} payload.key - field key (unique identifier)
          * @param {string} payload.label - field label (display name)
-         * @param {string} payload.type - field type (string, integer, datetime, photo, attachment, uniqueId, barcode, location, signature, checkbox, select, multiselect, number, email, phone, url, date, time)
+         * @param {string} payload.format - field format (text, date time, etc)
          * @param {boolean} [payload.required=false] - is field required
          * @param {string} [payload.placeholder] - guidance text when field is empty
          * @param {boolean} [payload.autofocus=false] - if true, UI auto selects this field first
@@ -374,9 +373,8 @@ function OrcaScanNode(apiKey, options) {
         create: function (sheetId, payload) {
             if (!sheetId || typeof sheetId !== 'string') throw new Error('sheetId is required and must be a string');
             if (!payload || typeof payload !== 'object') throw new Error('payload is required and must be an object');
-            if (!payload.key || typeof payload.key !== 'string') throw new Error('payload.key is required and must be a string');
             if (!payload.label || typeof payload.label !== 'string') throw new Error('payload.label is required and must be a string');
-            if (!payload.type || typeof payload.type !== 'string') throw new Error('payload.type is required and must be a string');
+            if (!payload.format || typeof payload.format !== 'string') throw new Error('payload.format is required and must be a string');
 
             return request.call(self, 'POST', '/sheets/' + encodeURIComponent(sheetId) + '/fields', null, payload);
         },
