@@ -136,7 +136,7 @@ jobs:
           echo "Copy completed for ${{ steps.repo_name.outputs.SAFE_REPO }}"
           sleep 10
 
-  run-integration-tests:
+  run-tests:
     needs: prepare-repos
     runs-on: self-hosted
     timeout-minutes: 30
