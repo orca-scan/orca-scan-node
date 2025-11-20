@@ -1,0 +1,205 @@
+name: Orca Scan Node SDK Tests
+
+on:
+  pull_request:
+    branches: [master, dev]
+    types: [synchronize, review_requested, edited, reopened, opened, ready_for_review]
+  push:
+    branches: [master]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}-integration-tests
+  cancel-in-progress: true
+
+jobs:
+  prepare-repos:
+    runs-on: self-hosted
+    if: ${{ github.event.pull_request.draft == false || github.ref == 'refs/heads/master' }}
+    strategy:
+      matrix:
+        repos: [
+          "orca-scan/orca-scan-node"
+        ]
+    outputs:
+      folder_id: ${{ steps.folder_id.outputs.SAFE_ID }}
+      repo_name: ${{ steps.repo_name.outputs.SAFE_REPO }}
+      find_branch: ${{ steps.find_branch.outputs.branch }}
+  
+    steps:
+      - name: Extract branch name
+        shell: bash
+        id: extract_branch
+        run: |
+          echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
+    
+      - name: Sanitize ID
+        id: folder_id
+        run: |
+          ID="${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}-desktop-master"
+          SAFE_ID=$(echo "$ID" | sed 's#[^a-zA-Z0-9._-]#_#g')
+          mkdir -p "/mnt/git-cache/$SAFE_ID"
+          echo "SAFE_ID=$SAFE_ID" >> $GITHUB_OUTPUT
+    
+      - name: Force Git to use SSH
+        run: git config --global url."git@github.com:".insteadOf "https://github.com/"
+    
+      - name: Sanitize repo
+        id: repo_name
+        run: |
+          REPO="${{ matrix.repos }}"
+          SAFE_REPO=$(basename "$REPO")
+          echo "SAFE_REPO=$SAFE_REPO" >> $GITHUB_OUTPUT
+
+      - name: Find matching branch
+        id: find_branch
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.BUILD_BOT_ACCESS }}
+        run: |
+          REPO="${{ matrix.repos }}"
+          CURRENT_BRANCH="${{ steps.extract_branch.outputs.branch }}"
+          BASE_BRANCH="${GITHUB_BASE_REF:-${GITHUB_REF#refs/heads/}}"
+          BRANCHES_TO_CHECK=("$CURRENT_BRANCH" "master" "main" "dev")
+          if [ "$BASE_BRANCH" = "dev" ]; then
+            BRANCHES_TO_CHECK=("$CURRENT_BRANCH" "dev" "main" "master")
+          fi
+          MATCHED_BRANCH=""
+          for BRANCH in "${BRANCHES_TO_CHECK[@]}"; do
+            if gh api repos/$REPO/branches/$BRANCH --silent > /dev/null 2>&1; then
+              MATCHED_BRANCH="$BRANCH"
+              break
+            fi
+          done
+          if [ -z "$MATCHED_BRANCH" ]; then
+            MATCHED_BRANCH="master"
+          fi
+          SAFE_REPO=$(basename "$REPO" | sed 's/[-.]/_/g')
+          echo "branch=$MATCHED_BRANCH" >> $GITHUB_OUTPUT
+          echo "$MATCHED_BRANCH" > "/mnt/git-cache/${{steps.folder_id.outputs.SAFE_ID}}/${SAFE_REPO}_branch"
+
+    
+      - name: Check and Get Repo
+        id: repo_check
+        run: |
+          REPO_PATH="/mnt/git-cache/${{ steps.folder_id.outputs.SAFE_ID }}/${{ steps.repo_name.outputs.SAFE_REPO }}"
+          
+          if [ -d "$REPO_PATH/.git" ]; then
+            echo "Repository cache exists, copying back and updating..."
+            rsync -a "$REPO_PATH/" "./${{ steps.repo_name.outputs.SAFE_REPO }}/"
+            cd "${{ steps.repo_name.outputs.SAFE_REPO }}"
+            git fetch origin ${{ steps.find_branch.outputs.branch }}
+            git stash
+            git reset --hard origin/${{ steps.find_branch.outputs.branch }}
+            echo "exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "Repository cache doesn't exist, will perform fresh checkout..."
+            echo "exists=false" >> $GITHUB_OUTPUT
+          fi
+      
+      - name: Fresh Checkout
+        if: steps.repo_check.outputs.exists == 'false'
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ steps.find_branch.outputs.branch }}
+          repository: ${{ matrix.repos }}
+          token: ${{ secrets.BUILD_BOT_ACCESS }}
+          path: ${{ steps.repo_name.outputs.SAFE_REPO }}
+        
+      - name: Get node version from package.json
+        id: get-node-version
+        run: |
+          version=$(jq -r '.engines.node // empty' ${{ steps.repo_name.outputs.SAFE_REPO }}/package.json | grep -oE '[0-9]+\.[0-9]+(\.[0-9]+)?' || echo "")
+          if [ -z "$version" ]; then
+            echo "NODE_VERSION=20" >> $GITHUB_OUTPUT
+          else
+            echo "NODE_VERSION=$version" >> $GITHUB_OUTPUT
+          fi
+              
+      - name: Use Node.js version
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ steps.get-node-version.outputs.NODE_VERSION }}
+          token: ${{ secrets.BUILD_BOT_ACCESS }}
+      
+      - name: npm install
+        run: |
+          cd "${{ steps.repo_name.outputs.SAFE_REPO }}"
+          npm install --install-links=false
+          sleep 10
+
+      - name: Copy Repo to cache
+        run: |
+          set -e
+          sync
+          echo "Copying ${{ steps.repo_name.outputs.SAFE_REPO }} to cache..."
+          rsync -a --delete "${{ steps.repo_name.outputs.SAFE_REPO }}/" "/mnt/git-cache/${{ steps.folder_id.outputs.SAFE_ID }}/${{ steps.repo_name.outputs.SAFE_REPO }}/"
+          echo "Copy completed for ${{ steps.repo_name.outputs.SAFE_REPO }}"
+          sleep 10
+
+  run-integration-tests:
+    needs: prepare-repos
+    runs-on: self-hosted
+    timeout-minutes: 30
+
+    steps:
+      - name: Prepare apt
+        run: |
+          for i in {1..5}; do
+            sudo rm -f /var/lib/dpkg/lock-frontend /var/lib/dpkg/lock
+            
+            # Remove MongoDB key if it exists
+            sudo rm -f /usr/share/keyrings/mongodb-server-8.0.gpg
+
+            # Remove MongoDB repo list if it exists
+            sudo rm -f /etc/apt/sources.list.d/mongodb-org-8.0.list
+
+            sudo dpkg --configure -a
+            sudo apt-get clean
+            sudo apt-get update && break
+            sleep 5
+          done
+
+      - name: Install CI dependencies
+        run: |
+          set -e
+          sudo apt-get update
+          sudo apt-get install -y \
+            libgtk2.0-0 \
+            libgtk-3-0 \
+            libgbm-dev \
+            libnotify-dev \
+            libnss3 \
+            libxss1 \
+            libasound2t64 \
+            alsa-utils \
+            libxtst6 \
+            xauth \
+            xvfb \
+            netcat-openbsd \
+            wget \
+            gnupg2
+          echo "Dependencies installed."
+
+      # Get Integrations
+      - name: Get orca-scan-node
+        run: |
+          echo "Copying orca-scan-node from cache..."
+          rsync -a "/mnt/git-cache/${{ needs.prepare-repos.outputs.folder_id }}/orca-scan-node/" "./orca-scan-node/"
+          echo "Copy completed for orca-scan-node"
+
+      - name: Use node version from package.json
+        uses: actions/setup-node@v4
+        with:
+          token: ${{ secrets.BUILD_BOT_ACCESS }}
+          node-version-file: 'orca-scan-node/package.json'
+
+      - name: Run SDK Tests
+        env:
+          NODE_ENV: test
+        working-directory: ./orca-scan-node
+        run: |
+          npm test
+
+      - name: Cleanup Directory
+        if: always()
+        run: rm -rf ./*
