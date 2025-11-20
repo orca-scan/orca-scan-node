@@ -36,6 +36,70 @@ function OrcaScanNode(apiKey, options) {
 
     var self = this;
 
+    self.settings = {
+        /**
+         * get sheet settings
+         * @param {string} sheetId - target sheet id
+         * @returns {Promise<object>} promise resolving to result
+         *   {object} data - sheet settings
+         *   {boolean} data.allowPublicExport - allow public export
+         *   {string} data.publicExportUrl - public export url
+         *   {boolean} data.allowPublicEntry - allow public entry
+         *   {string} data.publicEntryUrl - public entry url
+         *   {boolean} data.allowWebHookIn - allow webhook in
+         *   {string} data.webHookInUrl - webhook in url
+         *   {string} data.lookupUrl - lookup url
+         *   {string} data.validationUrl - validation url
+         *   {string} data.webHookOutUrl - webhook out url
+         *   {string} data.secret - secret
+         */
+        get: function (sheetId) {
+            if (!sheetId || typeof sheetId !== 'string') throw new Error('sheetId is required and must be a string');
+
+            return request.call(self, 'GET', '/sheets/' + encodeURIComponent(sheetId) + '/settings');
+        },
+
+        /**
+         * get sheet settings
+         * @param {string} sheetId - target sheet id
+         * @returns {Promise<object>} promise resolving to result
+         *   {object} data - sheet settings
+         *   {boolean} data.allowPublicExport - allow public export
+         *   {string} data.publicExportUrl - public export url
+         *   {boolean} data.allowPublicEntry - allow public entry
+         *   {string} data.publicEntryUrl - public entry url
+         *   {boolean} data.allowWebHookIn - allow webhook in
+         *   {string} data.webHookInUrl - webhook in url
+         *   {string} data.lookupUrl - lookup url
+         *   {string} data.validationUrl - validation url
+         *   {string} data.webHookOutUrl - webhook out url
+         *   {string} data.secret - secret
+         */
+        get: function (sheetId) {
+            if (!sheetId || typeof sheetId !== 'string') throw new Error('sheetId is required and must be a string');
+
+            return request.call(self, 'GET', '/sheets/' + encodeURIComponent(sheetId) + '/settings');
+        },
+
+        /**
+         * update sheet settings
+         * @param {string} sheetId - target sheet id
+         * @param {object} settings - sheet settings
+         * @param {boolean} settings.allowPublicExport - allow public export
+         * @param {boolean} settings.allowPublicEntry - allow public entry
+         * @param {boolean} settings.allowWebHookIn - allow webhook in
+         * @param {string} settings.lookupUrl - lookup url
+         * @param {string} settings.validationUrl - validation url
+         * @param {string} settings.webHookOutUrl - webhook out url
+         * @returns {Promise<object>} promise resolving to result
+         */
+        update: function (sheetId, settings) {
+            if (!sheetId || typeof sheetId !== 'string') throw new Error('sheetId is required and must be a string');
+
+            return request.call(self, 'PUT', '/sheets/' + encodeURIComponent(sheetId) + '/settings', null, settings);
+        },
+    }
+
     /**
      * sheets namespace
      * @returns {object} sheet methods
@@ -74,28 +138,6 @@ function OrcaScanNode(apiKey, options) {
             if (!payload.name || typeof payload.name !== 'string') throw new Error('payload.name is required and must be a string');
 
             return request.call(self, 'POST', '/sheets', null, payload);
-        },
-
-        /**
-         * get sheet settings
-         * @param {string} sheetId - target sheet id
-         * @returns {Promise<object>} promise resolving to result
-         *   {object} data - sheet settings
-         *   {boolean} data.allowPublicExport - allow public export
-         *   {string} data.publicExportUrl - public export url
-         *   {boolean} data.allowPublicEntry - allow public entry
-         *   {string} data.publicEntryUrl - public entry url
-         *   {boolean} data.allowWebHookIn - allow webhook in
-         *   {string} data.webHookInUrl - webhook in url
-         *   {string} data.lookupUrl - lookup url
-         *   {string} data.validationUrl - validation url
-         *   {string} data.webHookOutUrl - webhook out url
-         *   {string} data.secret - secret
-         */
-        settings: function (sheetId) {
-            if (!sheetId || typeof sheetId !== 'string') throw new Error('sheetId is required and must be a string');
-
-            return request.call(self, 'GET', '/sheets/' + encodeURIComponent(sheetId) + '/settings');
         },
 
         /**

@@ -36,10 +36,14 @@ describe('Interface', function() {
     it('should expose sheet methods', function() {
         expect(typeof client.sheets.list).toBe('function');
         expect(typeof client.sheets.create).toBe('function');
-        expect(typeof client.sheets.settings).toBe('function');
         expect(typeof client.sheets.clear).toBe('function');
         expect(typeof client.sheets.rename).toBe('function');
         expect(typeof client.sheets.delete).toBe('function');
+    });
+
+    it('should expose settings methods', function() {
+        expect(typeof client.settings.get).toBe('function');
+        expect(typeof client.settings.update).toBe('function');
     });
 
     it('should expose rows methods', function() {
@@ -201,16 +205,17 @@ describe('Interface', function() {
 
     it('should expose the correct number of methods per namespace', function() {
         // Verify expected method counts for each namespace
-        expect(Object.keys(client.sheets).length).toBe(6); // list, create, settings, clear, rename, delete
+        expect(Object.keys(client.sheets).length).toBe(5); // list, create, settings, clear, rename, delete
         expect(Object.keys(client.rows).length).toBe(7); // list, get, add, updateOne, updateMany, deleteOne, deleteMany
         expect(Object.keys(client.fields).length).toBe(5); // list, get, create, update, delete
         expect(Object.keys(client.history).length).toBe(2); // sheet, row
         expect(Object.keys(client.users).length).toBe(4); // list, add, update, remove
         expect(Object.keys(client.hooks).length).toBe(6); // events, list, get, create, update, delete
+        expect(Object.keys(client.settings).length).toBe(2); // get, update
     });
 
     it('should not expose any additional unexpected namespaces', function() {
-        var expectedNamespaces = ['sheets', 'rows', 'fields', 'history', 'users', 'hooks'];
+        var expectedNamespaces = ['sheets', 'rows', 'fields', 'history', 'users', 'hooks', 'settings'];
         var actualNamespaces = Object.keys(client).filter(function(key) {
             // Filter out any non-namespace properties
             // Only include properties that are objects with methods
