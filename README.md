@@ -46,11 +46,6 @@ orca.sheets.create({
     console.log('Sheet created:', result); // May be result.data or result depending on API response
 });
 
-// get sheet settings
-orca.sheets.settings('sheet-id').then(function(result) {
-    console.log('Sheet settings:', result); // May be result.data or result depending on API response
-});
-
 // clear all rows in a sheet
 orca.sheets.clear('sheet-id').then(function(result) {
     console.log('Sheet cleared');
@@ -68,6 +63,21 @@ orca.sheets.rename('sheet-id', {
 orca.sheets.delete('sheet-id').then(function(result) {
     console.log('Sheet deleted');
 });
+```
+
+### Settings
+
+```js
+// get sheet settings
+orca.settings.get('sheet-id').then(function(result) {
+    console.log('Sheet settings:', result); // May be result.data or result depending on API response
+});
+
+// update sheet settings
+orca.settings.update('sheet-id', {}).then(function() {
+    console.log('Sheet settings updated'); // May be result.data or result depending on API response
+});
+
 ```
 
 ### Fields
