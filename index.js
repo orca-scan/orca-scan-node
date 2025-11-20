@@ -60,28 +60,6 @@ function OrcaScanNode(apiKey, options) {
         },
 
         /**
-         * get sheet settings
-         * @param {string} sheetId - target sheet id
-         * @returns {Promise<object>} promise resolving to result
-         *   {object} data - sheet settings
-         *   {boolean} data.allowPublicExport - allow public export
-         *   {string} data.publicExportUrl - public export url
-         *   {boolean} data.allowPublicEntry - allow public entry
-         *   {string} data.publicEntryUrl - public entry url
-         *   {boolean} data.allowWebHookIn - allow webhook in
-         *   {string} data.webHookInUrl - webhook in url
-         *   {string} data.lookupUrl - lookup url
-         *   {string} data.validationUrl - validation url
-         *   {string} data.webHookOutUrl - webhook out url
-         *   {string} data.secret - secret
-         */
-        get: function (sheetId) {
-            if (!sheetId || typeof sheetId !== 'string') throw new Error('sheetId is required and must be a string');
-
-            return request.call(self, 'GET', '/sheets/' + encodeURIComponent(sheetId) + '/settings');
-        },
-
-        /**
          * update sheet settings
          * @param {string} sheetId - target sheet id
          * @param {object} settings - sheet settings
