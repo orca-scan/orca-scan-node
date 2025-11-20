@@ -95,9 +95,8 @@ orca.fields.get('sheet-id', 'field-key').then(function(result) {
 
 // create a new field
 orca.fields.create('sheet-id', {
-    key: 'product_code',
     label: 'Product Code',
-    type: 'string',
+    format: 'text',
     required: true,
     placeholder: 'Enter product code'
 })
@@ -107,9 +106,8 @@ orca.fields.create('sheet-id', {
 
 // create field with advanced options
 orca.fields.create('sheet-id', {
-    key: 'product_photo',
     label: 'Product Photo',
-    type: 'photo',
+    format: 'photo',
     required: false,
     hiddenWeb: true,
     useInMobileSearch: false,
