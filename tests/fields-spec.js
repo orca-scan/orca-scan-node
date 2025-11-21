@@ -109,9 +109,8 @@ describe('Fields', function() {
     it('should create a field with required properties', function() {
         var sheetId = 'test-sheet-id';
         var payload = {
-            key: 'test-field',
             label: 'Test Field',
-            type: 'string'
+            format: 'string'
         };
         
         return client.fields.create(sheetId, payload).then(function(result) {
@@ -133,9 +132,8 @@ describe('Fields', function() {
     it('should create a field with all optional properties', function() {
         var sheetId = 'test-sheet-id';
         var payload = {
-            key: 'test-field',
             label: 'Test Field',
-            type: 'string',
+            format: 'string',
             required: true,
             placeholder: 'Enter test value',
             autofocus: true,
@@ -184,61 +182,38 @@ describe('Fields', function() {
         }).toThrowError('payload is required and must be an object');
     });
 
-    it('should throw error when creating field without key', function() {
-        expect(function() {
-            client.fields.create('test-sheet-id', {
-                label: 'Test Field',
-                type: 'string'
-            });
-        }).toThrowError('payload.key is required and must be a string');
-    });
-
     it('should throw error when creating field without label', function() {
         expect(function() {
             client.fields.create('test-sheet-id', {
-                key: 'test-field',
-                type: 'string'
+                format: 'string'
             });
         }).toThrowError('payload.label is required and must be a string');
     });
 
-    it('should throw error when creating field without type', function() {
+    it('should throw error when creating field without format', function() {
         expect(function() {
             client.fields.create('test-sheet-id', {
-                key: 'test-field',
                 label: 'Test Field'
             });
-        }).toThrowError('payload.type is required and must be a string');
-    });
-
-    it('should throw error when creating field with non-string key', function() {
-        expect(function() {
-            client.fields.create('test-sheet-id', {
-                key: 123,
-                label: 'Test Field',
-                type: 'string'
-            });
-        }).toThrowError('payload.key is required and must be a string');
+        }).toThrowError('payload.format is required and must be a string');
     });
 
     it('should throw error when creating field with non-string label', function() {
         expect(function() {
             client.fields.create('test-sheet-id', {
-                key: 'test-field',
                 label: 123,
-                type: 'string'
+                format: 'string'
             });
         }).toThrowError('payload.label is required and must be a string');
     });
 
-    it('should throw error when creating field with non-string type', function() {
+    it('should throw error when creating field with non-string format', function() {
         expect(function() {
             client.fields.create('test-sheet-id', {
-                key: 'test-field',
                 label: 'Test Field',
-                type: 123
+                format: 123
             });
-        }).toThrowError('payload.type is required and must be a string');
+        }).toThrowError('payload.format is required and must be a string');
     });
 
     it('should update a field with new properties', function() {

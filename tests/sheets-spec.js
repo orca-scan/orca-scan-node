@@ -115,32 +115,6 @@ describe('Sheets', function() {
         }).toThrowError('payload.name is required and must be a string');
     });
 
-    it('should get settings for a sheet', function() {
-        var sheetId = 'test-sheet-id';
-        
-        return client.sheets.settings(sheetId).then(function(result) {
-            expect(mockFetch).toHaveBeenCalledWith(
-                'https://api.orcascan.com/v1/sheets/test-sheet-id/settings',
-                jasmine.objectContaining({
-                    method: 'GET'
-                })
-            );
-            expect(result).toBeDefined();
-        });
-    });
-
-    it('should throw error when getting settings without sheetId', function() {
-        expect(function() {
-            client.sheets.settings();
-        }).toThrowError('sheetId is required and must be a string');
-    });
-
-    it('should throw error when getting settings with non-string sheetId', function() {
-        expect(function() {
-            client.sheets.settings(123);
-        }).toThrowError('sheetId is required and must be a string');
-    });
-
     it('should clear all rows in a sheet', function() {
         var sheetId = 'test-sheet-id';
         
@@ -244,19 +218,5 @@ describe('Sheets', function() {
         expect(function() {
             client.sheets.delete(123);
         }).toThrowError('sheetId is required and must be a string');
-    });
-
-    it('should handle sheetId with special characters in URL encoding', function() {
-        var sheetId = 'test/sheet:id';
-        
-        return client.sheets.settings(sheetId).then(function(result) {
-            expect(mockFetch).toHaveBeenCalledWith(
-                'https://api.orcascan.com/v1/sheets/test%2Fsheet%3Aid/settings',
-                jasmine.objectContaining({
-                    method: 'GET'
-                })
-            );
-            expect(result).toBeDefined();
-        });
     });
 });
