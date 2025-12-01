@@ -489,7 +489,7 @@ function OrcaScanNode(apiKey, options) {
             if (!sheetId || typeof sheetId !== 'string') throw new Error('sheetId is required and must be a string');
             if (!rowId || typeof rowId !== 'string') throw new Error('rowId is required and must be a string');
 
-            return request.call(self, 'GET', '/sheets/' + encodeURIComponent(sheetId) + '/rows/' + encodeURIComponent(rowId) + '/history');
+            return request.call(self, 'GET', '/sheets/' + encodeURIComponent(sheetId) + '/' + encodeURIComponent(rowId) + '/history');
         }
     };
 
