@@ -75,7 +75,7 @@ describe('History', function() {
         
         return client.history.row(sheetId, rowId).then(function(result) {
             expect(mockFetch).toHaveBeenCalledWith(
-                'https://api.orcascan.com/v1/sheets/test-sheet-id/rows/test-row-id/history',
+                'https://api.orcascan.com/v1/sheets/test-sheet-id/test-row-id/history',
                 jasmine.objectContaining({
                     method: 'GET',
                     headers: jasmine.objectContaining({
@@ -144,7 +144,7 @@ describe('History', function() {
         
         return client.history.row(sheetId, rowId).then(function(result) {
             expect(mockFetch).toHaveBeenCalledWith(
-                'https://api.orcascan.com/v1/sheets/test-sheet-id/rows/test%2Frow%3Aid/history',
+                'https://api.orcascan.com/v1/sheets/test-sheet-id/test%2Frow%3Aid/history',
                 jasmine.objectContaining({
                     method: 'GET'
                 })
@@ -159,7 +159,7 @@ describe('History', function() {
         
         return client.history.row(sheetId, rowId).then(function(result) {
             expect(mockFetch).toHaveBeenCalledWith(
-                'https://api.orcascan.com/v1/sheets/test%2Fsheet%3Aid/rows/test%2Frow%3Aid/history',
+                'https://api.orcascan.com/v1/sheets/test%2Fsheet%3Aid/test%2Frow%3Aid/history',
                 jasmine.objectContaining({
                     method: 'GET'
                 })
