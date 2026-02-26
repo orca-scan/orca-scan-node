@@ -326,15 +326,14 @@ function OrcaScanNode(apiKey, options) {
          *
          * @param {string} sheetId - target sheet id
          * @returns {Promise<object>} promise resolving to result
-         *   {object} data - count result
-         *   {number} data.count - total number of rows
+         *   {number} count - total number of rows
          *
          * @example
          * // get total number of rows in a sheet
          * orca.rows.count('SHEET_ID')
          *     .then(function (result) {
-         *         // result.data.count contains the total number of rows
-         *         console.log('Total rows:', result.data.count);
+         *         // result.count contains the total number of rows
+         *         console.log('Total rows:', result.count);
          *     })
          *     .catch(function (err) {
          *         // handle error
