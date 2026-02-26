@@ -206,7 +206,7 @@ describe('Interface', function() {
 
     it('should expose the correct number of methods per namespace', function() {
         // Verify expected method counts for each namespace
-        expect(Object.keys(client.sheets).length).toBe(5); // list, create, settings, clear, rename, delete
+        expect(Object.keys(client.sheets).length).toBe(5); // list, create, clear, rename, delete
         expect(Object.keys(client.rows).length).toBe(8); // list, get, add, updateOne, updateMany, deleteOne, deleteMany, count
         expect(Object.keys(client.fields).length).toBe(5); // list, get, create, update, delete
         expect(Object.keys(client.history).length).toBe(2); // sheet, row

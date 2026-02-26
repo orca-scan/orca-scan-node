@@ -323,10 +323,23 @@ function OrcaScanNode(apiKey, options) {
 
         /**
          * get the total number of rows in a sheet
+         *
          * @param {string} sheetId - target sheet id
          * @returns {Promise<object>} promise resolving to result
          *   {object} data - count result
          *   {number} data.count - total number of rows
+         *
+         * @example
+         * // get total number of rows in a sheet
+         * orca.rows.count('SHEET_ID')
+         *     .then(function (result) {
+         *         // result.data.count contains the total number of rows
+         *         console.log('Total rows:', result.data.count);
+         *     })
+         *     .catch(function (err) {
+         *         // handle error
+         *         console.error(err);
+         *     });
          */
         count: function (sheetId) {
             if (!sheetId || typeof sheetId !== 'string') throw new Error('sheetId is required and must be a string');
