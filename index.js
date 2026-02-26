@@ -319,6 +319,19 @@ function OrcaScanNode(apiKey, options) {
             if (!rowIds || Object.prototype.toString.call(rowIds) !== '[object Array]') throw new Error('rowIds is required and must be an array of strings');
 
             return request.call(self, 'DELETE', '/sheets/' + encodeURIComponent(sheetId) + '/rows', null, rowIds);
+        },
+
+        /**
+         * get the total number of rows in a sheet
+         * @param {string} sheetId - target sheet id
+         * @returns {Promise<object>} promise resolving to result
+         *   {object} data - count result
+         *   {number} data.count - total number of rows
+         */
+        count: function (sheetId) {
+            if (!sheetId || typeof sheetId !== 'string') throw new Error('sheetId is required and must be a string');
+
+            return request.call(self, 'GET', '/sheets/' + encodeURIComponent(sheetId) + '/rows/count');
         }
     };
 
