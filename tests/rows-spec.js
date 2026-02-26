@@ -322,6 +322,37 @@ describe('Rows', function() {
         }).toThrowError('rowIds is required and must be an array of strings');
     });
 
+    it('should get row count', function() {
+        mockFetch.and.returnValue(Promise.resolve({
+            ok: true,
+            status: 200,
+            headers: { get: function() { return null; } },
+            text: function() { return Promise.resolve('{"data": {"count": 42}}'); }
+        }));
+
+        return client.rows.count('test-sheet-id').then(function(result) {
+            expect(mockFetch).toHaveBeenCalledWith(
+                'https://api.orcascan.com/v1/sheets/test-sheet-id/rows/count',
+                jasmine.objectContaining({
+                    method: 'GET'
+                })
+            );
+            expect(result.count).toBe(42);
+        });
+    });
+
+    it('should throw error when counting rows without sheetId', function() {
+        expect(function() {
+            client.rows.count();
+        }).toThrowError('sheetId is required and must be a string');
+    });
+
+    it('should throw error when counting rows with non-string sheetId', function() {
+        expect(function() {
+            client.rows.count(123);
+        }).toThrowError('sheetId is required and must be a string');
+    });
+
     it('should handle rowId with special characters in URL encoding', function() {
         var sheetId = 'test-sheet-id';
         var rowId = 'test/row:id';
