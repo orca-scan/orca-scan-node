@@ -3,7 +3,7 @@
 The official Node.js client for the [Orca Scan](https://orcascan.com) barcode tracking system. Allows you to:
 
 - **Sheets** - Create and manage sheets
-- **Rows** - Add, update, delete rows 
+- **Rows** - Add, update, delete and count rows 
 - **Fields** - Manage sheet fields and their properties
 - **History** - Track changes to sheets and rows
 - **Users** - Control user access permissions
@@ -234,12 +234,17 @@ orca.rows.deleteOne('sheet-id', 'row-id').then(function(result) {
 orca.rows.deleteMany('sheet-id', ['row1', 'row2']).then(function(result) {
     console.log('Rows deleted');
 });
+
+// get row count
+orca.rows.count('sheet-id').then(function(result) {
+    console.log('Total rows:', result.count);
+});
 ```
 
 All rows methods also accept an optional options object. Currently supported options:
 
 - **withTitle**: When true, it returns the field titles.
-- **parital**: When if true, update only changed fields while all other fields remain intact (only available for updateMany)
+- **partial**: When true, update only changed fields while all other fields remain intact (only available for updateMany)
 
 **Note:** Photo and attachment fields support base64 encoding. Photos support: .jpg, .png, .gif, .bmp, .webp, .tiff, .svg. Attachments support: .doc, .docx, .csv, .txt, .ppt, .pptx, .pdf, .xls, .xlsx, .mp4.
 
