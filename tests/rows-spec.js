@@ -368,7 +368,17 @@ describe('Rows', function() {
         });
     });
 
-    it('should list rows withTitles when options.withTitle = true', function() {
+    it('should list rows withTitles when options.withTitles = true', function() {
+        var sheetId = 'test-sheet-id';
+        return client.rows.list(sheetId, { withTitles: true }).then(function() {
+            expect(mockFetch).toHaveBeenCalledWith(
+                'https://api.orcascan.com/v1/sheets/test-sheet-id/rows?withTitles=true',
+                jasmine.objectContaining({ method: 'GET' })
+            );
+        });
+    });
+
+    it('should also support legacy options.withTitle on list', function() {
         var sheetId = 'test-sheet-id';
         return client.rows.list(sheetId, { withTitle: true }).then(function() {
             expect(mockFetch).toHaveBeenCalledWith(
@@ -378,20 +388,10 @@ describe('Rows', function() {
         });
     });
 
-    it('should merge query and withTitles on list', function() {
-        var sheetId = 'test-sheet-id';
-        return client.rows.list(sheetId, { withTitle: true }).then(function() {
-            expect(mockFetch).toHaveBeenCalledWith(
-                'https://api.orcascan.com/v1/sheets/test-sheet-id/rows?withTitles=true',
-                jasmine.objectContaining({ method: 'GET' })
-            );
-        });
-    });
-
-    it('should get row withTitles when options.withTitle = true', function() {
+    it('should get row withTitles when options.withTitles = true', function() {
         var sheetId = 'test-sheet-id';
         var rowId = 'rid';
-        return client.rows.get(sheetId, rowId, { withTitle: true }).then(function() {
+        return client.rows.get(sheetId, rowId, { withTitles: true }).then(function() {
             expect(mockFetch).toHaveBeenCalledWith(
                 'https://api.orcascan.com/v1/sheets/test-sheet-id/rows/rid?withTitles=true',
                 jasmine.objectContaining({ method: 'GET' })
@@ -399,10 +399,10 @@ describe('Rows', function() {
         });
     });
 
-    it('should add rows withTitles when options.withTitle = true', function() {
+    it('should add rows withTitles when options.withTitles = true', function() {
         var sheetId = 'test-sheet-id';
         var data = { name: 'x' };
-        return client.rows.add(sheetId, data, { withTitle: true }).then(function() {
+        return client.rows.add(sheetId, data, { withTitles: true }).then(function() {
             expect(mockFetch).toHaveBeenCalledWith(
                 'https://api.orcascan.com/v1/sheets/test-sheet-id/rows?withTitles=true',
                 jasmine.objectContaining({ method: 'POST' })
@@ -410,11 +410,11 @@ describe('Rows', function() {
         });
     });
 
-    it('should updateOne withTitles when options.withTitle = true', function() {
+    it('should updateOne withTitles when options.withTitles = true', function() {
         var sheetId = 'test-sheet-id';
         var rowId = 'rid';
         var data = { a: 1 };
-        return client.rows.updateOne(sheetId, rowId, data, { withTitle: true }).then(function() {
+        return client.rows.updateOne(sheetId, rowId, data, { withTitles: true }).then(function() {
             expect(mockFetch).toHaveBeenCalledWith(
                 'https://api.orcascan.com/v1/sheets/test-sheet-id/rows/rid?withTitles=true',
                 jasmine.objectContaining({ method: 'PUT' })
@@ -422,10 +422,10 @@ describe('Rows', function() {
         });
     });
 
-    it('should updateMany withTitles when options.withTitle = true', function() {
+    it('should updateMany withTitles when options.withTitles = true', function() {
         var sheetId = 'test-sheet-id';
         var rows = [{ _id: 'a' }];
-        return client.rows.updateMany(sheetId, rows, { withTitle: true }).then(function() {
+        return client.rows.updateMany(sheetId, rows, { withTitles: true }).then(function() {
             expect(mockFetch).toHaveBeenCalledWith(
                 'https://api.orcascan.com/v1/sheets/test-sheet-id/rows?withTitles=true',
                 jasmine.objectContaining({ method: 'PUT' })

@@ -170,7 +170,8 @@ function OrcaScanNode(apiKey, options) {
          * get all rows in a sheet
          * @param {string} sheetId - target sheet id
          * @param {object} [options] - optional call options
-         * @param {boolean} [options.withTitle=false] - if true, returns field titles rather than keys
+         * @param {boolean} [options.withTitles=false] - if true, returns field titles rather than keys
+         * @param {boolean} [options.withTitle=false] - legacy alias for withTitles
          * @returns {Promise<object>} promise resolving to result
          *   {array} data - list of row objects with arbitrary properties
          */
@@ -182,7 +183,7 @@ function OrcaScanNode(apiKey, options) {
             options = options || {};
             var query = {};
 
-            if (options && options.withTitle === true) {
+            if (useWithTitlesOption(options)) {
                 query.withTitles = true;
             }
 
@@ -194,7 +195,8 @@ function OrcaScanNode(apiKey, options) {
          * @param {string} sheetId - target sheet id
          * @param {string} rowId - row id
          * @param {object} [options] - optional call options
-         * @param {boolean} [options.withTitle=false] - if true, returns field titles rather than keys
+         * @param {boolean} [options.withTitles=false] - if true, returns field titles rather than keys
+         * @param {boolean} [options.withTitle=false] - legacy alias for withTitles
          * @returns {Promise<object>} promise resolving to result
          *   {object} data - row object with arbitrary properties
          */
@@ -205,7 +207,7 @@ function OrcaScanNode(apiKey, options) {
             options = options || {};
             var query = {};
 
-            if (options && options.withTitle === true) {
+            if (useWithTitlesOption(options)) {
                 query.withTitles = true;
             }
 
@@ -217,7 +219,8 @@ function OrcaScanNode(apiKey, options) {
          * @param {string} sheetId - target sheet id
          * @param {object|array} data - row object or array of row objects supports special fields such as photo or attachment as base64
          * @param {object} [options] - optional call options
-         * @param {boolean} [options.withTitle=false] - if true, returns field titles rather than keys
+         * @param {boolean} [options.withTitles=false] - if true, returns field titles rather than keys
+         * @param {boolean} [options.withTitle=false] - legacy alias for withTitles
          * @returns {Promise<object>} promise resolving to result
          *   {object|array} data - created row or list of created rows with server assigned fields
          * 
@@ -233,7 +236,7 @@ function OrcaScanNode(apiKey, options) {
             options = options || {};
             var query = {};
 
-            if (options && options.withTitle === true) {
+            if (useWithTitlesOption(options)) {
                 query.withTitles = true;
             }
 
@@ -246,7 +249,8 @@ function OrcaScanNode(apiKey, options) {
          * @param {string} rowId - row id
          * @param {object} data - fields to update
          * @param {object} [options] - optional call options
-         * @param {boolean} [options.withTitle=false] - if true, returns field titles rather than keys
+         * @param {boolean} [options.withTitles=false] - if true, returns field titles rather than keys
+         * @param {boolean} [options.withTitle=false] - legacy alias for withTitles
          * @returns {Promise<object>} promise resolving to result
          *   {object} data - updated row with arbitrary properties
          */
@@ -258,7 +262,7 @@ function OrcaScanNode(apiKey, options) {
             options = options || {};
             var query = {};
 
-            if (options && options.withTitle === true) {
+            if (useWithTitlesOption(options)) {
                 query.withTitles = true;
             }
 
@@ -270,7 +274,8 @@ function OrcaScanNode(apiKey, options) {
          * @param {string} sheetId - target sheet id
          * @param {array} rows - array of row objects
          * @param {object} [options] - optional call options
-         * @param {boolean} [options.withTitle=false] - if true, returns field titles rather than keys
+         * @param {boolean} [options.withTitles=false] - if true, returns field titles rather than keys
+         * @param {boolean} [options.withTitle=false] - legacy alias for withTitles
          * @param {boolean} [options.partial=false] - if true, update only changed fields while all other fields remain intact
          * @returns {Promise<object>} promise resolving to result
          *   {array} data - updated rows
@@ -282,7 +287,7 @@ function OrcaScanNode(apiKey, options) {
             options = options || {};
             var query = {};
 
-            if (options && options.withTitle === true) {
+            if (useWithTitlesOption(options)) {
                 query.withTitles = true;
             }
 
@@ -743,6 +748,15 @@ function buildUrl(endpoint, path, qs) {
     }
 
     return url;
+}
+
+/**
+ * normalizes row options to the REST API withTitles query param
+ * @param {object} [options] - row call options
+ * @returns {boolean} true when titled fields should be returned
+ */
+function useWithTitlesOption(options) {
+    return !!(options && (options.withTitles === true || options.withTitle === true));
 }
 
 /**
