@@ -49,12 +49,48 @@ describe('orca-scan-node', function() {
         expect(client.hooks).toBeDefined();
     });
 
-    it('should create instance with custom baseUrl', function() {
+    it('should create instance with custom endpoint', function() {
+        var baseUrl = 'https://custom-api.example.com/v1';
+
         client = new OrcaScanNode('test-api-key', {
-            baseUrl: 'https://custom-api.example.com/v1'
+            endpoint: baseUrl
         });
         
         expect(client).toBeDefined();
+        expect(client.endpoint).toBe(baseUrl);
+    });
+
+    it('should use custom endpoint for requests', function() {
+        var baseUrl = 'https://custom-api.example.com/v1';
+
+        client = new OrcaScanNode('test-api-key', {
+            endpoint: baseUrl
+        });
+
+        return client.sheets.list().then(function() {
+            expect(mockFetch).toHaveBeenCalledWith(
+                baseUrl + '/sheets',
+                jasmine.objectContaining({
+                    method: 'GET'
+                })
+            );
+        });
+    });
+
+    it('should not leak Content-Type header into later GET requests', function() {
+        client = new OrcaScanNode('test-api-key');
+
+        return client.sheets.create({ name: 'Inventory' })
+            .then(function() {
+                return client.sheets.list();
+            })
+            .then(function() {
+                var postCall = mockFetch.calls.argsFor(0);
+                var getCall = mockFetch.calls.argsFor(1);
+
+                expect(postCall[1].headers['Content-Type']).toBe('application/json');
+                expect(getCall[1].headers['Content-Type']).toBeUndefined();
+            });
     });
 
     it('should create instance with custom timeout', function() {
@@ -74,13 +110,18 @@ describe('orca-scan-node', function() {
     });
 
     it('should create instance with all custom options', function() {
+        var baseUrl = 'https://custom-api.example.com/v1';
+
         client = new OrcaScanNode('test-api-key', {
-            baseUrl: 'https://custom-api.example.com/v1',
+            endpoint: baseUrl,
             timeoutMs: 60000,
             maxRetries: 5
         });
         
         expect(client).toBeDefined();
+        expect(client.endpoint).toBe(baseUrl);
+        expect(client.timeoutMs).toBe(60000);
+        expect(client.maxRetries).toBe(5);
     });
 
     it('should handle empty options object', function() {
