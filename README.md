@@ -377,6 +377,12 @@ The client will automatically retry on:
 
 Default: 3 retry attempts with exponential backoff
 
+## Request Timeouts
+
+Use `timeoutMs` to control how long the SDK waits before rejecting a request.
+
+The timeout is applied to the SDK promise. If the timeout is reached, the promise rejects with `request timeout`, but the underlying HTTP request is not actively aborted.
+
 ## File Uploads
 
 The client supports file uploads for photo and attachment fields:
