@@ -181,7 +181,7 @@ describe('Interface', function() {
 
     it('should maintain consistent parameter validation', function() {
         // All methods should validate their first parameter (usually sheetId)
-        expect(function() { client.sheets.settings(); }).toThrow();
+        expect(function() { client.settings.get(); }).toThrow();
         expect(function() { client.rows.list(); }).toThrow();
         expect(function() { client.fields.list(); }).toThrow();
         expect(function() { client.history.sheet(); }).toThrow();
