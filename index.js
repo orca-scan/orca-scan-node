@@ -3,7 +3,7 @@ var fetch = require('node-fetch');
 
 /**
  * Orca Scan node client
- * Simple ES5 SDK that mirrors the rest api structure using namespaces
+ * Simple JavaScript SDK that mirrors the rest api structure using namespaces
  * 
  * @param {string} apiKey - your orca scan api key
  * @param {object} [options] - optional configuration
@@ -795,7 +795,7 @@ function request(method, path, qs, body) {
         var url = buildUrl(self.endpoint, path, qs);
         var opts = {
             method: method,
-            headers: self.defaultHeaders
+            headers: Object.assign({}, self.defaultHeaders)
         };
 
         if (body !== undefined) {
