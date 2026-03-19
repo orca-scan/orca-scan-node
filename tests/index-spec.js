@@ -50,26 +50,26 @@ describe('orca-scan-node', function() {
     });
 
     it('should create instance with custom endpoint', function() {
-        var baseUrl = 'https://custom-api.example.com/v1';
+        var endpointUrl = 'https://custom-api.example.com/v1';
 
         client = new OrcaScanNode('test-api-key', {
-            endpoint: baseUrl
+            endpoint: endpointUrl
         });
         
         expect(client).toBeDefined();
-        expect(client.endpoint).toBe(baseUrl);
+        expect(client.endpoint).toBe(endpointUrl);
     });
 
     it('should use custom endpoint for requests', function() {
-        var baseUrl = 'https://custom-api.example.com/v1';
+        var endpointUrl = 'https://custom-api.example.com/v1';
 
         client = new OrcaScanNode('test-api-key', {
-            endpoint: baseUrl
+            endpoint: endpointUrl
         });
 
         return client.sheets.list().then(function() {
             expect(mockFetch).toHaveBeenCalledWith(
-                baseUrl + '/sheets',
+                endpointUrl + '/sheets',
                 jasmine.objectContaining({
                     method: 'GET'
                 })
@@ -110,16 +110,16 @@ describe('orca-scan-node', function() {
     });
 
     it('should create instance with all custom options', function() {
-        var baseUrl = 'https://custom-api.example.com/v1';
+        var endpointUrl = 'https://custom-api.example.com/v1';
 
         client = new OrcaScanNode('test-api-key', {
-            endpoint: baseUrl,
+            endpoint: endpointUrl,
             timeoutMs: 60000,
             maxRetries: 5
         });
         
         expect(client).toBeDefined();
-        expect(client.endpoint).toBe(baseUrl);
+        expect(client.endpoint).toBe(endpointUrl);
         expect(client.timeoutMs).toBe(60000);
         expect(client.maxRetries).toBe(5);
     });
@@ -154,7 +154,7 @@ describe('orca-scan-node', function() {
         expect(client).toBeDefined();
     });
 
-    it('should set default baseUrl when not provided', function() {
+    it('should set default endpoint when not provided', function() {
         client = new OrcaScanNode('test-api-key');
         
         expect(client).toBeDefined();

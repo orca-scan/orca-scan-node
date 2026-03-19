@@ -7,8 +7,8 @@ var fetch = require('node-fetch');
  * 
  * @param {string} apiKey - your orca scan api key
  * @param {object} [options] - optional configuration
- * @param {string} [options.endpoint] - override api base url defaults to https://api.orcascan.com/v1
- * @param {number} [options.timeoutMs] - request timeout in milliseconds defaults to 30000
+ * @param {string} [options.endpoint] - override API endpoint defaults to https://api.orcascan.com/v1
+ * @param {number} [options.timeoutMs] - request timeout in milliseconds defaults to 30000; rejects the SDK promise if exceeded
  * @param {number} [options.maxRetries] - retries on 429 503 and 5xx defaults to 3
  * @returns {object} instance with sheets, rows, fields, history, users, and hooks namespaces
  * 
@@ -404,7 +404,7 @@ function OrcaScanNode(apiKey, options) {
          * @param {string} sheetId - target sheet id
          * @param {object} payload - field definition
          * @param {string} payload.label - field label (display name)
-         * @param {string} payload.format - field format (text, date time, etc)
+         * @param {string} payload.format - field format (text, barcode, number, date, date time, time, email, gps location, true/false, currency, drop-down list, formula, signature, unique id, photo, attachment, url, created by, created date, last modified by, last modified date)
          * @param {boolean} [payload.required=false] - is field required
          * @param {string} [payload.placeholder] - guidance text when field is empty
          * @param {boolean} [payload.autofocus=false] - if true, UI auto selects this field first
@@ -435,7 +435,7 @@ function OrcaScanNode(apiKey, options) {
          * @param {string} fieldKey - field key to update
          * @param {object} payload - field update data
          * @param {string} [payload.label] - new field label
-         * @param {string} [payload.type] - new field type
+         * @param {string} [payload.format] - new field format
          * @param {boolean} [payload.required] - is field required
          * @param {string} [payload.placeholder] - guidance text when field is empty
          * @param {boolean} [payload.autofocus] - if true, UI auto selects this field first
@@ -785,7 +785,7 @@ function parseJson(res) {
  * @param {string} path - request path
  * @param {object} [qs] - query params
  * @param {object|array} [body] - JSON body
- * @returns {Promise<object>} response data
+ * @returns {Promise<object|null>} normalized response data; unwraps { data: ... } responses and returns null for 204
  */
 function request(method, path, qs, body) {
     var self = this; // OrcaScanNode instance
