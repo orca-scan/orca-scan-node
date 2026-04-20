@@ -25,7 +25,7 @@ With this Node SDK you can:
 ## Quick Start
 
 ```js
-var OrcaScanNode = require('orca-scan-node');
+var OrcaScanNode = require('@orca-scan/orca-scan-node');
 var orca = new OrcaScanNode('your-api-key');
 
 async function main() {
@@ -60,13 +60,13 @@ main().catch(console.error);
 ## Install
 
 ```bash
-npm install orca-scan-node
+npm install @orca-scan/orca-scan-node
 ```
 
 ## Usage
 
 ```js
-var OrcaScanNode = require('orca-scan-node');
+var OrcaScanNode = require('@orca-scan/orca-scan-node');
 
 // get your API key from cloud.orcascan.com > account settings
 var orca = new OrcaScanNode('your-api-key', {

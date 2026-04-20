@@ -1,5 +1,5 @@
 {
-  "name": "orca-scan-node",
+  "name": "@orca-scan/orca-scan-node",
   "version": "1.0.0",
   "engines": {
     "node": ">=14.16.0"
@@ -18,7 +18,7 @@
   },
   "keywords": [],
   "author": "",
-  "license": "ISC",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/orca-scan/orca-scan-node/issues"
   },
