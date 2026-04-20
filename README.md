@@ -428,19 +428,39 @@ orca.hooks.delete('sheet-id', 'hook-id').then(function(result) {
 });
 ```
 
+
 ## Error Handling
 
-The SDK automatically unwraps API responses. If the API returns `{ data: ... }`, your `.then(...)` handler receives the inner value directly.
+The SDK automatically unwraps API responses. If the API returns `{ data: ... }`, your `.then(...)` handler receives the inner value directly. Here's how you can handle errors in your code:
 
 ```js
 orca.sheets.list().then(function(sheets) {
+
+    // Success! 'sheets' contains the list of sheets
     console.log('Success!', sheets);
 })
 .catch(function(error) {
-    console.error('Error:', error.message);
-    console.error('Status:', error.status);
-    console.error('Response body:', error.body);  // Additional error details
+
+    // All errors have a 'message'.
+    console.error('Error message:', error.message);
+
+    // If the error is from the API (like 401, 404, 422), these will also be set:
+    if (error.status) {
+        console.error('HTTP Status:', error.status); // e.g. 404
+    }
+    if (error.body) {
+        console.error('Response body:', error.body); // More details from the server
+    }
+
+    // For network errors or timeouts, 'status' and 'body' may be undefined
 });
+
+// Example error object for a 404:
+// {
+//   message: 'HTTP 404',
+//   status: 404,
+//   body: { error: 'Resource not found' }
+// }
 ```
 
 ## Errors
