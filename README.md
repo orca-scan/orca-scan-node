@@ -336,7 +336,7 @@ orca.rows.count('sheet-id').then(function(result) {
 Each rows method accepts an optional `options` object. Supported options:
 
 - **withTitles**: Return field titles instead of field keys
-- **partial**: Update only the provided fields and leave all others unchanged (available only for `updateMany`)
+- **partial**: Update only the provided fields and leave all others unchanged _(only for `updateMany`)_
 
 ### History
 
