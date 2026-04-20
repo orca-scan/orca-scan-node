@@ -182,7 +182,7 @@ orca.fields.delete('sheet-id', 'field-key').then(function(result) {
 #### Field options
 
 | Name                | Type      | Description                                                                               |
-|---------------------|-----------|-------------------------------------------------------------------------------------------|
+|:--------------------|:----------|:------------------------------------------------------------------------------------------|
 | `key`               | `string`  | Internal identifier *(readonly)*                                                          |
 | `label`             | `string`  | Title of the field in the app                                                             |
 | `type`              | `string`  | Data type                                                                                 |
@@ -216,7 +216,7 @@ orca.fields.delete('sheet-id', 'field-key').then(function(result) {
 #### Field formats
 
 | Format                           | Description                                       |
-|----------------------------------|---------------------------------------------------|
+|:---------------------------------|:--------------------------------------------------|
 | `text`                           | Plain text                                        |
 | `barcode`                        | Barcode value populated on scan                   |
 | `number`                         | Stores a number (integer or decimal)              |
@@ -465,14 +465,14 @@ orca.sheets.list().then(function(sheets) {
 
 ## Errors
 
-Error                | What it means      | How to fix
----------------------|--------------------|--------------------------------------
-`apiKey is required` | Missing API key    | Add your API key when creating client
-`http 401`           | Invalid API key    | Check your API key is correct
-`http 403`           | Permission denied  | Verify your access rights
-`http 429`           | Too many requests  | Requests are automatically retried
-`http 404`           | Resource not found | Check sheet/row/field ID is correct
-`http 422`           | Validation error   | Check field types and required fields
+| Error                | What it means      | How to fix                            |
+|:---------------------|:-------------------|:--------------------------------------|
+| `apiKey is required` | Missing API key    | Add your API key when creating client |
+| `http 401`           | Invalid API key    | Check your API key is correct         |
+| `http 403`           | Permission denied  | Verify your access rights             |
+| `http 429`           | Too many requests  | Requests are automatically retried    |
+| `http 404`           | Resource not found | Check sheet/row/field ID is correct   |
+| `http 422`           | Validation error   | Check field types and required fields |
 
 ## Automatic Retries
 
