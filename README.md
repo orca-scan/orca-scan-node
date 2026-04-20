@@ -55,8 +55,6 @@ async function main() {
 main().catch(console.error);
 ```
 
-> ⚠️ **Never commit your API key to public repositories.**
-
 ---
 
 ## Install
