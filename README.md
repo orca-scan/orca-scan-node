@@ -1,13 +1,64 @@
+
 # orca-scan-node
 
-The official Node.js client for the [Orca Scan](https://orcascan.com) barcode tracking system. Allows you to:
+The official Node.js client for the [Orca Scan](https://orcascan.com) barcode tracking system.
+
+**Full API Reference:** [Barcode Scanning REST API](https://orcascan.com/guides/barcode-scanning-rest-api-f09a21c3)
+
+## Key Concepts
+
+Orca Scan feels like a spreadsheet, but developers should think of each sheet as a database and each column as a strongly typed field.
+
+- **Sheet**: Like a spreadsheet or table, holds your data rows.
+- **Row**: A single record in a sheet (e.g., an inventory item).
+- **Field**: A column/property in a sheet (e.g., name, quantity).
+- **Hook**: A webhook that lets you receive notifications when things change.
+
+You can use this Node SDK to:
 
 - **Sheets** - Create and manage sheets
-- **Rows** - Add, update, delete and count rows 
+- **Rows** - Add, update, delete and count rows
 - **Fields** - Manage sheet fields and their properties
 - **History** - Track changes to sheets and rows
 - **Users** - Control user access permissions
 - **Hooks** - Set up webhook notifications
+
+## Quick Start
+
+```js
+var OrcaScanNode = require('orca-scan-node');
+var orca = new OrcaScanNode('your-api-key');
+
+async function main() {
+
+  // 1. Create a sheet
+  var sheet = await orca.sheets.create({ name: 'Inventory' });
+
+  // 2. Add some fields
+  await orca.fields.create(sheet._id, { label: 'Product Name', format: 'string' });
+  await orca.fields.create(sheet._id, { label: 'Quantity', format: 'integer' });
+
+  // 3. Add some rows
+  await orca.rows.add(sheet._id, [
+    { 'Product Name': 'Laptop', Quantity: 5 },
+    { 'Product Name': 'Chair', Quantity: 10 }
+  ]);
+
+  // 4. Add a user
+  await orca.users.add(sheet._id, { email: 'user@example.com', canUpdate: true });
+
+  // 5. Get the rows
+  var rows = await orca.rows.list(sheet._id);
+
+  console.log('Rows:', rows);
+}
+
+main().catch(console.error);
+```
+
+> ⚠️ **Never commit your API key to public repositories.**
+
+---
 
 ## Install
 
@@ -18,10 +69,10 @@ npm install orca-scan-node
 ## Usage
 
 ```js
-var OrcaScan = require('orca-scan-node');
+var OrcaScanNode = require('orca-scan-node');
 
 // get your API key from cloud.orcascan.com > account settings
-var orca = new OrcaScan('your-api-key', {
+var orca = new OrcaScanNode('your-api-key', {
     endpoint: 'https://api.orcascan.com/v1', // API endpoint (default)
     timeoutMs: 30000,                        // Request timeout (default: 30 sec)
     maxRetries: 3                            // Max retry attempts (default: 3)
@@ -77,7 +128,6 @@ orca.settings.get('sheet-id').then(function(settings) {
 orca.settings.update('sheet-id', {}).then(function(settings) {
     console.log('Sheet settings updated:', settings);
 });
-
 ```
 
 ### Fields
@@ -132,26 +182,70 @@ orca.fields.delete('sheet-id', 'field-key').then(function(result) {
 });
 ```
 
-### Field Types
+#### Field options
 
-The following field types are supported:
+| Name                | Type      | Description                                                                               |
+|---------------------|-----------|-------------------------------------------------------------------------------------------|
+| `key`               | `string`  | Internal identifier *(readonly)*                                                          |
+| `label`             | `string`  | Title of the field in the app                                                             |
+| `type`              | `string`  | Data type                                                                                 |
+| `format`            | `string`  | See **Field formats** below ↓                                                             |
+| `default`           | `any`     | Default value for the field when empty                                                    |
+| `listOptions`       | `array`   | If dropdown, options to present to users                                                  |
+| `multiSelect`       | `boolean` | If true, allows multiple selection                                                        |
+| `formula`           | `string`  | Calculation for “formula” fields                                                          |
+| `currencyType`      | `string`  | Currency code for “currency” fields, following the ISO 4217 standard (e.g. USD, EUR, GBP) |
+| `locked`            | `boolean` | Prevent users changing field properties                                                   |
+| `minLength`         | `integer` | Minimum number of characters allowed                                                      |
+| `maxLength`         | `integer` | Maximum number of characters allowed                                                      |
+| `minimum`           | `integer` | Minimum number allowed                                                                    |
+| `maximum`           | `integer` | Maximum number allowed                                                                    |
+| `placeholder`       | `string`  | Guidance to the user when field is empty                                                  |
+| `prefix`            | `string`  | If Unique ID, text before value                                                           |
+| `suffix`            | `string`  | If Unique ID, text after value                                                            |
+| `length`            | `integer` | If Unique ID, total length of ID                                                          |
+| `required`          | `boolean` | User must provide a value *(default: false)*                                              |
+| `autofocus`         | `boolean` | Auto select this field first *(default: false)*                                           |
+| `autoselect`        | `boolean` | Highlight existing text on focus *(default: false)*                                       |
+| `emptyOnEdit`       | `boolean` | Clear value when record edited *(default: false)*                                         |
+| `emptyOnScan`       | `boolean` | Remove existing value on scan *(default: false)*                                          |
+| `hiddenMobile`      | `boolean` | Hide the field on mobile *(default: false)*                                               |
+| `hiddenWeb`         | `boolean` | Hide the field on web *(default: false)*                                                  |
+| `readonlyWeb`       | `boolean` | Prevent user input on web *(default: false)*                                              |
+| `readonlyMobile`    | `boolean` | Prevent user input on mobile *(default: false)*                                           |
+| `useInMobileSearch` | `boolean` | Include value in mobile search *(default: false)*                                         |
+| `useValueInList`    | `boolean` | Show field value in mobile list *(default: false)*                                        |
 
-- **string** - Text input
-- **integer** - Whole numbers
-- **number** - Decimal numbers
-- **datetime** - Date and time
-- **photo** - Image upload (.jpg, .png, .gif, .bmp, .webp, .tiff, .svg)
-- **attachment** - File upload (.doc, .docx, .csv, .txt, .ppt, .pptx, .pdf, .xls, .xlsx, .mp4)
-- **uniqueId** - Auto-generated unique identifier
-- **barcode** - Barcode/QR code scanning
-- **location** - GPS coordinates
-- **signature** - Digital signature
-- **checkbox** - Boolean true/false
-- **select** - Single choice dropdown
-- **multiselect** - Multiple choice selection
-- **email** - Email address validation
-- **phone** - Phone number
-- **url** - Web URL
+#### Field formats
+
+| Format                           | Description                                       |
+|----------------------------------|---------------------------------------------------|
+| `text`                           | Plain text                                        |
+| `barcode`                        | Barcode value populated on scan                   |
+| `number`                         | Stores a number (integer or decimal)              |
+| `number (auto increase on scan)` | Number that auto increases on scan                |
+| `number (auto decrease on scan)` | Number that auto decreases on scan                |
+| `date`                           | Date field the user can set manually              |
+| `date (automatic)`               | Date field that auto sets on scan                 |
+| `date time`                      | Date and Time field the user can set manually     |
+| `date time (automatic)`          | Date and Time that auto sets on scan              |
+| `time`                           | Time field the user can set manually              |
+| `email`                          | Capture an email address                          |
+| `gps location`                   | User assigned GPS location                        |
+| `gps location (automatic)`       | Auto assigned GPS location on scan                |
+| `true/false`                     | True or False toggle field                        |
+| `currency`                       | Stores a monetary value                           |
+| `drop-down list`                 | List of options to present to users               |
+| `formula`                        | Calculates the value of two or more fields        |
+| `signature`                      | Captures a signature with date, time and location |
+| `unique id`                      | Generates a unique ID per record                  |
+| `photo`                          | Allows a user to add a photo                      |
+| `attachment`                     | Allows a user to upload a file                    |
+| `url`                            | Allows a user to enter a URL                      |
+| `created by`                     | Auto email of user who created the record         |
+| `created date`                   | Auto date/time the record was created             |
+| `last modified by`               | Auto email of user who last modified the record   |
+| `last modified date`             | Auto date/time the record was last updated        |
 
 ### Rows
 
@@ -216,6 +310,7 @@ orca.rows.updateOne('sheet-id', 'row-id', {
 
 
 options = { partial: true, withTitles: true };
+
 // update many rows
 orca.rows.updateMany('sheet-id', [
     { _id: 'row1', quantity: 15 },
@@ -241,16 +336,10 @@ orca.rows.count('sheet-id').then(function(result) {
 });
 ```
 
-All rows methods also accept an optional options object. Currently supported options:
+Each rows method accepts an optional `options` object. Supported options:
 
-- **withTitles**: When true, it returns field titles instead of field keys.
-- **partial**: When true, update only changed fields while all other fields remain intact (only available for `updateMany`)
-
-The `options` object is supported by `list`, `get`, `add`, `updateOne`, and `updateMany`.
-
-For backwards compatibility, the SDK also accepts `withTitle`.
-
-**Note:** Photo and attachment fields support base64 encoding. Photos support: .jpg, .png, .gif, .bmp, .webp, .tiff, .svg. Attachments support: .doc, .docx, .csv, .txt, .ppt, .pptx, .pdf, .xls, .xlsx, .mp4.
+- **withTitles**: Return field titles instead of field keys
+- **partial**: Update only the provided fields and leave all others unchanged (available only for `updateMany`)
 
 ### History
 
@@ -359,14 +448,14 @@ orca.sheets.list().then(function(sheets) {
 
 ## Errors
 
- Error                | What it means     | How to fix                            
-----------------------|-------------------|---------------------------------------
- `apiKey is required` | Missing API key   | Add your API key when creating client 
- `http 401`           | Invalid API key   | Check your API key is correct         
- `http 403`           | Permission denied | Verify your access rights             
- `http 429`           | Too many requests | Requests are automatically retried    
- `http 404`           | Resource not found | Check sheet/row/field ID is correct
- `http 422`           | Validation error   | Check field types and required fields    
+Error                | What it means      | How to fix
+---------------------|--------------------|--------------------------------------
+`apiKey is required` | Missing API key    | Add your API key when creating client
+`http 401`           | Invalid API key    | Check your API key is correct
+`http 403`           | Permission denied  | Verify your access rights
+`http 429`           | Too many requests  | Requests are automatically retried
+`http 404`           | Resource not found | Check sheet/row/field ID is correct
+`http 422`           | Validation error   | Check field types and required fields
 
 ## Automatic Retries
 
@@ -379,9 +468,7 @@ Default: 3 retry attempts with exponential backoff
 
 ## Request Timeouts
 
-Use `timeoutMs` to control how long the SDK waits before rejecting a request.
-
-The timeout is applied to the SDK promise. If the timeout is reached, the promise rejects with `request timeout`, but the underlying HTTP request is not actively aborted.
+Use `timeoutMs` to control how long the SDK waits before rejecting a request. The timeout is applied to the SDK promise. If the timeout is reached, the promise rejects with `request timeout`, but the underlying HTTP request is not actively aborted.
 
 ## File Uploads
 
@@ -396,35 +483,18 @@ Files should be provided as base64 strings with appropriate data URI format.
 
 API rate limit: 15 requests per second. The client automatically handles rate limiting with retries and respects the `Retry-After` header when provided.
 
-## Complete Example
+## Running Tests
 
-```js
-var orca = new OrcaScan('your-api-key');
-
-// Create sheet -> Add rows -> List rows
-orca.sheets.create({ name: 'Inventory' }).then(function(result) {
-
-    var sheetId = result._id; // May be result.data._id or result._id depending on API response
-
-    return orca.rows.add(sheetId, [
-        { name: 'Laptop', quantity: 5 },
-        { name: 'Chair', quantity: 10 }
-    ]);
-})
-.then(function() {
-    console.log('Items added successfully!');
-})
-.catch(function(err) {
-    console.error('Something went wrong:', err.message);
-});
+```bash
+npm test
 ```
 
 ## Need Help?
 
-- 📚 [API Documentation](https://orcascan.com/docs)
+- 📚 [API Reference](https://orcascan.com/guides/barcode-scanning-rest-api-f09a21c3)
 - 💬 [Live Chat Support](https://orcascan.com/#chat)
 - 🐛 [GitHub Issues](https://github.com/orca-scan/orca-scan-node/issues)
 
 ## License
 
-Licensed under [MIT License](LICENSE) &copy; Orca Scan, the [Barcode Scanner app for iOS and Android](https://orcascan.com).
+Licensed under [MIT License](LICENSE) &copy; Orca Scan -> [Barcode Tracking Software](https://orcascan.com).
