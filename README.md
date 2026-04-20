@@ -5,24 +5,23 @@ The official Node.js client for the [Orca Scan](https://orcascan.com) barcode tr
 
 **Full API Reference:** [Barcode Scanning REST API](https://orcascan.com/guides/barcode-scanning-rest-api-f09a21c3)
 
-## Key Concepts
+## Key concepts
 
 Orca Scan feels like a spreadsheet, but developers should think of each sheet as a database and each column as a strongly typed field.
 
-- **Sheet**: Like a spreadsheet or table, holds your data rows.
-- **Row**: A single record in a sheet (e.g., an inventory item).
-- **Field**: A column/property in a sheet (e.g., name, quantity).
-- **Hook**: A webhook that lets you receive notifications when things change.
+- **Sheet**: A table that stores rows of data
+- **Row**: A single record in a sheet, such as an inventory item
+- **Field**: A typed column in a sheet, such as name or quantity
+- **Hook**: A webhook that notifies you when data changes
 
-You can use this Node SDK to:
+With this Node SDK you can:
 
-- **Sheets** - Create and manage sheets
-- **Rows** - Add, update, delete and count rows
-- **Fields** - Manage sheet fields and their properties
-- **History** - Track changes to sheets and rows
-- **Users** - Control user access permissions
-- **Hooks** - Set up webhook notifications
-
+- **Sheets**: Create and manage sheets
+- **Rows**: Add, update, delete, and count rows
+- **Fields**: Manage fields and their properties
+- **History**: Track changes to sheets and rows
+- **Users**: Manage user access and permissions
+- **Hooks**: Configure webhook notifications
 ## Quick Start
 
 ```js
