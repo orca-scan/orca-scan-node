@@ -90,8 +90,8 @@ export interface OrcaScan {
   rows: {
     list(sheetId: string, options?: { withTitles?: boolean; withTitle?: boolean }): Promise<Row[]>;
     get(sheetId: string, rowId: string, options?: { withTitles?: boolean; withTitle?: boolean }): Promise<Row>;
-    add(sheetId: string, data: Row | Row[], options?: { withTitles?: boolean; withTitle?: boolean }): Promise<Row | Row[]>;
-    updateOne(sheetId: string, rowId: string, data: Row, options?: { withTitles?: boolean; withTitle?: boolean }): Promise<Row>;
+    add(sheetId: string, data: Row | Row[], options?: { withTitles?: boolean; withTitle?: boolean; partial?: boolean }): Promise<Row | Row[]>;
+    updateOne(sheetId: string, rowId: string, data: Row, options?: { withTitles?: boolean; withTitle?: boolean; partial?: boolean }): Promise<Row>;
     updateMany(sheetId: string, rows: Row[], options?: { withTitles?: boolean; withTitle?: boolean; partial?: boolean }): Promise<Row[]>;
     deleteOne(sheetId: string, rowId: string): Promise<any>;
     deleteMany(sheetId: string, rowIds: string[]): Promise<any>;
@@ -99,7 +99,6 @@ export interface OrcaScan {
   };
   fields: {
     list(sheetId: string): Promise<Field[]>;
-    get(sheetId: string, fieldKey: string): Promise<Field>;
     create(sheetId: string, payload: Partial<Field> & { label: string; format: string }): Promise<Field>;
     update(sheetId: string, fieldKey: string, payload: Partial<Field>): Promise<Field>;
     delete(sheetId: string, fieldKey: string): Promise<any>;

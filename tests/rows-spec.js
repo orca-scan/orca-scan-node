@@ -432,4 +432,50 @@ describe('Rows', function() {
             );
         });
     });
+
+    it('should pass partial=true query param when adding rows with partial option', function() {
+        var sheetId = 'test-sheet-id';
+        var data = { name: 'Item' };
+        return client.rows.add(sheetId, data, { partial: true }).then(function() {
+            expect(mockFetch).toHaveBeenCalledWith(
+                'https://api.orcascan.com/v1/sheets/test-sheet-id/rows?partial=true',
+                jasmine.objectContaining({ method: 'POST' })
+            );
+        });
+    });
+
+    it('should not pass partial query param when adding rows without partial option', function() {
+        var sheetId = 'test-sheet-id';
+        var data = { name: 'Item' };
+        return client.rows.add(sheetId, data).then(function() {
+            expect(mockFetch).toHaveBeenCalledWith(
+                'https://api.orcascan.com/v1/sheets/test-sheet-id/rows',
+                jasmine.objectContaining({ method: 'POST' })
+            );
+        });
+    });
+
+    it('should pass partial=true query param when updating one row with partial option', function() {
+        var sheetId = 'test-sheet-id';
+        var rowId = 'test-row-id';
+        var data = { quantity: 5 };
+        return client.rows.updateOne(sheetId, rowId, data, { partial: true }).then(function() {
+            expect(mockFetch).toHaveBeenCalledWith(
+                'https://api.orcascan.com/v1/sheets/test-sheet-id/rows/test-row-id?partial=true',
+                jasmine.objectContaining({ method: 'PUT' })
+            );
+        });
+    });
+
+    it('should not pass partial query param when updating one row without partial option', function() {
+        var sheetId = 'test-sheet-id';
+        var rowId = 'test-row-id';
+        var data = { quantity: 5 };
+        return client.rows.updateOne(sheetId, rowId, data).then(function() {
+            expect(mockFetch).toHaveBeenCalledWith(
+                'https://api.orcascan.com/v1/sheets/test-sheet-id/rows/test-row-id',
+                jasmine.objectContaining({ method: 'PUT' })
+            );
+        });
+    });
 });

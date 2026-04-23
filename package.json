@@ -1,16 +1,23 @@
 {
   "name": "@orca-scan/orca-scan-node",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "engines": {
     "node": ">=14.16.0"
   },
   "description": "The official node client for the Orca Scan API",
   "main": "index.js",
+  "files": [
+    "index.js",
+    "index.d.ts",
+    "LICENSE",
+    "README.md"
+  ],
   "directories": {
     "test": "tests"
   },
   "scripts": {
-    "test": "NODE_ENV=test node_modules/.bin/jasmine --config=tests/jasmine/config.json"
+    "test": "NODE_ENV=test node_modules/.bin/jasmine --config=tests/jasmine/config.json",
+    "test-e2e": "node_modules/.bin/jasmine --config=tests/e2e/jasmine-e2e.config.json"
   },
   "repository": {
     "type": "git",

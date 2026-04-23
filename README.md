@@ -34,8 +34,8 @@ async function main() {
   var sheet = await orca.sheets.create({ name: 'Inventory' });
 
   // 2. Add some fields
-  await orca.fields.create(sheet._id, { label: 'Product Name', format: 'string' });
-  await orca.fields.create(sheet._id, { label: 'Quantity', format: 'integer' });
+  await orca.fields.create(sheet._id, { label: 'Product Name', format: 'text' });
+  await orca.fields.create(sheet._id, { label: 'Quantity', format: 'number' });
 
   // 3. Add some rows
   await orca.rows.add(sheet._id, [
@@ -135,11 +135,6 @@ orca.fields.list('sheet-id').then(function(fields) {
     console.log('Sheet fields:', fields);
 });
 
-// get a single field
-orca.fields.get('sheet-id', 'field-key').then(function(field) {
-    console.log('Field:', field);
-});
-
 // create a new field
 orca.fields.create('sheet-id', {
     label: 'Product Code',
@@ -178,6 +173,8 @@ orca.fields.delete('sheet-id', 'field-key').then(function(result) {
     console.log('Field deleted');
 });
 ```
+
+> **Note:** `create`, `update`, and `delete` require `canAdmin: true` for the API key's user on the sheet. Attempting these without admin rights returns a `403 Forbidden`.
 
 #### Field options
 
@@ -247,7 +244,7 @@ orca.fields.delete('sheet-id', 'field-key').then(function(result) {
 ### Rows
 
 ```js
-let options = { withTitles: true };
+var options = { withTitles: true };
 
 // list all rows in a sheet
 orca.rows.list('sheet-id', options).then(function(rows) {
@@ -297,22 +294,19 @@ orca.rows.add('sheet-id', [
     console.log('Rows added:', rows);
 });
 
-// update one row
+// update one row (partial: true updates only provided fields, leaving others intact)
 orca.rows.updateOne('sheet-id', 'row-id', {
     quantity: 15
-}, options)
+}, { partial: true })
 .then(function(row) {
     console.log('Row updated:', row);
 });
-
-
-options = { partial: true, withTitles: true };
 
 // update many rows
 orca.rows.updateMany('sheet-id', [
     { _id: 'row1', quantity: 15 },
     { _id: 'row2', quantity: 20 }
-], options)
+], { partial: true })
 .then(function(rows) {
     console.log('Rows updated:', rows);
 });
@@ -336,7 +330,7 @@ orca.rows.count('sheet-id').then(function(result) {
 Each rows method accepts an optional `options` object. Supported options:
 
 - **withTitles**: Return field titles instead of field keys
-- **partial**: Update only the provided fields and leave all others unchanged _(only for `updateMany`)_
+- **partial**: Update only the provided fields and leave all others unchanged _(supported by `add`, `updateOne`, and `updateMany`)_
 
 ### History
 
@@ -444,7 +438,7 @@ orca.sheets.list().then(function(sheets) {
     // All errors have a 'message'.
     console.error('Error message:', error.message);
 
-    // If the error is from the API (like 401, 404, 422), these will also be set:
+    // If the error is from the API (like 400, 401, 404), these will also be set:
     if (error.status) {
         console.error('HTTP Status:', error.status); // e.g. 404
     }
@@ -472,7 +466,7 @@ orca.sheets.list().then(function(sheets) {
 | `http 403`           | Permission denied  | Verify your access rights             |
 | `http 429`           | Too many requests  | Requests are automatically retried    |
 | `http 404`           | Resource not found | Check sheet/row/field ID is correct   |
-| `http 422`           | Validation error   | Check field types and required fields |
+| `http 400`           | Bad request        | Check required fields and data types  |
 
 ## Automatic Retries
 
@@ -481,7 +475,7 @@ The client will automatically retry on:
 - Service unavailable (503) 
 - Server errors (5xx)
 
-Default: 3 retry attempts with exponential backoff
+Default: 3 retry attempts with linear backoff (500ms, 1000ms, 1500ms), or respects the `Retry-After` header if present
 
 ## Request Timeouts
 

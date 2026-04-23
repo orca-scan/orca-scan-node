@@ -64,48 +64,6 @@ describe('Fields', function() {
         }).toThrowError('sheetId is required and must be a string');
     });
 
-    it('should fetch single field by key', function() {
-        var sheetId = 'test-sheet-id';
-        var fieldKey = 'test-field';
-        
-        return client.fields.get(sheetId, fieldKey).then(function(result) {
-            expect(mockFetch).toHaveBeenCalledWith(
-                'https://api.orcascan.com/v1/sheets/test-sheet-id/fields/test-field',
-                jasmine.objectContaining({
-                    method: 'GET',
-                    headers: jasmine.objectContaining({
-                        'Authorization': 'Bearer test-api-key'
-                    })
-                })
-            );
-            expect(result).toBeDefined();
-        });
-    });
-
-    it('should reject when getting field without sheetId', function() {
-        expect(function() {
-            client.fields.get();
-        }).toThrowError('sheetId is required and must be a string');
-    });
-
-    it('should reject when getting field without fieldKey', function() {
-        expect(function() {
-            client.fields.get('test-sheet-id');
-        }).toThrowError('fieldKey is required and must be a string');
-    });
-
-    it('should reject when getting field with non-string sheetId', function() {
-        expect(function() {
-            client.fields.get(123, 'test-field');
-        }).toThrowError('sheetId is required and must be a string');
-    });
-
-    it('should throw error when getting field with non-string fieldKey', function() {
-        expect(function() {
-            client.fields.get('test-sheet-id', 123);
-        }).toThrowError('fieldKey is required and must be a string');
-    });
-
     it('should create a field with required properties', function() {
         var sheetId = 'test-sheet-id';
         var payload = {
@@ -316,21 +274,6 @@ describe('Fields', function() {
         expect(function() {
             client.fields.delete('test-sheet-id', 123);
         }).toThrowError('fieldKey is required and must be a string');
-    });
-
-    it('should handle sheetId with special characters in URL encoding', function() {
-        var sheetId = 'test/sheet:id';
-        var fieldKey = 'test/field:key';
-        
-        return client.fields.get(sheetId, fieldKey).then(function(result) {
-            expect(mockFetch).toHaveBeenCalledWith(
-                'https://api.orcascan.com/v1/sheets/test%2Fsheet%3Aid/fields/test%2Ffield%3Akey',
-                jasmine.objectContaining({
-                    method: 'GET'
-                })
-            );
-            expect(result).toBeDefined();
-        });
     });
 
     it('should handle fieldKey with special characters in URL encoding', function() {
