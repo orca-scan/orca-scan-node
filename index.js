@@ -301,7 +301,7 @@ function OrcaScanNode(apiKey, options) {
                 query.withTitles = true;
             }
 
-            if (options && options.partial === true) {
+            if (options.partial === true) {
                 query.partial = true;
             }
 
