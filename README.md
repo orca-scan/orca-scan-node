@@ -438,7 +438,7 @@ orca.sheets.list().then(function(sheets) {
     // All errors have a 'message'.
     console.error('Error message:', error.message);
 
-    // If the error is from the API (like 401, 404, 422), these will also be set:
+    // If the error is from the API (like 400, 401, 404), these will also be set:
     if (error.status) {
         console.error('HTTP Status:', error.status); // e.g. 404
     }
