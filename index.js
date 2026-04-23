@@ -221,6 +221,7 @@ function OrcaScanNode(apiKey, options) {
          * @param {object} [options] - optional call options
          * @param {boolean} [options.withTitles=false] - if true, returns field titles rather than keys
          * @param {boolean} [options.withTitle=false] - legacy alias for withTitles
+         * @param {boolean} [options.partial=false] - if true, update only changed fields while all other fields remain intact
          * @returns {Promise<object>} promise resolving to result
          *   {object|array} data - created row or list of created rows with server assigned fields
          * 
@@ -240,6 +241,10 @@ function OrcaScanNode(apiKey, options) {
                 query.withTitles = true;
             }
 
+            if (options.partial === true) {
+                query.partial = true;
+            }
+
             return request.call(self, 'POST', '/sheets/' + encodeURIComponent(sheetId) + '/rows', query, data);
         },
 
@@ -251,6 +256,7 @@ function OrcaScanNode(apiKey, options) {
          * @param {object} [options] - optional call options
          * @param {boolean} [options.withTitles=false] - if true, returns field titles rather than keys
          * @param {boolean} [options.withTitle=false] - legacy alias for withTitles
+         * @param {boolean} [options.partial=false] - if true, update only changed fields while all other fields remain intact
          * @returns {Promise<object>} promise resolving to result
          *   {object} data - updated row with arbitrary properties
          */
@@ -264,6 +270,10 @@ function OrcaScanNode(apiKey, options) {
 
             if (useWithTitlesOption(options)) {
                 query.withTitles = true;
+            }
+
+            if (options.partial === true) {
+                query.partial = true;
             }
 
             return request.call(self, 'PUT', '/sheets/' + encodeURIComponent(sheetId) + '/rows/' + encodeURIComponent(rowId), query, data);
@@ -383,20 +393,6 @@ function OrcaScanNode(apiKey, options) {
             if (!sheetId || typeof sheetId !== 'string') throw new Error('sheetId is required and must be a string');
 
             return request.call(self, 'GET', '/sheets/' + encodeURIComponent(sheetId) + '/fields');
-        },
-
-        /**
-         * Get a single field by key
-         * @param {string} sheetId - target sheet id
-         * @param {string} fieldKey - field key
-         * @returns {Promise<object>} promise resolving to result
-         *   {object} data - field object with all properties
-         */
-        get: function (sheetId, fieldKey) {
-            if (!sheetId || typeof sheetId !== 'string') throw new Error('sheetId is required and must be a string');
-            if (!fieldKey || typeof fieldKey !== 'string') throw new Error('fieldKey is required and must be a string');
-
-            return request.call(self, 'GET', '/sheets/' + encodeURIComponent(sheetId) + '/fields/' + encodeURIComponent(fieldKey));
         },
 
         /**
