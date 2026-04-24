@@ -35,6 +35,29 @@ describe('e2e: fields', function () {
         expect(found.label).toBe('E2E Notes Updated');
     });
 
+    it('should create a field with a specific index', async function () {
+        var field = await client.fields.create(setup.getSheetId(), {
+            label: 'E2E Indexed Field',
+            format: 'text',
+            index: 2
+        });
+
+        expect(field).toBeDefined();
+        expect(field.label).toBe('E2E Indexed Field');
+        expect(field.index).toBe(2);
+
+        // clean up
+        await client.fields.delete(setup.getSheetId(), field.key);
+    });
+
+    it('should update a field index', async function () {
+        var updated = await client.fields.update(setup.getSheetId(), fieldKey, {
+            index: 1
+        });
+
+        expect(updated.index).toBe(1);
+    });
+
     it('should delete the field', async function () {
         await client.fields.delete(setup.getSheetId(), fieldKey);
 

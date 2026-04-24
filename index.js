@@ -413,6 +413,7 @@ function OrcaScanNode(apiKey, options) {
          * @param {boolean} [payload.readonlyMobile=false] - if true, field is read-only on mobile
          * @param {boolean} [payload.useInMobileSearch=true] - if true, field is searchable in mobile list
          * @param {boolean} [payload.useValueInList=true] - if true, field is visible in mobile list
+         * @param {number} [payload.index] - if provided, sets the display order of the field
          * @returns {Promise<object>} promise resolving to result
          *   {object} data - created field with all properties
          */
@@ -444,6 +445,7 @@ function OrcaScanNode(apiKey, options) {
          * @param {boolean} [payload.readonlyMobile] - if true, field is read-only on mobile
          * @param {boolean} [payload.useInMobileSearch] - if true, field is searchable in mobile list
          * @param {boolean} [payload.useValueInList] - if true, field is visible in mobile list
+         * @param {number} [payload.index] - if provided, sets the display order of the field
          * @returns {Promise<object>} promise resolving to result
          *   {object} data - updated field with all properties
          */

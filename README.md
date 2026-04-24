@@ -209,6 +209,7 @@ orca.fields.delete('sheet-id', 'field-key').then(function(result) {
 | `readonlyMobile`    | `boolean` | Prevent user input on mobile *(default: false)*                                           |
 | `useInMobileSearch` | `boolean` | Include value in mobile search *(default: false)*                                         |
 | `useValueInList`    | `boolean` | Show field value in mobile list *(default: false)*                                        |
+| `index`             | `integer` | Display order of the field *(default: -1)*                                                |
 
 #### Field formats
 

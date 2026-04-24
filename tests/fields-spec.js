@@ -87,6 +87,21 @@ describe('Fields', function() {
         });
     });
 
+    it('should create a field with index in payload', function() {
+        var payload = { label: 'Test Field', format: 'text', index: 2 };
+
+        return client.fields.create('test-sheet-id', payload).then(function(result) {
+            expect(mockFetch).toHaveBeenCalledWith(
+                'https://api.orcascan.com/v1/sheets/test-sheet-id/fields',
+                jasmine.objectContaining({
+                    method: 'POST',
+                    body: JSON.stringify(payload)
+                })
+            );
+            expect(result).toBeDefined();
+        });
+    });
+
     it('should create a field with all optional properties', function() {
         var sheetId = 'test-sheet-id';
         var payload = {
@@ -191,6 +206,21 @@ describe('Fields', function() {
                         'Authorization': 'Bearer test-api-key',
                         'Content-Type': 'application/json'
                     }),
+                    body: JSON.stringify(payload)
+                })
+            );
+            expect(result).toBeDefined();
+        });
+    });
+
+    it('should update a field with index in payload', function() {
+        var payload = { label: 'Updated Field Label', index: 1 };
+
+        return client.fields.update('test-sheet-id', 'test-field', payload).then(function(result) {
+            expect(mockFetch).toHaveBeenCalledWith(
+                'https://api.orcascan.com/v1/sheets/test-sheet-id/fields/test-field',
+                jasmine.objectContaining({
+                    method: 'PUT',
                     body: JSON.stringify(payload)
                 })
             );
