@@ -320,4 +320,55 @@ describe('Fields', function() {
             expect(result).toBeDefined();
         });
     });
+
+    it('should upsert multiple fields', function() {
+        var sheetId = 'test-sheet-id';
+        var fields = [
+            { label: 'Quantity', format: 'number' },
+            { label: 'Notes', format: 'text', required: true }
+        ];
+
+        return client.fields.upsert(sheetId, fields).then(function(result) {
+            expect(mockFetch).toHaveBeenCalledWith(
+                'https://api.orcascan.com/v1/sheets/test-sheet-id/fields',
+                jasmine.objectContaining({
+                    method: 'PUT',
+                    headers: jasmine.objectContaining({
+                        'Authorization': 'Bearer test-api-key',
+                        'Content-Type': 'application/json'
+                    }),
+                    body: JSON.stringify(fields)
+                })
+            );
+            expect(result).toBeDefined();
+        });
+    });
+
+    it('should throw error when upserting fields without sheetId', function() {
+        expect(function() {
+            client.fields.upsert();
+        }).toThrowError('sheetId is required and must be a string');
+    });
+
+    it('should throw error when upserting fields with non-string sheetId', function() {
+        expect(function() {
+            client.fields.upsert(123, []);
+        }).toThrowError('sheetId is required and must be a string');
+    });
+
+    it('should throw error when upserting fields without fields array', function() {
+        expect(function() {
+            client.fields.upsert('test-sheet-id');
+        }).toThrowError('fields is required and must be an array of objects');
+    });
+
+    it('should throw error when upserting fields with non-array fields', function() {
+        expect(function() {
+            client.fields.upsert('test-sheet-id', { label: 'Test', format: 'text' });
+        }).toThrowError('fields is required and must be an array of objects');
+
+        expect(function() {
+            client.fields.upsert('test-sheet-id', 'invalid');
+        }).toThrowError('fields is required and must be an array of objects');
+    });
 });

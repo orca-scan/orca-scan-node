@@ -172,9 +172,18 @@ orca.fields.update('sheet-id', 'field-key', {
 orca.fields.delete('sheet-id', 'field-key').then(function(result) {
     console.log('Field deleted');
 });
+
+// upsert multiple fields - creates a field if it does not exist, otherwise updates it
+orca.fields.upsert('sheet-id', [
+    { label: 'Quantity', format: 'number' },
+    { label: 'Notes', format: 'text', required: true }
+])
+.then(function(fields) {
+    console.log('Fields upserted:', fields);
+});
 ```
 
-> **Note:** `create`, `update`, and `delete` require `canAdmin: true` for the API key's user on the sheet. Attempting these without admin rights returns a `403 Forbidden`.
+> **Note:** `create`, `update`, `delete`, and `upsert` require `canAdmin: true` for the API key's user on the sheet. Attempting these without admin rights returns a `403 Forbidden`.
 
 #### Field options
 

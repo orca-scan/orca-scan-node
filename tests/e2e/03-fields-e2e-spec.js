@@ -58,6 +58,27 @@ describe('e2e: fields', function () {
         expect(updated.index).toBe(1);
     });
 
+    it('should upsert multiple fields', async function () {
+        var upserted = await client.fields.upsert(setup.getSheetId(), [
+            { label: 'E2E Upsert Field A', format: 'text' },
+            { label: 'E2E Upsert Field B', format: 'number', required: true }
+        ]);
+
+        expect(Array.isArray(upserted)).toBe(true);
+        expect(upserted.length).toBe(2);
+
+        var allFields = await client.fields.list(setup.getSheetId());
+        var foundA = allFields.find(function (f) { return f.label === 'E2E Upsert Field A'; });
+        var foundB = allFields.find(function (f) { return f.label === 'E2E Upsert Field B'; });
+        expect(foundA).toBeDefined();
+        expect(foundB).toBeDefined();
+        expect(foundB.required).toBe(true);
+
+        // clean up
+        await client.fields.delete(setup.getSheetId(), foundA.key);
+        await client.fields.delete(setup.getSheetId(), foundB.key);
+    });
+
     it('should delete the field', async function () {
         await client.fields.delete(setup.getSheetId(), fieldKey);
 

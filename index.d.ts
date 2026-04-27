@@ -102,6 +102,7 @@ export interface OrcaScan {
     create(sheetId: string, payload: Partial<Field> & { label: string; format: string }): Promise<Field>;
     update(sheetId: string, fieldKey: string, payload: Partial<Field>): Promise<Field>;
     delete(sheetId: string, fieldKey: string): Promise<any>;
+    upsert(sheetId: string, fields: Array<Partial<Field> & { label: string; format: string }>): Promise<Field[]>;
   };
   history: {
     sheet(sheetId: string): Promise<any[]>;
