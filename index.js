@@ -476,8 +476,7 @@ function OrcaScanNode(apiKey, options) {
          * @param {boolean} [fields[].useInMobileSearch=true] - if true, field is searchable in mobile list
          * @param {boolean} [fields[].useValueInList=true] - if true, field is visible in mobile list
          * @param {number} [fields[].index] - if provided, sets the display order of the field
-         * @returns {Promise<object>} promise resolving to result
-         *   {array} data - upserted fields with all properties
+         * @returns {Promise<array>} promise resolving to an array of upserted fields with all properties
          */
         upsert: function (sheetId, fields) {
             if (!sheetId || typeof sheetId !== 'string') throw new Error('sheetId is required and must be a string');
