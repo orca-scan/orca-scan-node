@@ -458,6 +458,34 @@ function OrcaScanNode(apiKey, options) {
         },
 
         /**
+         * Upsert multiple fields in a sheet - creates a field if it does not exist, otherwise updates it
+         * @param {string} sheetId - target sheet id
+         * @param {array} fields - array of field definitions
+         * @param {string} fields[].label - field label (display name)
+         * @param {string} fields[].format - field format (text, barcode, number, date, date time, time, email, gps location, true/false, currency, drop-down list, formula, signature, unique id, photo, attachment, url, created by, created date, last modified by, last modified date)
+         * @param {boolean} [fields[].required=false] - is field required
+         * @param {string} [fields[].placeholder] - guidance text when field is empty
+         * @param {boolean} [fields[].autofocus=false] - if true, UI auto selects this field first
+         * @param {boolean} [fields[].autoselect=false] - if true, existing text is highlighted on focus
+         * @param {boolean} [fields[].emptyOnEdit=false] - if true, value is cleared when record edited
+         * @param {boolean} [fields[].emptyOnScan=false] - if true, existing value is removed on scan
+         * @param {boolean} [fields[].hiddenMobile=false] - if true, field is hidden on mobile
+         * @param {boolean} [fields[].hiddenWeb=false] - if true, field is hidden on web
+         * @param {boolean} [fields[].readonlyWeb=false] - if true, field is read-only on web
+         * @param {boolean} [fields[].readonlyMobile=false] - if true, field is read-only on mobile
+         * @param {boolean} [fields[].useInMobileSearch=true] - if true, field is searchable in mobile list
+         * @param {boolean} [fields[].useValueInList=true] - if true, field is visible in mobile list
+         * @param {number} [fields[].index] - if provided, sets the display order of the field
+         * @returns {Promise<array>} promise resolving to an array of upserted fields with all properties
+         */
+        upsert: function (sheetId, fields) {
+            if (!sheetId || typeof sheetId !== 'string') throw new Error('sheetId is required and must be a string');
+            if (!fields || Object.prototype.toString.call(fields) !== '[object Array]') throw new Error('fields is required and must be an array of objects');
+
+            return request.call(self, 'PUT', '/sheets/' + encodeURIComponent(sheetId) + '/fields', null, fields);
+        },
+
+        /**
          * Delete a field from a sheet
          * @param {string} sheetId - target sheet id
          * @param {string} fieldKey - field key to delete
