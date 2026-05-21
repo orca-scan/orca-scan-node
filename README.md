@@ -1,6 +1,12 @@
 
 # orca-scan-node
 
+[![Tests](https://img.shields.io/github/actions/workflow/status/orca-scan/orca-scan-node/ci.yml?label=Tests)](https://github.com/orca-scan/orca-scan-node/actions/workflows/ci.yml)
+[![npm](https://img.shields.io/npm/v/@orca-scan/orca-scan-node.svg?label=npm&color=red)](https://www.npmjs.com/package/@orca-scan/orca-scan-node)
+[![Node](https://img.shields.io/node/v/@orca-scan/orca-scan-node.svg?label=Node)](https://www.npmjs.com/package/@orca-scan/orca-scan-node)
+[![Downloads](https://img.shields.io/npm/dm/@orca-scan/orca-scan-node.svg?label=Downloads)](https://www.npmjs.com/package/@orca-scan/orca-scan-node)
+[![REST API](https://img.shields.io/badge/REST%20API-Read%20Docs-efd063)](https://orcascan.com/guides/barcode-scanning-rest-api-f09a21c3)
+
 The official Node.js client for the [Orca Scan](https://orcascan.com) barcode tracking system.
 
 **Full API Reference:** [Barcode Scanning REST API](https://orcascan.com/guides/barcode-scanning-rest-api-f09a21c3)
