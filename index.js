@@ -52,6 +52,7 @@ function OrcaScanNode(apiKey, options) {
          *   {string} data.validationUrl - validation url
          *   {string} data.webHookOutUrl - webhook out url
          *   {string} data.secret - secret
+         *   {string[]} data.dataSourceName - names of other sheets this sheet pulls data from on scan (data sources)
          */
         get: function (sheetId) {
             if (!sheetId || typeof sheetId !== 'string') throw new Error('sheetId is required and must be a string');
@@ -69,6 +70,7 @@ function OrcaScanNode(apiKey, options) {
          * @param {string} settings.lookupUrl - lookup url
          * @param {string} settings.validationUrl - validation url
          * @param {string} settings.webHookOutUrl - webhook out url
+         * @param {string[]} settings.dataSourceName - names of other sheets to pull data from on scan (data sources). Pass an empty array to clear.
          * @returns {Promise<object>} promise resolving to result
          */
         update: function (sheetId, settings) {

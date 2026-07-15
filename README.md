@@ -78,6 +78,11 @@ orca.settings.update('sheet-id', {}).then(function() {
     console.log('Sheet settings updated'); // May be result.data or result depending on API response
 });
 
+// data sources: pull data from other sheets on scan (matched by barcode, columns
+// copied where names are identical). Pass sheet names; empty array clears them.
+orca.settings.update('sheet-id', { dataSourceName: ['Products', 'Suppliers'] }).then(function() {
+    console.log('Data sources updated');
+});
 ```
 
 ### Fields

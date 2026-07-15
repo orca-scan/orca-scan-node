@@ -67,6 +67,27 @@ describe('Settings', function() {
         });
     });
 
+    it('should pass data sources through when updating settings', function() {
+        var sheetId = 'test-sheet-id';
+        var settings = { dataSourceName: ['Products', 'Suppliers'] };
+        mockFetch.and.returnValue(Promise.resolve({
+            ok: true,
+            status: 200,
+            headers: { get: function() { return null; } },
+            text: function() { return Promise.resolve('{"data": {"dataSourceName": ["Products", "Suppliers"]}}'); }
+        }));
+        return client.settings.update(sheetId, settings).then(function(result) {
+            expect(mockFetch).toHaveBeenCalledWith(
+                'https://api.orcascan.com/v1/sheets/test-sheet-id/settings',
+                jasmine.objectContaining({
+                    method: 'PUT',
+                    body: JSON.stringify(settings)
+                })
+            );
+            expect(result.dataSourceName).toEqual(['Products', 'Suppliers']);
+        });
+    });
+
     it('should throw error when updating settings without sheetId', function() {
         expect(function() {
             client.settings.update();
