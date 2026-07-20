@@ -31,6 +31,7 @@ describe('Interface', function() {
         expect(client.history).toBeDefined();
         expect(client.users).toBeDefined();
         expect(client.hooks).toBeDefined();
+        expect(client.triggers).toBeDefined();
     });
 
     it('should expose sheet methods', function() {
@@ -83,6 +84,15 @@ describe('Interface', function() {
         expect(typeof client.hooks.create).toBe('function');
         expect(typeof client.hooks.update).toBe('function');
         expect(typeof client.hooks.delete).toBe('function');
+    });
+
+    it('should expose triggers methods', function() {
+        expect(typeof client.triggers.schema).toBe('function');
+        expect(typeof client.triggers.list).toBe('function');
+        expect(typeof client.triggers.get).toBe('function');
+        expect(typeof client.triggers.create).toBe('function');
+        expect(typeof client.triggers.update).toBe('function');
+        expect(typeof client.triggers.delete).toBe('function');
     });
 
     it('should not expose internal methods or properties', function() {
@@ -211,11 +221,12 @@ describe('Interface', function() {
         expect(Object.keys(client.history).length).toBe(2); // sheet, row
         expect(Object.keys(client.users).length).toBe(4); // list, add, update, remove
         expect(Object.keys(client.hooks).length).toBe(6); // events, list, get, create, update, delete
+        expect(Object.keys(client.triggers).length).toBe(6); // schema, list, get, create, update, delete
         expect(Object.keys(client.settings).length).toBe(2); // get, update
     });
 
     it('should not expose any additional unexpected namespaces', function() {
-        var expectedNamespaces = ['sheets', 'rows', 'fields', 'history', 'users', 'hooks', 'settings'];
+        var expectedNamespaces = ['sheets', 'rows', 'fields', 'history', 'users', 'hooks', 'triggers', 'settings'];
         var actualNamespaces = Object.keys(client).filter(function(key) {
             // Filter out any non-namespace properties
             // Only include properties that are objects with methods
