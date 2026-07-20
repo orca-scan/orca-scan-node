@@ -55,11 +55,11 @@ describe('Interface', function() {
         expect(typeof client.rows.updateMany).toBe('function');
         expect(typeof client.rows.deleteOne).toBe('function');
         expect(typeof client.rows.deleteMany).toBe('function');
+        expect(typeof client.rows.count).toBe('function');
     });
 
     it('should expose fields methods', function() {
         expect(typeof client.fields.list).toBe('function');
-        expect(typeof client.fields.get).toBe('function');
         expect(typeof client.fields.create).toBe('function');
         expect(typeof client.fields.update).toBe('function');
         expect(typeof client.fields.delete).toBe('function');
@@ -163,7 +163,6 @@ describe('Interface', function() {
         expect(typeof client.hooks.list).toBe('function');
         
         expect(typeof client.rows.get).toBe('function');
-        expect(typeof client.fields.get).toBe('function');
         expect(typeof client.hooks.get).toBe('function');
         
         expect(typeof client.sheets.create).toBe('function');
@@ -190,7 +189,7 @@ describe('Interface', function() {
 
     it('should maintain consistent parameter validation', function() {
         // All methods should validate their first parameter (usually sheetId)
-        expect(function() { client.sheets.settings(); }).toThrow();
+        expect(function() { client.settings.get(); }).toThrow();
         expect(function() { client.rows.list(); }).toThrow();
         expect(function() { client.fields.list(); }).toThrow();
         expect(function() { client.history.sheet(); }).toThrow();
@@ -215,9 +214,9 @@ describe('Interface', function() {
 
     it('should expose the correct number of methods per namespace', function() {
         // Verify expected method counts for each namespace
-        expect(Object.keys(client.sheets).length).toBe(5); // list, create, settings, clear, rename, delete
-        expect(Object.keys(client.rows).length).toBe(7); // list, get, add, updateOne, updateMany, deleteOne, deleteMany
-        expect(Object.keys(client.fields).length).toBe(5); // list, get, create, update, delete
+        expect(Object.keys(client.sheets).length).toBe(5); // list, create, clear, rename, delete
+        expect(Object.keys(client.rows).length).toBe(8); // list, get, add, updateOne, updateMany, deleteOne, deleteMany, count
+        expect(Object.keys(client.fields).length).toBe(5); // list, create, update, delete, upsert
         expect(Object.keys(client.history).length).toBe(2); // sheet, row
         expect(Object.keys(client.users).length).toBe(4); // list, add, update, remove
         expect(Object.keys(client.hooks).length).toBe(6); // events, list, get, create, update, delete

@@ -64,48 +64,6 @@ describe('Fields', function() {
         }).toThrowError('sheetId is required and must be a string');
     });
 
-    it('should fetch single field by key', function() {
-        var sheetId = 'test-sheet-id';
-        var fieldKey = 'test-field';
-        
-        return client.fields.get(sheetId, fieldKey).then(function(result) {
-            expect(mockFetch).toHaveBeenCalledWith(
-                'https://api.orcascan.com/v1/sheets/test-sheet-id/fields/test-field',
-                jasmine.objectContaining({
-                    method: 'GET',
-                    headers: jasmine.objectContaining({
-                        'Authorization': 'Bearer test-api-key'
-                    })
-                })
-            );
-            expect(result).toBeDefined();
-        });
-    });
-
-    it('should reject when getting field without sheetId', function() {
-        expect(function() {
-            client.fields.get();
-        }).toThrowError('sheetId is required and must be a string');
-    });
-
-    it('should reject when getting field without fieldKey', function() {
-        expect(function() {
-            client.fields.get('test-sheet-id');
-        }).toThrowError('fieldKey is required and must be a string');
-    });
-
-    it('should reject when getting field with non-string sheetId', function() {
-        expect(function() {
-            client.fields.get(123, 'test-field');
-        }).toThrowError('sheetId is required and must be a string');
-    });
-
-    it('should throw error when getting field with non-string fieldKey', function() {
-        expect(function() {
-            client.fields.get('test-sheet-id', 123);
-        }).toThrowError('fieldKey is required and must be a string');
-    });
-
     it('should create a field with required properties', function() {
         var sheetId = 'test-sheet-id';
         var payload = {
@@ -122,6 +80,21 @@ describe('Fields', function() {
                         'Authorization': 'Bearer test-api-key',
                         'Content-Type': 'application/json'
                     }),
+                    body: JSON.stringify(payload)
+                })
+            );
+            expect(result).toBeDefined();
+        });
+    });
+
+    it('should create a field with index in payload', function() {
+        var payload = { label: 'Test Field', format: 'text', index: 2 };
+
+        return client.fields.create('test-sheet-id', payload).then(function(result) {
+            expect(mockFetch).toHaveBeenCalledWith(
+                'https://api.orcascan.com/v1/sheets/test-sheet-id/fields',
+                jasmine.objectContaining({
+                    method: 'POST',
                     body: JSON.stringify(payload)
                 })
             );
@@ -240,6 +213,21 @@ describe('Fields', function() {
         });
     });
 
+    it('should update a field with index in payload', function() {
+        var payload = { label: 'Updated Field Label', index: 1 };
+
+        return client.fields.update('test-sheet-id', 'test-field', payload).then(function(result) {
+            expect(mockFetch).toHaveBeenCalledWith(
+                'https://api.orcascan.com/v1/sheets/test-sheet-id/fields/test-field',
+                jasmine.objectContaining({
+                    method: 'PUT',
+                    body: JSON.stringify(payload)
+                })
+            );
+            expect(result).toBeDefined();
+        });
+    });
+
     it('should throw error when updating field without sheetId', function() {
         expect(function() {
             client.fields.update();
@@ -318,21 +306,6 @@ describe('Fields', function() {
         }).toThrowError('fieldKey is required and must be a string');
     });
 
-    it('should handle sheetId with special characters in URL encoding', function() {
-        var sheetId = 'test/sheet:id';
-        var fieldKey = 'test/field:key';
-        
-        return client.fields.get(sheetId, fieldKey).then(function(result) {
-            expect(mockFetch).toHaveBeenCalledWith(
-                'https://api.orcascan.com/v1/sheets/test%2Fsheet%3Aid/fields/test%2Ffield%3Akey',
-                jasmine.objectContaining({
-                    method: 'GET'
-                })
-            );
-            expect(result).toBeDefined();
-        });
-    });
-
     it('should handle fieldKey with special characters in URL encoding', function() {
         var sheetId = 'test-sheet-id';
         var fieldKey = 'test/field:key';
@@ -346,5 +319,56 @@ describe('Fields', function() {
             );
             expect(result).toBeDefined();
         });
+    });
+
+    it('should upsert multiple fields', function() {
+        var sheetId = 'test-sheet-id';
+        var fields = [
+            { label: 'Quantity', format: 'number' },
+            { label: 'Notes', format: 'text', required: true }
+        ];
+
+        return client.fields.upsert(sheetId, fields).then(function(result) {
+            expect(mockFetch).toHaveBeenCalledWith(
+                'https://api.orcascan.com/v1/sheets/test-sheet-id/fields',
+                jasmine.objectContaining({
+                    method: 'PUT',
+                    headers: jasmine.objectContaining({
+                        'Authorization': 'Bearer test-api-key',
+                        'Content-Type': 'application/json'
+                    }),
+                    body: JSON.stringify(fields)
+                })
+            );
+            expect(result).toBeDefined();
+        });
+    });
+
+    it('should throw error when upserting fields without sheetId', function() {
+        expect(function() {
+            client.fields.upsert();
+        }).toThrowError('sheetId is required and must be a string');
+    });
+
+    it('should throw error when upserting fields with non-string sheetId', function() {
+        expect(function() {
+            client.fields.upsert(123, []);
+        }).toThrowError('sheetId is required and must be a string');
+    });
+
+    it('should throw error when upserting fields without fields array', function() {
+        expect(function() {
+            client.fields.upsert('test-sheet-id');
+        }).toThrowError('fields is required and must be an array of objects');
+    });
+
+    it('should throw error when upserting fields with non-array fields', function() {
+        expect(function() {
+            client.fields.upsert('test-sheet-id', { label: 'Test', format: 'text' });
+        }).toThrowError('fields is required and must be an array of objects');
+
+        expect(function() {
+            client.fields.upsert('test-sheet-id', 'invalid');
+        }).toThrowError('fields is required and must be an array of objects');
     });
 });

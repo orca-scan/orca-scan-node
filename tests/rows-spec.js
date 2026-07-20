@@ -322,6 +322,37 @@ describe('Rows', function() {
         }).toThrowError('rowIds is required and must be an array of strings');
     });
 
+    it('should get row count', function() {
+        mockFetch.and.returnValue(Promise.resolve({
+            ok: true,
+            status: 200,
+            headers: { get: function() { return null; } },
+            text: function() { return Promise.resolve('{"data": {"count": 42}}'); }
+        }));
+
+        return client.rows.count('test-sheet-id').then(function(result) {
+            expect(mockFetch).toHaveBeenCalledWith(
+                'https://api.orcascan.com/v1/sheets/test-sheet-id/rows/count',
+                jasmine.objectContaining({
+                    method: 'GET'
+                })
+            );
+            expect(result.count).toBe(42);
+        });
+    });
+
+    it('should throw error when counting rows without sheetId', function() {
+        expect(function() {
+            client.rows.count();
+        }).toThrowError('sheetId is required and must be a string');
+    });
+
+    it('should throw error when counting rows with non-string sheetId', function() {
+        expect(function() {
+            client.rows.count(123);
+        }).toThrowError('sheetId is required and must be a string');
+    });
+
     it('should handle rowId with special characters in URL encoding', function() {
         var sheetId = 'test-sheet-id';
         var rowId = 'test/row:id';
@@ -337,7 +368,17 @@ describe('Rows', function() {
         });
     });
 
-    it('should list rows withTitles when options.withTitle = true', function() {
+    it('should list rows withTitles when options.withTitles = true', function() {
+        var sheetId = 'test-sheet-id';
+        return client.rows.list(sheetId, { withTitles: true }).then(function() {
+            expect(mockFetch).toHaveBeenCalledWith(
+                'https://api.orcascan.com/v1/sheets/test-sheet-id/rows?withTitles=true',
+                jasmine.objectContaining({ method: 'GET' })
+            );
+        });
+    });
+
+    it('should also support legacy options.withTitle on list', function() {
         var sheetId = 'test-sheet-id';
         return client.rows.list(sheetId, { withTitle: true }).then(function() {
             expect(mockFetch).toHaveBeenCalledWith(
@@ -347,20 +388,10 @@ describe('Rows', function() {
         });
     });
 
-    it('should merge query and withTitles on list', function() {
-        var sheetId = 'test-sheet-id';
-        return client.rows.list(sheetId, { withTitle: true }).then(function() {
-            expect(mockFetch).toHaveBeenCalledWith(
-                'https://api.orcascan.com/v1/sheets/test-sheet-id/rows?withTitles=true',
-                jasmine.objectContaining({ method: 'GET' })
-            );
-        });
-    });
-
-    it('should get row withTitles when options.withTitle = true', function() {
+    it('should get row withTitles when options.withTitles = true', function() {
         var sheetId = 'test-sheet-id';
         var rowId = 'rid';
-        return client.rows.get(sheetId, rowId, { withTitle: true }).then(function() {
+        return client.rows.get(sheetId, rowId, { withTitles: true }).then(function() {
             expect(mockFetch).toHaveBeenCalledWith(
                 'https://api.orcascan.com/v1/sheets/test-sheet-id/rows/rid?withTitles=true',
                 jasmine.objectContaining({ method: 'GET' })
@@ -368,10 +399,10 @@ describe('Rows', function() {
         });
     });
 
-    it('should add rows withTitles when options.withTitle = true', function() {
+    it('should add rows withTitles when options.withTitles = true', function() {
         var sheetId = 'test-sheet-id';
         var data = { name: 'x' };
-        return client.rows.add(sheetId, data, { withTitle: true }).then(function() {
+        return client.rows.add(sheetId, data, { withTitles: true }).then(function() {
             expect(mockFetch).toHaveBeenCalledWith(
                 'https://api.orcascan.com/v1/sheets/test-sheet-id/rows?withTitles=true',
                 jasmine.objectContaining({ method: 'POST' })
@@ -379,11 +410,11 @@ describe('Rows', function() {
         });
     });
 
-    it('should updateOne withTitles when options.withTitle = true', function() {
+    it('should updateOne withTitles when options.withTitles = true', function() {
         var sheetId = 'test-sheet-id';
         var rowId = 'rid';
         var data = { a: 1 };
-        return client.rows.updateOne(sheetId, rowId, data, { withTitle: true }).then(function() {
+        return client.rows.updateOne(sheetId, rowId, data, { withTitles: true }).then(function() {
             expect(mockFetch).toHaveBeenCalledWith(
                 'https://api.orcascan.com/v1/sheets/test-sheet-id/rows/rid?withTitles=true',
                 jasmine.objectContaining({ method: 'PUT' })
@@ -391,12 +422,58 @@ describe('Rows', function() {
         });
     });
 
-    it('should updateMany withTitles when options.withTitle = true', function() {
+    it('should updateMany withTitles when options.withTitles = true', function() {
         var sheetId = 'test-sheet-id';
         var rows = [{ _id: 'a' }];
-        return client.rows.updateMany(sheetId, rows, { withTitle: true }).then(function() {
+        return client.rows.updateMany(sheetId, rows, { withTitles: true }).then(function() {
             expect(mockFetch).toHaveBeenCalledWith(
                 'https://api.orcascan.com/v1/sheets/test-sheet-id/rows?withTitles=true',
+                jasmine.objectContaining({ method: 'PUT' })
+            );
+        });
+    });
+
+    it('should pass partial=true query param when adding rows with partial option', function() {
+        var sheetId = 'test-sheet-id';
+        var data = { name: 'Item' };
+        return client.rows.add(sheetId, data, { partial: true }).then(function() {
+            expect(mockFetch).toHaveBeenCalledWith(
+                'https://api.orcascan.com/v1/sheets/test-sheet-id/rows?partial=true',
+                jasmine.objectContaining({ method: 'POST' })
+            );
+        });
+    });
+
+    it('should not pass partial query param when adding rows without partial option', function() {
+        var sheetId = 'test-sheet-id';
+        var data = { name: 'Item' };
+        return client.rows.add(sheetId, data).then(function() {
+            expect(mockFetch).toHaveBeenCalledWith(
+                'https://api.orcascan.com/v1/sheets/test-sheet-id/rows',
+                jasmine.objectContaining({ method: 'POST' })
+            );
+        });
+    });
+
+    it('should pass partial=true query param when updating one row with partial option', function() {
+        var sheetId = 'test-sheet-id';
+        var rowId = 'test-row-id';
+        var data = { quantity: 5 };
+        return client.rows.updateOne(sheetId, rowId, data, { partial: true }).then(function() {
+            expect(mockFetch).toHaveBeenCalledWith(
+                'https://api.orcascan.com/v1/sheets/test-sheet-id/rows/test-row-id?partial=true',
+                jasmine.objectContaining({ method: 'PUT' })
+            );
+        });
+    });
+
+    it('should not pass partial query param when updating one row without partial option', function() {
+        var sheetId = 'test-sheet-id';
+        var rowId = 'test-row-id';
+        var data = { quantity: 5 };
+        return client.rows.updateOne(sheetId, rowId, data).then(function() {
+            expect(mockFetch).toHaveBeenCalledWith(
+                'https://api.orcascan.com/v1/sheets/test-sheet-id/rows/test-row-id',
                 jasmine.objectContaining({ method: 'PUT' })
             );
         });

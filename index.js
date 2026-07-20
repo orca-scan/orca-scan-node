@@ -3,12 +3,12 @@ var fetch = require('node-fetch');
 
 /**
  * Orca Scan node client
- * Simple ES5 SDK that mirrors the rest api structure using namespaces
+ * Simple JavaScript SDK that mirrors the rest api structure using namespaces
  * 
  * @param {string} apiKey - your orca scan api key
  * @param {object} [options] - optional configuration
- * @param {string} [options.endpoint] - override api base url defaults to https://api.orcascan.com/v1
- * @param {number} [options.timeoutMs] - request timeout in milliseconds defaults to 30000
+ * @param {string} [options.endpoint] - override API endpoint defaults to https://api.orcascan.com/v1
+ * @param {number} [options.timeoutMs] - request timeout in milliseconds defaults to 30000; rejects the SDK promise if exceeded
  * @param {number} [options.maxRetries] - retries on 429 503 and 5xx defaults to 3
  * @returns {object} instance with sheets, rows, fields, history, users, and hooks namespaces
  * 
@@ -172,7 +172,8 @@ function OrcaScanNode(apiKey, options) {
          * get all rows in a sheet
          * @param {string} sheetId - target sheet id
          * @param {object} [options] - optional call options
-         * @param {boolean} [options.withTitle=false] - if true, returns field titles rather than keys
+         * @param {boolean} [options.withTitles=false] - if true, returns field titles rather than keys
+         * @param {boolean} [options.withTitle=false] - legacy alias for withTitles
          * @returns {Promise<object>} promise resolving to result
          *   {array} data - list of row objects with arbitrary properties
          */
@@ -184,7 +185,7 @@ function OrcaScanNode(apiKey, options) {
             options = options || {};
             var query = {};
 
-            if (options && options.withTitle === true) {
+            if (useWithTitlesOption(options)) {
                 query.withTitles = true;
             }
 
@@ -196,7 +197,8 @@ function OrcaScanNode(apiKey, options) {
          * @param {string} sheetId - target sheet id
          * @param {string} rowId - row id
          * @param {object} [options] - optional call options
-         * @param {boolean} [options.withTitle=false] - if true, returns field titles rather than keys
+         * @param {boolean} [options.withTitles=false] - if true, returns field titles rather than keys
+         * @param {boolean} [options.withTitle=false] - legacy alias for withTitles
          * @returns {Promise<object>} promise resolving to result
          *   {object} data - row object with arbitrary properties
          */
@@ -207,7 +209,7 @@ function OrcaScanNode(apiKey, options) {
             options = options || {};
             var query = {};
 
-            if (options && options.withTitle === true) {
+            if (useWithTitlesOption(options)) {
                 query.withTitles = true;
             }
 
@@ -219,7 +221,9 @@ function OrcaScanNode(apiKey, options) {
          * @param {string} sheetId - target sheet id
          * @param {object|array} data - row object or array of row objects supports special fields such as photo or attachment as base64
          * @param {object} [options] - optional call options
-         * @param {boolean} [options.withTitle=false] - if true, returns field titles rather than keys
+         * @param {boolean} [options.withTitles=false] - if true, returns field titles rather than keys
+         * @param {boolean} [options.withTitle=false] - legacy alias for withTitles
+         * @param {boolean} [options.partial=false] - if true, update only changed fields while all other fields remain intact
          * @returns {Promise<object>} promise resolving to result
          *   {object|array} data - created row or list of created rows with server assigned fields
          * 
@@ -235,8 +239,12 @@ function OrcaScanNode(apiKey, options) {
             options = options || {};
             var query = {};
 
-            if (options && options.withTitle === true) {
+            if (useWithTitlesOption(options)) {
                 query.withTitles = true;
+            }
+
+            if (options.partial === true) {
+                query.partial = true;
             }
 
             return request.call(self, 'POST', '/sheets/' + encodeURIComponent(sheetId) + '/rows', query, data);
@@ -248,7 +256,9 @@ function OrcaScanNode(apiKey, options) {
          * @param {string} rowId - row id
          * @param {object} data - fields to update
          * @param {object} [options] - optional call options
-         * @param {boolean} [options.withTitle=false] - if true, returns field titles rather than keys
+         * @param {boolean} [options.withTitles=false] - if true, returns field titles rather than keys
+         * @param {boolean} [options.withTitle=false] - legacy alias for withTitles
+         * @param {boolean} [options.partial=false] - if true, update only changed fields while all other fields remain intact
          * @returns {Promise<object>} promise resolving to result
          *   {object} data - updated row with arbitrary properties
          */
@@ -260,8 +270,12 @@ function OrcaScanNode(apiKey, options) {
             options = options || {};
             var query = {};
 
-            if (options && options.withTitle === true) {
+            if (useWithTitlesOption(options)) {
                 query.withTitles = true;
+            }
+
+            if (options.partial === true) {
+                query.partial = true;
             }
 
             return request.call(self, 'PUT', '/sheets/' + encodeURIComponent(sheetId) + '/rows/' + encodeURIComponent(rowId), query, data);
@@ -272,7 +286,8 @@ function OrcaScanNode(apiKey, options) {
          * @param {string} sheetId - target sheet id
          * @param {array} rows - array of row objects
          * @param {object} [options] - optional call options
-         * @param {boolean} [options.withTitle=false] - if true, returns field titles rather than keys
+         * @param {boolean} [options.withTitles=false] - if true, returns field titles rather than keys
+         * @param {boolean} [options.withTitle=false] - legacy alias for withTitles
          * @param {boolean} [options.partial=false] - if true, update only changed fields while all other fields remain intact
          * @returns {Promise<object>} promise resolving to result
          *   {array} data - updated rows
@@ -284,11 +299,11 @@ function OrcaScanNode(apiKey, options) {
             options = options || {};
             var query = {};
 
-            if (options && options.withTitle === true) {
+            if (useWithTitlesOption(options)) {
                 query.withTitles = true;
             }
 
-            if (options && options.partial === true) {
+            if (options.partial === true) {
                 query.partial = true;
             }
 
@@ -321,6 +336,31 @@ function OrcaScanNode(apiKey, options) {
             if (!rowIds || Object.prototype.toString.call(rowIds) !== '[object Array]') throw new Error('rowIds is required and must be an array of strings');
 
             return request.call(self, 'DELETE', '/sheets/' + encodeURIComponent(sheetId) + '/rows', null, rowIds);
+        },
+
+        /**
+         * get the total number of rows in a sheet
+         *
+         * @param {string} sheetId - target sheet id
+         * @returns {Promise<object>} promise resolving to result
+         *   {number} count - total number of rows
+         *
+         * @example
+         * // get total number of rows in a sheet
+         * orca.rows.count('SHEET_ID')
+         *     .then(function (result) {
+         *         // result.count contains the total number of rows
+         *         console.log('Total rows:', result.count);
+         *     })
+         *     .catch(function (err) {
+         *         // handle error
+         *         console.error(err);
+         *     });
+         */
+        count: function (sheetId) {
+            if (!sheetId || typeof sheetId !== 'string') throw new Error('sheetId is required and must be a string');
+
+            return request.call(self, 'GET', '/sheets/' + encodeURIComponent(sheetId) + '/rows/count');
         }
     };
 
@@ -358,25 +398,11 @@ function OrcaScanNode(apiKey, options) {
         },
 
         /**
-         * Get a single field by key
-         * @param {string} sheetId - target sheet id
-         * @param {string} fieldKey - field key
-         * @returns {Promise<object>} promise resolving to result
-         *   {object} data - field object with all properties
-         */
-        get: function (sheetId, fieldKey) {
-            if (!sheetId || typeof sheetId !== 'string') throw new Error('sheetId is required and must be a string');
-            if (!fieldKey || typeof fieldKey !== 'string') throw new Error('fieldKey is required and must be a string');
-
-            return request.call(self, 'GET', '/sheets/' + encodeURIComponent(sheetId) + '/fields/' + encodeURIComponent(fieldKey));
-        },
-
-        /**
          * Create a new field in a sheet
          * @param {string} sheetId - target sheet id
          * @param {object} payload - field definition
          * @param {string} payload.label - field label (display name)
-         * @param {string} payload.format - field format (text, date time, etc)
+         * @param {string} payload.format - field format (text, barcode, number, date, date time, time, email, gps location, true/false, currency, drop-down list, formula, signature, unique id, photo, attachment, url, created by, created date, last modified by, last modified date)
          * @param {boolean} [payload.required=false] - is field required
          * @param {string} [payload.placeholder] - guidance text when field is empty
          * @param {boolean} [payload.autofocus=false] - if true, UI auto selects this field first
@@ -389,6 +415,7 @@ function OrcaScanNode(apiKey, options) {
          * @param {boolean} [payload.readonlyMobile=false] - if true, field is read-only on mobile
          * @param {boolean} [payload.useInMobileSearch=true] - if true, field is searchable in mobile list
          * @param {boolean} [payload.useValueInList=true] - if true, field is visible in mobile list
+         * @param {number} [payload.index] - if provided, sets the display order of the field
          * @returns {Promise<object>} promise resolving to result
          *   {object} data - created field with all properties
          */
@@ -407,7 +434,7 @@ function OrcaScanNode(apiKey, options) {
          * @param {string} fieldKey - field key to update
          * @param {object} payload - field update data
          * @param {string} [payload.label] - new field label
-         * @param {string} [payload.type] - new field type
+         * @param {string} [payload.format] - new field format
          * @param {boolean} [payload.required] - is field required
          * @param {string} [payload.placeholder] - guidance text when field is empty
          * @param {boolean} [payload.autofocus] - if true, UI auto selects this field first
@@ -420,6 +447,7 @@ function OrcaScanNode(apiKey, options) {
          * @param {boolean} [payload.readonlyMobile] - if true, field is read-only on mobile
          * @param {boolean} [payload.useInMobileSearch] - if true, field is searchable in mobile list
          * @param {boolean} [payload.useValueInList] - if true, field is visible in mobile list
+         * @param {number} [payload.index] - if provided, sets the display order of the field
          * @returns {Promise<object>} promise resolving to result
          *   {object} data - updated field with all properties
          */
@@ -429,6 +457,34 @@ function OrcaScanNode(apiKey, options) {
             if (!payload || typeof payload !== 'object') throw new Error('payload is required and must be an object');
 
             return request.call(self, 'PUT', '/sheets/' + encodeURIComponent(sheetId) + '/fields/' + encodeURIComponent(fieldKey), null, payload);
+        },
+
+        /**
+         * Upsert multiple fields in a sheet - creates a field if it does not exist, otherwise updates it
+         * @param {string} sheetId - target sheet id
+         * @param {array} fields - array of field definitions
+         * @param {string} fields[].label - field label (display name)
+         * @param {string} fields[].format - field format (text, barcode, number, date, date time, time, email, gps location, true/false, currency, drop-down list, formula, signature, unique id, photo, attachment, url, created by, created date, last modified by, last modified date)
+         * @param {boolean} [fields[].required=false] - is field required
+         * @param {string} [fields[].placeholder] - guidance text when field is empty
+         * @param {boolean} [fields[].autofocus=false] - if true, UI auto selects this field first
+         * @param {boolean} [fields[].autoselect=false] - if true, existing text is highlighted on focus
+         * @param {boolean} [fields[].emptyOnEdit=false] - if true, value is cleared when record edited
+         * @param {boolean} [fields[].emptyOnScan=false] - if true, existing value is removed on scan
+         * @param {boolean} [fields[].hiddenMobile=false] - if true, field is hidden on mobile
+         * @param {boolean} [fields[].hiddenWeb=false] - if true, field is hidden on web
+         * @param {boolean} [fields[].readonlyWeb=false] - if true, field is read-only on web
+         * @param {boolean} [fields[].readonlyMobile=false] - if true, field is read-only on mobile
+         * @param {boolean} [fields[].useInMobileSearch=true] - if true, field is searchable in mobile list
+         * @param {boolean} [fields[].useValueInList=true] - if true, field is visible in mobile list
+         * @param {number} [fields[].index] - if provided, sets the display order of the field
+         * @returns {Promise<array>} promise resolving to an array of upserted fields with all properties
+         */
+        upsert: function (sheetId, fields) {
+            if (!sheetId || typeof sheetId !== 'string') throw new Error('sheetId is required and must be a string');
+            if (!fields || Object.prototype.toString.call(fields) !== '[object Array]') throw new Error('fields is required and must be an array of objects');
+
+            return request.call(self, 'PUT', '/sheets/' + encodeURIComponent(sheetId) + '/fields', null, fields);
         },
 
         /**
@@ -839,6 +895,15 @@ function buildUrl(endpoint, path, qs) {
 }
 
 /**
+ * normalizes row options to the REST API withTitles query param
+ * @param {object} [options] - row call options
+ * @returns {boolean} true when titled fields should be returned
+ */
+function useWithTitlesOption(options) {
+    return !!(options && (options.withTitles === true || options.withTitle === true));
+}
+
+/**
  * parse response text into json if possible
  * @param {object} res - fetch response
  * @returns {Promise<object|null>} parsed json or null
@@ -864,7 +929,7 @@ function parseJson(res) {
  * @param {string} path - request path
  * @param {object} [qs] - query params
  * @param {object|array} [body] - JSON body
- * @returns {Promise<object>} response data
+ * @returns {Promise<object|null>} normalized response data; unwraps { data: ... } responses and returns null for 204
  */
 function request(method, path, qs, body) {
     var self = this; // OrcaScanNode instance
@@ -874,7 +939,7 @@ function request(method, path, qs, body) {
         var url = buildUrl(self.endpoint, path, qs);
         var opts = {
             method: method,
-            headers: self.defaultHeaders
+            headers: Object.assign({}, self.defaultHeaders)
         };
 
         if (body !== undefined) {
