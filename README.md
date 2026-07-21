@@ -449,12 +449,18 @@ orca.hooks.delete('sheet-id', 'hook-id').then(function(result) {
 Per-sheet if-this-then-that rules. Fields are referenced by their column title (e.g. `Quantity`);
 `move row` / `copy row` actions target another sheet by name via `toSheet`.
 
-```js
-// get valid condition/action types + this sheet's fields and target sheets
-orca.triggers.schema('sheet-id').then(function(result) {
-    console.log(result); // { conditionTypes, actionTypes, conditionFields, toSheets, ... }
-});
+**Valid values.** The condition/action types are fixed:
 
+- **conditionType** — `is empty`, `is not empty`, `contains`, `does not contain`, `starts with`, `does not start with`, `ends with`, `does not end with`, `equals`, `does not equal`, `is less than`, `is greater than`, `matches regex`, `does not match regex`, `contains GS1 AI`, `exists in`, `does not exist in`
+- **actionType** — `show`, `hide`, `set value`, `clear value`, `set readonly`, `clear readonly`, `set required`, `clear required`, `notify me`, `play sound`, `move row`, `copy row`
+- **notifyMethod** — `email`, `in app notification`, `in app dialog`
+- **notifyType** / **soundType** — `success`, `warning`, `error`
+
+`conditionField` / `actionField` are column titles — use [`fields.list`](#fields) to read them
+(`conditionField` also accepts `"(Any field)"`; `actionField` cannot target formula columns). `toSheet`
+is another sheet's name — use [`sheets.list`](#sheets).
+
+```js
 // list all triggers on a sheet
 orca.triggers.list('sheet-id').then(function(result) {
     console.log(result); // May be result.data or result depending on API response
