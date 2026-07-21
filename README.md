@@ -131,6 +131,12 @@ orca.settings.get('sheet-id').then(function(settings) {
 orca.settings.update('sheet-id', {}).then(function(settings) {
     console.log('Sheet settings updated:', settings);
 });
+
+// data sources: pull data from other sheets on scan (matched by barcode, columns
+// copied where names are identical). Pass sheet names; empty array clears them.
+orca.settings.update('sheet-id', { dataSourceName: ['Products', 'Suppliers'] }).then(function() {
+    console.log('Data sources updated');
+});
 ```
 
 ### Fields
@@ -438,6 +444,54 @@ orca.hooks.delete('sheet-id', 'hook-id').then(function(result) {
 });
 ```
 
+### Triggers
+
+Per-sheet if-this-then-that rules. Fields are referenced by their column title (e.g. `Quantity`);
+`move row` / `copy row` actions target another sheet by name via `toSheet`.
+
+```js
+// get valid condition/action types + this sheet's fields and target sheets
+orca.triggers.schema('sheet-id').then(function(result) {
+    console.log(result); // { conditionTypes, actionTypes, conditionFields, toSheets, ... }
+});
+
+// list all triggers on a sheet
+orca.triggers.list('sheet-id').then(function(result) {
+    console.log(result); // May be result.data or result depending on API response
+});
+
+// get a single trigger
+orca.triggers.get('sheet-id', 'trigger-id').then(function(result) {
+    console.log(result);
+});
+
+// create a trigger (e.g. notify me when Quantity drops below 5)
+orca.triggers.create('sheet-id', {
+    name: 'low stock alert',
+    conditionField: 'Quantity',
+    conditionType: 'is less than',
+    conditionValue: '5',
+    actionType: 'notify me',
+    notifyMethod: 'email',
+    notifyEmails: 'ops@example.com'
+})
+.then(function(result) {
+    console.log('Trigger created:', result); // includes _id
+});
+
+// update a trigger (only the fields you provide change)
+orca.triggers.update('sheet-id', 'trigger-id', {
+    conditionValue: '10'
+})
+.then(function(result) {
+    console.log('Trigger updated:', result);
+});
+
+// delete a trigger
+orca.triggers.delete('sheet-id', 'trigger-id').then(function(result) {
+    console.log('Trigger deleted');
+});
+```
 
 ## Error Handling
 

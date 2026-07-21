@@ -52,6 +52,7 @@ function OrcaScanNode(apiKey, options) {
          *   {string} data.validationUrl - validation url
          *   {string} data.webHookOutUrl - webhook out url
          *   {string} data.secret - secret
+         *   {string[]} data.dataSourceName - names of other sheets this sheet pulls data from on scan (data sources)
          */
         get: function (sheetId) {
             if (!sheetId || typeof sheetId !== 'string') throw new Error('sheetId is required and must be a string');
@@ -69,6 +70,7 @@ function OrcaScanNode(apiKey, options) {
          * @param {string} settings.lookupUrl - lookup url
          * @param {string} settings.validationUrl - validation url
          * @param {string} settings.webHookOutUrl - webhook out url
+         * @param {string[]} settings.dataSourceName - names of other sheets to pull data from on scan (data sources). Pass an empty array to clear.
          * @returns {Promise<object>} promise resolving to result
          */
         update: function (sheetId, settings) {
@@ -743,6 +745,122 @@ function OrcaScanNode(apiKey, options) {
             if (!hookId || typeof hookId !== 'string') throw new Error('hookId is required and must be a string');
 
             return request.call(self, 'DELETE', '/sheets/' + encodeURIComponent(sheetId) + '/hooks/' + encodeURIComponent(hookId));
+        }
+    };
+
+    /**
+     * triggers namespace
+     *
+     * Triggers are per-sheet if-this-then-that rules. Fields are referenced by their
+     * column title (e.g. "Quantity"); move row / copy row actions target another sheet
+     * by name via toSheet.
+     * @returns {object} trigger methods
+     */
+    self.triggers = {
+
+        /**
+         * get the valid condition/action types for a sheet, plus its field titles and target sheets
+         * @param {string} sheetId - target sheet id
+         * @returns {Promise<object>} promise resolving to result
+         *   {object} data - schema info
+         *   {string[]} data.conditionTypes - valid condition types
+         *   {string[]} data.actionTypes - valid action types
+         *   {string[]} data.notifyMethods - valid notify methods
+         *   {string[]} data.notifyTypes - valid notify types
+         *   {string[]} data.soundTypes - valid sound types
+         *   {string[]} data.conditionFields - field titles usable as a condition field (incl "(Any field)")
+         *   {string[]} data.actionFields - field titles usable as an action field
+         *   {string[]} data.toSheets - names of sheets a move/copy row action can target
+         */
+        schema: function (sheetId) {
+            if (!sheetId || typeof sheetId !== 'string') throw new Error('sheetId is required and must be a string');
+
+            return request.call(self, 'GET', '/sheets/' + encodeURIComponent(sheetId) + '/trigger-schema');
+        },
+
+        /**
+         * get all triggers on a sheet
+         * @param {string} sheetId - target sheet id
+         * @returns {Promise<object>} promise resolving to result
+         *   {array} data - list of triggers (each with _id)
+         */
+        list: function (sheetId) {
+            if (!sheetId || typeof sheetId !== 'string') throw new Error('sheetId is required and must be a string');
+
+            return request.call(self, 'GET', '/sheets/' + encodeURIComponent(sheetId) + '/triggers');
+        },
+
+        /**
+         * get a single trigger
+         * @param {string} sheetId - target sheet id
+         * @param {string} triggerId - trigger id
+         * @returns {Promise<object>} promise resolving to result
+         *   {object} data - trigger object
+         */
+        get: function (sheetId, triggerId) {
+            if (!sheetId || typeof sheetId !== 'string') throw new Error('sheetId is required and must be a string');
+            if (!triggerId || typeof triggerId !== 'string') throw new Error('triggerId is required and must be a string');
+
+            return request.call(self, 'GET', '/sheets/' + encodeURIComponent(sheetId) + '/triggers/' + encodeURIComponent(triggerId));
+        },
+
+        /**
+         * create a trigger
+         * @param {string} sheetId - target sheet id
+         * @param {object} payload - trigger input
+         * @param {string} payload.name - trigger name (unique per sheet)
+         * @param {string} payload.conditionField - field title to test, or "(Any field)"
+         * @param {string} payload.conditionType - e.g. "is less than" (see triggers.schema)
+         * @param {string} [payload.conditionValue] - value to compare against
+         * @param {string} payload.actionType - e.g. "notify me", "move row" (see triggers.schema)
+         * @param {string} [payload.actionField] - field title the action targets
+         * @param {string} [payload.actionValue] - value for the action
+         * @param {string} [payload.notifyMethod] - "email", "in app notification" or "in app dialog"
+         * @param {string} [payload.notifyEmails] - comma separated emails for notify me
+         * @param {string} [payload.toSheet] - name of the sheet a move/copy row action targets
+         * @param {boolean} [payload.enabled] - whether the trigger is active
+         * @returns {Promise<object>} promise resolving to result
+         *   {object} data - created trigger (with _id)
+         */
+        create: function (sheetId, payload) {
+            if (!sheetId || typeof sheetId !== 'string') throw new Error('sheetId is required and must be a string');
+            if (!payload || typeof payload !== 'object') throw new Error('payload is required and must be an object');
+            if (!payload.name || typeof payload.name !== 'string') throw new Error('payload.name is required and must be a string');
+            if (!payload.conditionField || typeof payload.conditionField !== 'string') throw new Error('payload.conditionField is required and must be a string');
+            if (!payload.conditionType || typeof payload.conditionType !== 'string') throw new Error('payload.conditionType is required and must be a string');
+            if (!payload.actionType || typeof payload.actionType !== 'string') throw new Error('payload.actionType is required and must be a string');
+
+            return request.call(self, 'POST', '/sheets/' + encodeURIComponent(sheetId) + '/triggers', null, payload);
+        },
+
+        /**
+         * update a trigger (only the fields you provide are changed)
+         * @param {string} sheetId - target sheet id
+         * @param {string} triggerId - trigger id
+         * @param {object} payload - trigger fields to change
+         * @returns {Promise<object>} promise resolving to result
+         *   {object} data - updated trigger (with _id)
+         */
+        update: function (sheetId, triggerId, payload) {
+            if (!sheetId || typeof sheetId !== 'string') throw new Error('sheetId is required and must be a string');
+            if (!triggerId || typeof triggerId !== 'string') throw new Error('triggerId is required and must be a string');
+            if (!payload || typeof payload !== 'object') throw new Error('payload is required and must be an object');
+
+            return request.call(self, 'PUT', '/sheets/' + encodeURIComponent(sheetId) + '/triggers/' + encodeURIComponent(triggerId), null, payload);
+        },
+
+        /**
+         * delete a trigger
+         * @param {string} sheetId - target sheet id
+         * @param {string} triggerId - trigger id
+         * @returns {Promise<object>} promise resolving to result
+         *   {object|null} data - api response or null
+         */
+        delete: function (sheetId, triggerId) {
+            if (!sheetId || typeof sheetId !== 'string') throw new Error('sheetId is required and must be a string');
+            if (!triggerId || typeof triggerId !== 'string') throw new Error('triggerId is required and must be a string');
+
+            return request.call(self, 'DELETE', '/sheets/' + encodeURIComponent(sheetId) + '/triggers/' + encodeURIComponent(triggerId));
         }
     };
 }
