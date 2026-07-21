@@ -759,26 +759,6 @@ function OrcaScanNode(apiKey, options) {
     self.triggers = {
 
         /**
-         * get the valid condition/action types for a sheet, plus its field titles and target sheets
-         * @param {string} sheetId - target sheet id
-         * @returns {Promise<object>} promise resolving to result
-         *   {object} data - schema info
-         *   {string[]} data.conditionTypes - valid condition types
-         *   {string[]} data.actionTypes - valid action types
-         *   {string[]} data.notifyMethods - valid notify methods
-         *   {string[]} data.notifyTypes - valid notify types
-         *   {string[]} data.soundTypes - valid sound types
-         *   {string[]} data.conditionFields - field titles usable as a condition field (incl "(Any field)")
-         *   {string[]} data.actionFields - field titles usable as an action field
-         *   {string[]} data.toSheets - names of sheets a move/copy row action can target
-         */
-        schema: function (sheetId) {
-            if (!sheetId || typeof sheetId !== 'string') throw new Error('sheetId is required and must be a string');
-
-            return request.call(self, 'GET', '/sheets/' + encodeURIComponent(sheetId) + '/trigger-schema');
-        },
-
-        /**
          * get all triggers on a sheet
          * @param {string} sheetId - target sheet id
          * @returns {Promise<object>} promise resolving to result
@@ -810,9 +790,9 @@ function OrcaScanNode(apiKey, options) {
          * @param {object} payload - trigger input
          * @param {string} payload.name - trigger name (unique per sheet)
          * @param {string} payload.conditionField - field title to test, or "(Any field)"
-         * @param {string} payload.conditionType - e.g. "is less than" (see triggers.schema)
+         * @param {string} payload.conditionType - e.g. "is less than", "equals", "contains", "is empty" (see README for the full list)
          * @param {string} [payload.conditionValue] - value to compare against
-         * @param {string} payload.actionType - e.g. "notify me", "move row" (see triggers.schema)
+         * @param {string} payload.actionType - e.g. "notify me", "move row", "set value" (see README for the full list)
          * @param {string} [payload.actionField] - field title the action targets
          * @param {string} [payload.actionValue] - value for the action
          * @param {string} [payload.notifyMethod] - "email", "in app notification" or "in app dialog"

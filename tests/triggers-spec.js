@@ -26,15 +26,6 @@ describe('Triggers', function() {
         client = new OrcaScanNode('test-api-key');
     });
 
-    it('should get the trigger schema for a sheet', function() {
-        return client.triggers.schema('sheet1').then(function() {
-            expect(mockFetch).toHaveBeenCalledWith(
-                'https://api.orcascan.com/v1/sheets/sheet1/trigger-schema',
-                jasmine.objectContaining({ method: 'GET' })
-            );
-        });
-    });
-
     it('should list triggers on a sheet', function() {
         return client.triggers.list('sheet1').then(function() {
             expect(mockFetch).toHaveBeenCalledWith(
@@ -102,8 +93,7 @@ describe('Triggers', function() {
 
     // validation
 
-    it('should throw when schema/list/get/delete called without sheetId', function() {
-        expect(function() { client.triggers.schema(); }).toThrowError('sheetId is required and must be a string');
+    it('should throw when list/get/delete called without sheetId', function() {
         expect(function() { client.triggers.list(); }).toThrowError('sheetId is required and must be a string');
         expect(function() { client.triggers.get(); }).toThrowError('sheetId is required and must be a string');
         expect(function() { client.triggers.delete(); }).toThrowError('sheetId is required and must be a string');
