@@ -26,6 +26,12 @@ var orca = new OrcaScan('your-api-key', {
     timeoutMs: 30000,                        // Request timeout (default: 30 sec)
     maxRetries: 3                            // Max retry attempts (default: 3)
 });
+
+// optionally set additional headers sent with every request from this instance
+// (Authorization cannot be overridden)
+orca.setHeaders({
+    'x-requested-by': 'my-service'
+});
 ```
 
 ## API
