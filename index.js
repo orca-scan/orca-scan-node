@@ -36,6 +36,21 @@ function OrcaScanNode(apiKey, options) {
 
     var self = this;
 
+    /**
+     * sets additional headers sent with every request from this instance (e.g. x-requested-by)
+     * @param {object} headers - header name/value pairs to merge; Authorization cannot be overridden
+     * @returns {void}
+     */
+    self.setHeaders = function (headers) {
+        if (!headers || typeof headers !== 'object') throw new Error('headers must be an object');
+
+        Object.keys(headers).forEach(function (headerName) {
+            if (headerName.toLowerCase() !== 'authorization') {
+                self.defaultHeaders[headerName] = headers[headerName];
+            }
+        });
+    };
+
     self.settings = {
         /**
          * get sheet settings
