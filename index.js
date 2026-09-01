@@ -44,11 +44,11 @@ function OrcaScanNode(apiKey, options) {
     self.setHeaders = function (headers) {
         if (!headers || typeof headers !== 'object') throw new Error('headers must be an object');
 
-        for (var headerName in headers) {
-            if (Object.prototype.hasOwnProperty.call(headers, headerName) && headerName.toLowerCase() !== 'authorization') {
+        Object.keys(headers).forEach(function (headerName) {
+            if (headerName.toLowerCase() !== 'authorization') {
                 self.defaultHeaders[headerName] = headers[headerName];
             }
-        }
+        });
     };
 
     self.settings = {
