@@ -252,4 +252,24 @@ describe('Interface', function() {
             expect(e.message).toMatch(/is required and must be/);
         }
     });
+
+    it('should merge headers set via setHeaders into every request for that instance', function() {
+        client.setHeaders({ 'x-requested-by': 'mysqlAddon' });
+
+        expect(client.defaultHeaders['x-requested-by']).toBe('mysqlAddon');
+        expect(client.defaultHeaders['Authorization']).toBe('Bearer test-api-key');
+        expect(client.defaultHeaders['Accept']).toBe('application/json');
+    });
+
+    it('should not allow setHeaders to override Authorization', function() {
+        client.setHeaders({ 'authorization': 'Bearer stolen', 'Authorization': 'Bearer stolen' });
+
+        expect(client.defaultHeaders['Authorization']).toBe('Bearer test-api-key');
+        expect(client.defaultHeaders['authorization']).toBeUndefined();
+    });
+
+    it('should reject non-object setHeaders input', function() {
+        expect(function() { client.setHeaders('x-requested-by'); }).toThrowError(/headers must be an object/);
+        expect(function() { client.setHeaders(null); }).toThrowError(/headers must be an object/);
+    });
 });
