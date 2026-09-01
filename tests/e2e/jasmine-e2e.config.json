@@ -1,12 +1,11 @@
 {
-  "spec_dir": "tests",
+  "spec_dir": "tests/e2e",
   "spec_files": [
-    "**/*[sS]pec.?(m)js",
-    "!e2e/**"
+    "**/*-e2e-spec.js"
   ],
   "helpers": [
-    "jasmine/reporter.js",
-    "jasmine/timeout.js"
+    "../jasmine/reporter.js",
+    "../jasmine/timeout.js"
   ],
   "env": {
     "stopSpecOnExpectationFailure": false,
