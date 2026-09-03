@@ -69,6 +69,11 @@ export interface SheetSettings {
   validationUrl?: string;
   webHookOutUrl?: string;
   secret?: string;
+  dataSourceName?: string[];
+  osidMode?: string;
+  osidRedirectUrl?: string;
+  osidFields?: string[];
+  osidPinProtection?: boolean;
 }
 
 export interface OrcaScan {
