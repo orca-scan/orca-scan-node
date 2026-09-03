@@ -68,6 +68,10 @@ function OrcaScanNode(apiKey, options) {
          *   {string} data.webHookOutUrl - webhook out url
          *   {string} data.secret - secret
          *   {string[]} data.dataSourceName - names of other sheets this sheet pulls data from on scan (data sources)
+         *   {string} data.osidMode - OSID mode setting for the sheet
+         *   {string} data.osidRedirectUrl - OSID redirect URL
+         *   {string} data.osidFields - OSID fields
+         *   {string} data.osidPinProtection - enable/disable OSID Pin Protection
          */
         get: function (sheetId) {
             if (!sheetId || typeof sheetId !== 'string') throw new Error('sheetId is required and must be a string');
@@ -86,6 +90,10 @@ function OrcaScanNode(apiKey, options) {
          * @param {string} settings.validationUrl - validation url
          * @param {string} settings.webHookOutUrl - webhook out url
          * @param {string[]} settings.dataSourceName - names of other sheets to pull data from on scan (data sources). Pass an empty array to clear.
+         * @param {string} settings.osidMode - OSID mode setting for the sheet
+         * @param {string} settings.osidRedirectUrl - OSID redirect URL
+         * @param {string} settings.osidFields - OSID fields
+         * @param {string} settings.osidPinProtection - enable/disable OSID Pin Protection
          * @returns {Promise<object>} promise resolving to result
          */
         update: function (sheetId, settings) {
