@@ -74,6 +74,9 @@ export interface SheetSettings {
   osidRedirectUrl?: string;
   osidFields?: string[];
   osidPinProtection?: boolean;
+  formPinProtection?: boolean;
+  osidPin?: string;
+  formPin?: string;
 }
 
 export interface OrcaScan {
