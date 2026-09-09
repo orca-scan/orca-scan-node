@@ -70,13 +70,13 @@ export interface SheetSettings {
   webHookOutUrl?: string;
   secret?: string;
   dataSourceName?: string[];
-  osidMode?: string;
-  osidRedirectUrl?: string;
-  osidFields?: string[];
-  osidPinProtection?: boolean;
-  formPinProtection?: boolean;
-  osidPin?: string;
-  formPin?: string;
+  itemLinkMode?: string;
+  itemLinkRedirectUrl?: string;
+  itemLinkFields?: string[];
+  itemLinkPinProtected?: boolean;
+  qrFormPinProtected?: boolean;
+  itemLinkPin?: string;
+  qrFormPin?: string;
 }
 
 export interface OrcaScan {
