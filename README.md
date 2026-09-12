@@ -90,6 +90,18 @@ orca.setHeaders({
 
 ## API
 
+### Ping
+
+```js
+// check your api key works and the api is reachable
+orca.ping().then(function(result) {
+    console.log(result.ok); // true
+})
+.catch(function(err) {
+    console.error('ping failed', err.status || 'no response');
+});
+```
+
 ### Sheets
 
 ```js

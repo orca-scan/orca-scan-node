@@ -84,6 +84,7 @@ export interface OrcaScan {
   timeoutMs: number;
   maxRetries: number;
   defaultHeaders: Record<string, string>;
+  ping(): Promise<{ ok: boolean }>;
   settings: {
     get(sheetId: string): Promise<SheetSettings>;
     update(sheetId: string, settings: SheetSettings): Promise<SheetSettings>;

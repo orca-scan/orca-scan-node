@@ -34,6 +34,10 @@ describe('Interface', function() {
         expect(client.triggers).toBeDefined();
     });
 
+    it('should expose ping', function() {
+        expect(typeof client.ping).toBe('function');
+    });
+
     it('should expose sheet methods', function() {
         expect(typeof client.sheets.list).toBe('function');
         expect(typeof client.sheets.create).toBe('function');

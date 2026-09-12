@@ -51,6 +51,15 @@ function OrcaScanNode(apiKey, options) {
         });
     };
 
+    /**
+     * checks the api key works and the api is reachable
+     * @returns {Promise<object>} promise resolving to result
+     *   {boolean} ok - always true, the call rejects if the key or the api is not good
+     */
+    self.ping = function () {
+        return request.call(self, 'GET', '/ping');
+    };
+
     self.settings = {
         /**
          * get sheet settings
